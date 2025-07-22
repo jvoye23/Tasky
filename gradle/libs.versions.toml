@@ -13,7 +13,6 @@ splashscreen = "1.0.1"
 room = "2.7.2"
 ksp = "2.2.0-2.0.2"
 koin = "4.1.0"
-navigationCompose = "2.8.9"
 kotlinSerialization = "1.9.0"
 timber = "5.0.1"
 ktor = "3.2.2"
@@ -71,7 +70,7 @@ desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref 
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
-koin = ["koin-core", "koin-android", "koin-androidx-compose"]
+koin = ["koin-core", "koin-android", "koin-androidx-compose", "koin-android-workmanager"]
 ktor = [
     "ktor-client-auth",
     "ktor-client-cio",

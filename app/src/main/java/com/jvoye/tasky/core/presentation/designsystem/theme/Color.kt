@@ -1,0 +1,32 @@
+package com.jvoye.tasky.core.presentation.designsystem.theme
+
+import androidx.compose.ui.graphics.Color
+
+val LightModeBackground = Color(color = 0xFF16161C)
+val LightModeOnBackground = Color(color = 0xFFFFFFFF)
+val LightModeSurface = Color(color = 0xFFFFFFFF)
+val LightModeSurfaceHigher = Color(color = 0xFFF2F3F7)
+val LightModeOnSurface = Color(color = 0xFF3A4045)
+val LightModeOnSurfaceVariant = Color(color = 0xFF76808F)
+val LightModePrimary = Color(color = 0xFF16161C)
+val LightModeOnPrimary = Color(color = 0xFFFFFFFF)
+val LightModeOutline = Color(color = 0xFFB7C6DE)
+val LightModeError = Color(color = 0xFFF34B51)
+val LightModeSuccess = Color(color = 0xFF279F70)
+val LightModeLink = Color(color = 0xFF8E97FD)
+
+val DarkModeBackground = Color(color = 0xFF16161C)
+val DarkModeOnBackground = Color(color = 0xFFFFFFFF)
+val DarkModeSurface = Color(color = 0xFF1B1B20)
+val DarkModeSurfaceHigher = Color(color = 0xFF242428)
+val DarkModeOnSurface = Color(color = 0xFFF2F3F7)
+val DarkModeOnSurfaceVariant = Color(color = 0xFF808B9B)
+val DarkModePrimary = Color(color = 0xFFFFFFFF)
+val DarkModeOnPrimary = Color(color = 0xFF16161C)
+val DarkModeOutline = Color(color = 0xFF3B3B42)
+val DarkModeError = Color(color = 0xFFF88084)
+val DarkModeSuccess = Color(color = 0xFF3BD699)
+val DarkModeLink = Color(color = 0xFFB1B8FE)
+val BrandSecondary = Color(color = 0xFF279F70)
+val BrandTertiary = Color(color = 0xFFCAEF45)
+val BrandSupplementary = Color(color = 0xFFFDEFA8)

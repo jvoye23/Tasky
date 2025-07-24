@@ -42,7 +42,6 @@ fun TaskyDeleteButton(
         enabled = enabled,
         shape = RoundedCornerShape(38.dp),
         modifier = modifier
-            .height(IntrinsicSize.Min)
     ) {
         Box(
             modifier = Modifier

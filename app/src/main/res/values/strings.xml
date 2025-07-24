@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Tasky</string>
+    <string name="get_started">GET STARTED</string>
+    <string name="cancel">CANCEL</string>
+    <string name="delete">DELETE</string>
+    <string name="plus_icon">Plus Icon</string>
 </resources>

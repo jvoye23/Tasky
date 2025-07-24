@@ -1,6 +1,7 @@
 package com.jvoye.tasky.core.presentation.designsystem.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -67,3 +68,21 @@ val Typography = Typography(
         lineHeight = 20.sp
     )
 )
+
+val Typography.labelXSmall: TextStyle
+    @Composable
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.Bold,
+        fontSize = 11.sp,
+        lineHeight = 12.sp
+    )
+
+val Typography.headlineXSmall: TextStyle
+    @Composable
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )

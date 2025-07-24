@@ -5,24 +5,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Calendar_Today
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDeleteButton
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyFilledButton
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyFloatingActionButton
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyOutlinedButton
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
-import com.jvoye.tasky.core.presentation.designsystem.theme.link
-import com.jvoye.tasky.core.presentation.designsystem.theme.success
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,69 +48,70 @@ class MainActivity : ComponentActivity() {
 
 // Composable for testing the Material Theme setup
 @Composable
-fun TaskyThemeTest(modifier: Modifier = Modifier) {
+private fun TaskyThemeTest(modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
-                    .background(MaterialTheme.colorScheme.success)
+                    .height(300.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icon_Calendar_Today,
-                    contentDescription = null
+                TaskyOutlinedButton(
+                    text = stringResource(R.string.cancel),
+                    onClick = {},
+                    modifier = Modifier
+                        .weight(0.5f),
                 )
 
-                Text(
-                    text = "Headline Large",
-                    style = MaterialTheme.typography.headlineLarge
+                Spacer(modifier = Modifier.width(16.dp))
+
+                TaskyDeleteButton(
+                    text = stringResource(R.string.delete),
+                    onClick = {},
+                    isLoading = true,
+                    enabled = false,
+                    modifier = Modifier
+                        .weight(0.5f)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TaskyFilledButton(
+                    text = stringResource(R.string.get_started),
+                    onClick = {},
 
                 )
-
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
-                    .background(MaterialTheme.colorScheme.outline)
+                    .height(150.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Body Medium",
-                    style = MaterialTheme.typography.bodyMedium
-
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(MaterialTheme.colorScheme.link)
-            ) {
-                Text(
-                    text = "Body Small",
-                    style = MaterialTheme.typography.bodySmall
-
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(MaterialTheme.colorScheme.error)
-            ) {
-                Text(
-                    text = "Label Medium",
-                    style = MaterialTheme.typography.labelMedium
-
+                TaskyFloatingActionButton(
+                    onClick = {}
                 )
             }
 

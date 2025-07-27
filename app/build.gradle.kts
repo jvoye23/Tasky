@@ -101,4 +101,7 @@ dependencies {
 
     // Allow use of java.time.Instant below API 26
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // Extend compose system pieces
+    implementation(libs.androidx.compose.foundation)
 }

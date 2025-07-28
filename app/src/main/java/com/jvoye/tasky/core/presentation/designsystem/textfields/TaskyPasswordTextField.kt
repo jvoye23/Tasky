@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,7 @@ fun TaskyPasswordTextField(
     hint: String,
     modifier: Modifier = Modifier
 ) {
-    var isFocused by remember {
+    var isFocused by rememberSaveable {
         mutableStateOf(false)
     }
 

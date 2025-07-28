@@ -1,7 +1,6 @@
 package com.jvoye.tasky.auth.presentation.register
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,12 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,12 +39,7 @@ import com.jvoye.tasky.core.presentation.designsystem.textfields.TaskyTextField
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Check
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.link
-
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.withLink
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
-
-//import androidx.compose.foundation.text.appendLink
 
 @Composable
 fun RegisterScreenRoot(
@@ -76,15 +70,8 @@ private fun RegisterScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 40.dp, bottom = 36.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                RegistrationHeaderSection()
-            }
+            RegistrationHeaderSection()
+
             val rootModifier = Modifier
                 .fillMaxSize()
                 .clip(
@@ -126,10 +113,18 @@ private fun RegisterScreen(
 
 @Composable
 private fun RegistrationHeaderSection() {
-    Text(
-        text = stringResource(R.string.create_your_account),
-        style = MaterialTheme.typography.headlineLarge
-    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp, bottom = 36.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.create_your_account),
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
 }
 
 @Composable

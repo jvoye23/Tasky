@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -128,8 +126,8 @@ private fun RegisterScreen(
                         verticalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .fillMaxHeight()
-                            .width(280.dp)
-                            .padding(start = 16.dp, end = 16.dp)
+                            .fillMaxWidth(0.3f)
+                            .padding(horizontal = 16.dp)
                             .padding(bottom = bottomOffset),
                     ) {
                         RegistrationHeaderSection(
@@ -138,10 +136,7 @@ private fun RegisterScreen(
                     }
                     LazyColumn(
                         modifier = Modifier
-                            .padding(
-                                start = 16.dp,
-                                end = 16.dp
-                            )
+                            .padding(horizontal = 16.dp)
                             .weight(1f)
                             .clip(
                                 RoundedCornerShape(
@@ -185,8 +180,7 @@ private fun RegisterScreen(
                     )
                     Column(
                         modifier = Modifier
-                            .width(500.dp)
-                            .height(450.dp)
+                            .fillMaxWidth(0.6f)
                             .clip(RoundedCornerShape(24.dp))
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(
@@ -224,8 +218,7 @@ private fun RegisterScreen(
                     )
                     Column(
                         modifier = Modifier
-                            .width(500.dp)
-                            .heightIn(450.dp)
+                            .fillMaxWidth(0.4f)
                             .clip(RoundedCornerShape(24.dp))
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(
@@ -324,7 +317,7 @@ private fun RegistrationFormSection (
 }
 
 @Composable
-fun RegistrationButtonSection(
+private fun RegistrationButtonSection(
     onAction: (RegisterAction) -> Unit
 ) {
     TaskyFilledButton(

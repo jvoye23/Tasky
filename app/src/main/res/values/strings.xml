@@ -9,7 +9,9 @@
     <string name="hide_password">Hide password</string>
     <string name="password">Password</string>
     <string name="create_your_account">Create your account</string>
+    <string name="create_your_account_landscape">Create\nyour account</string>
     <string name="name">Name</string>
     <string name="already_have_an_account">ALREADY HAVE AN ACCOUNT?</string>
     <string name="login">LOG IN</string>
+
 </resources>

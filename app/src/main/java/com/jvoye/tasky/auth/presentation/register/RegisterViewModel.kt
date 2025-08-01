@@ -39,7 +39,7 @@ class RegisterViewModel(
             .onEach { email ->
                 val isValidEmail = userDataValidator.isValidEmail(email.toString())
                 state = state.copy(
-                    isValidPassword = isValidEmail,
+                    isValidEmail = isValidEmail,
                     emailErrorText = if (!isValidEmail) {
                         UiText.StringResource(R.string.email_error_label)
                     } else null

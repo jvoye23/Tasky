@@ -287,10 +287,10 @@ private fun RegistrationFormSection (
 
         TaskyTextField(
             state = state.email,
-            endIcon = if (state.isValidPassword) {
+            endIcon = if (state.isValidEmail) {
                 Icon_Check
             } else null,
-            borderColor = if (!state.isValidPassword && state.email.text.isNotEmpty()){
+            borderColor = if (!state.isValidEmail && state.email.text.isNotEmpty()){
                 MaterialTheme.colorScheme.error
             } else {
                 MaterialTheme.colorScheme.surfaceHigher
@@ -310,7 +310,7 @@ private fun RegistrationFormSection (
                 onAction(RegisterAction.OnTogglePasswordVisibilityClick)
             },
             hint = stringResource(R.string.password),
-            borderColor = if (!state.passwordValidationState.isValidPassword && state.email.text.isNotEmpty()){
+            borderColor = if (!state.passwordValidationState.isValidPassword && state.password.text.isNotEmpty()){
                 MaterialTheme.colorScheme.error
             } else {
                 MaterialTheme.colorScheme.surfaceHigher

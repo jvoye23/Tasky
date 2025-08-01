@@ -10,6 +10,7 @@ data class RegisterState(
     val email: TextFieldState = TextFieldState(),
     val emailErrorText: UiText.StringResource? = null,
     val isValidName: Boolean = false,
+    val isValidEmail: Boolean = false,
     val isValidPassword: Boolean = false,
     val password: TextFieldState = TextFieldState(),
     val isPasswordVisible: Boolean = false,

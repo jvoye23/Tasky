@@ -19,8 +19,14 @@ class RegisterViewModel(
     private val userDataValidator: UserDataValidator
 ): ViewModel() {
     private val _state = MutableStateFlow(RegisterState())
+    private var hasLoadedInitialData = false
     val state = _state
-        .onStart { validateUserInput() }
+        .onStart {
+            if (!hasLoadedInitialData) {
+                validateUserInput()
+                hasLoadedInitialData = true
+            }
+        }
         .stateIn(
             viewModelScope,
             SharingStarted.Lazily,

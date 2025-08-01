@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyFilledButton
 import com.jvoye.tasky.core.presentation.designsystem.textfields.TaskyPasswordTextField
@@ -50,10 +52,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RegisterScreenRoot(
     viewModel: RegisterViewModel = koinViewModel()
-
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     RegisterScreen(
-        state = viewModel.state,
+        state = state,
         onAction = viewModel::onAction
     )
 }

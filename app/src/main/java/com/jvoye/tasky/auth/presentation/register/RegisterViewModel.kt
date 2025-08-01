@@ -1,62 +1,76 @@
 package com.jvoye.tasky.auth.presentation.register
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
 import com.jvoye.tasky.auth.domain.UserDataValidator
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class RegisterViewModel(
     private val userDataValidator: UserDataValidator
 ): ViewModel() {
+    private val _state = MutableStateFlow(RegisterState())
+    val state = _state
+        .onStart { validateUserInput() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            _state.value
+        )
 
-    var state by mutableStateOf(RegisterState())
-        private set
-
-    init {
+    fun validateUserInput() {
         // Name validation
-        state.name.textAsFlow()
+        _state.value.name.textAsFlow()
             .onEach { name ->
                 val isValidName = userDataValidator.isValidName(name.toString())
-                state = state.copy(
-                    isValidName = isValidName,
-                    nameErrorText = if (!isValidName) {
-                        UiText.StringResource(R.string.name_error_label)
-                    } else null
-                )
+                _state.update {
+                    it.copy(
+                        isValidName = isValidName,
+                        nameErrorText = if (!isValidName) {
+                            UiText.StringResource(R.string.name_error_label)
+                        } else null
+                    )
+                }
             }
             .launchIn(viewModelScope)
 
         // Email validation
-        state.email.textAsFlow()
+        _state.value.email.textAsFlow()
             .onEach { email ->
                 val isValidEmail = userDataValidator.isValidEmail(email.toString())
-                state = state.copy(
-                    isValidEmail = isValidEmail,
-                    emailErrorText = if (!isValidEmail) {
-                        UiText.StringResource(R.string.email_error_label)
-                    } else null
-                )
+                _state.update {
+                    it.copy(
+                        isValidEmail = isValidEmail,
+                        emailErrorText = if (!isValidEmail) {
+                            UiText.StringResource(R.string.email_error_label)
+                        } else null
+                    )
+                }
             }
             .launchIn(viewModelScope)
 
         // Password validation
-        state.password.textAsFlow()
+        _state.value.password.textAsFlow()
             .onEach { password ->
-                val passwordValidationState = userDataValidator.validatePassword(password.toString())
-                state = state.copy(
-                    passwordValidationState = passwordValidationState,
-                    passwordErrorText = if (!passwordValidationState.isValidPassword) {
-                        UiText.StringResource(R.string.password_error_label)
-                    } else null
-                )
+                val passwordValidationState =
+                    userDataValidator.validatePassword(password.toString())
+                _state.update {
+                    it.copy(
+                        passwordValidationState = passwordValidationState,
+                        passwordErrorText = if (!passwordValidationState.isValidPassword) {
+                            UiText.StringResource(R.string.password_error_label)
+                        } else null
+                    )
+                }
             }
             .launchIn(viewModelScope)
     }
@@ -67,9 +81,11 @@ class RegisterViewModel(
 
             }
             RegisterAction.OnTogglePasswordVisibilityClick -> {
-                state = state.copy(
-                    isPasswordVisible = !state.isPasswordVisible
-                )
+                _state.update {
+                    it.copy(
+                        isPasswordVisible = !it.isPasswordVisible
+                    )
+                }
             }
             RegisterAction.OnGetStartedClick -> {
 

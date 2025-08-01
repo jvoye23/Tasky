@@ -38,7 +38,9 @@ import com.jvoye.tasky.R
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Eye_Closed
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Eye_Open
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.core.presentation.designsystem.theme.errorLabel
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
+import java.nio.file.WatchEvent
 
 @Composable
 fun TaskyPasswordTextField(
@@ -46,86 +48,101 @@ fun TaskyPasswordTextField(
     isPasswordVisible: Boolean,
     onTogglePasswordVisibility: () -> Unit,
     hint: String,
+    borderColor: Color,
+    passwordErrorLabel: String?,
     modifier: Modifier = Modifier
 ) {
     var isFocused by rememberSaveable {
         mutableStateOf(false)
     }
 
-    BasicSecureTextField(
-        state = state,
-        textObfuscationMode = if (isPasswordVisible) {
-            TextObfuscationMode.Visible
-        } else {
-            TextObfuscationMode.Hidden
-        },
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password
-        ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    Column(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(
-                MaterialTheme.colorScheme.surfaceHigher
-            )
-            .border(
-                width = 1.dp,
-                color = if (isFocused){
-                    MaterialTheme.colorScheme.outline
-                } else {
-                    Color.Transparent
-                },
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(start = 20.dp, top = 10.dp, end = 6.dp, bottom = 10.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
+    ) {
+        BasicSecureTextField(
+            state = state,
+            textObfuscationMode = if (isPasswordVisible) {
+                TextObfuscationMode.Visible
+            } else {
+                TextObfuscationMode.Hidden
             },
-        decorator = { innerBox ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceHigher
+                )
+                .border(
+                    width = 1.dp,
+                    color = if (isFocused){
+                        MaterialTheme.colorScheme.outline
+                    } else {
+                        borderColor
+                    },
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(start = 20.dp, top = 10.dp, end = 6.dp, bottom = 10.dp)
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                },
+            decorator = { innerBox ->
+                Row(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (state.text.isEmpty() && !isFocused) {
-                        Text(
-                            text = hint,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                alpha = 0.7f
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        if (state.text.isEmpty() && !isFocused) {
+                            Text(
+                                text = hint,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.7f
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        innerBox()
+                    }
+                    IconButton(
+                        onClick = onTogglePasswordVisibility
+                    ) {
+                        Icon(
+                            imageVector = if(!isPasswordVisible) {
+                                Icon_Eye_Closed
+                            } else {
+                                Icon_Eye_Open
+                            },
+                            contentDescription = if(isPasswordVisible) {
+                                stringResource(R.string.show_password)
+                            } else {
+                                stringResource(R.string.hide_password)
+                            },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.7f)
                         )
                     }
-                    innerBox()
-                }
-                IconButton(
-                    onClick = onTogglePasswordVisibility
-                ) {
-                    Icon(
-                        imageVector = if(!isPasswordVisible) {
-                            Icon_Eye_Closed
-                        } else {
-                            Icon_Eye_Open
-                        },
-                        contentDescription = if(isPasswordVisible) {
-                            stringResource(R.string.show_password)
-                        } else {
-                            stringResource(R.string.hide_password)
-                        },
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                            alpha = 0.7f)
-                    )
                 }
             }
+        )
+        if (passwordErrorLabel != null && state.text.isNotEmpty() ) {
+            Text(
+                text = passwordErrorLabel,
+                style = MaterialTheme.typography.errorLabel,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .padding(top = 4.dp, bottom = 8.dp)
+            )
         }
-    )
+    }
 }
 
 @Preview (showSystemUi = true)
@@ -142,10 +159,12 @@ private fun TaskyPasswordTextFieldPreview() {
             TaskyPasswordTextField(
                 state = rememberTextFieldState(),
                 hint = stringResource(R.string.password),
+                borderColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .fillMaxWidth(),
                 isPasswordVisible = false,
-                onTogglePasswordVisibility = {}
+                onTogglePasswordVisibility = {},
+                passwordErrorLabel = "This password is not vaild"
             )
         }
     }

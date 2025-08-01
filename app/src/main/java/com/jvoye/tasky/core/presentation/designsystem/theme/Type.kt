@@ -86,3 +86,12 @@ val Typography.headlineXSmall: TextStyle
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
+
+val Typography.errorLabel: TextStyle
+    @Composable
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.Normal,
+        fontSize = 11.sp,
+        lineHeight = 12.sp
+    )

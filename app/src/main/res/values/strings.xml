@@ -13,5 +13,7 @@
     <string name="name">Name</string>
     <string name="already_have_an_account">ALREADY HAVE AN ACCOUNT?</string>
     <string name="login">LOG IN</string>
-
+    <string name="name_error_label">Invalid name. The full name must be between 4 and 50 characters.</string>
+    <string name="email_error_label">Invalid email.</string>
+    <string name="password_error_label">The password needs to be at least 9 characters, contain an upper and lower case letter and a number.</string>
 </resources>

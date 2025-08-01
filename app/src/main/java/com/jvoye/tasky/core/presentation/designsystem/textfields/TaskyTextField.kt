@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Check
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.core.presentation.designsystem.theme.errorLabel
 import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 
@@ -49,74 +50,91 @@ fun TaskyTextField(
     hint: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Next
+    imeAction: ImeAction = ImeAction.Next,
+    errorLabel: String?
+
 ) {
     var isFocused by rememberSaveable {
         mutableStateOf(false)
     }
 
-    BasicTextField(
-        state = state,
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
-        lineLimits = TextFieldLineLimits.SingleLine,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    Column(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(
-                MaterialTheme.colorScheme.surfaceHigher
-            )
-            .border(
-                width = 1.dp,
-                color = if (isFocused) {
-                    MaterialTheme.colorScheme.outline
-                } else {
-                    borderColor
+    ) {
+        BasicTextField(
+            state = state,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction
+            ),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceHigher
+                )
+                .border(
+                    width = 1.dp,
+                    color = if (isFocused) {
+                        MaterialTheme.colorScheme.outline
+                    } else {
+                        borderColor
+                    },
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(20.dp)
+                .onFocusChanged {
+                    isFocused = it.isFocused
                 },
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(20.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
-            },
-        decorator = { innerBox ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
+            decorator = { innerBox ->
+                Row(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (state.text.isEmpty() && !isFocused) {
-                        Text(
-                            text = hint,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                alpha = 0.7f
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        if (state.text.isEmpty() && !isFocused) {
+                            Text(
+                                text = hint,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.7f
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    if (endIcon != null){
+                        Icon(
+                            imageVector = endIcon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.success
                         )
                     }
                 }
-                Spacer(modifier = Modifier.width(20.dp))
-
-                if (endIcon != null){
-                    Icon(
-                        imageVector = endIcon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.success
-                    )
-                }
+                innerBox()
             }
-            innerBox()
+        )
+        if (errorLabel != null && state.text.isNotEmpty() ) {
+            Text(
+                text = errorLabel,
+                style = MaterialTheme.typography.errorLabel,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .padding(top = 4.dp, bottom = 8.dp)
+            )
         }
-    )
+    }
+
+
 }
 
 @Preview (showSystemUi = true)
@@ -136,7 +154,8 @@ private fun TaskyTextFieldPreview() {
                 hint = "email@test.com",
                 borderColor = MaterialTheme.colorScheme.surfaceHigher,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                errorLabel = "This is an error text"
             )
         }
     }

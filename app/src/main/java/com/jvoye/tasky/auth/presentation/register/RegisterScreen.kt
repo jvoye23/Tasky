@@ -21,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +36,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jvoye.tasky.R
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyFilledButton
 import com.jvoye.tasky.core.presentation.designsystem.textfields.TaskyPasswordTextField
@@ -48,16 +45,15 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.link
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegisterScreenRoot(
+    viewModel: RegisterViewModel = koinViewModel()
 
 ) {
-    val viewModel = viewModel<RegisterViewModel>()
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
     RegisterScreen(
-        state = state,
+        state = viewModel.state,
         onAction = viewModel::onAction
     )
 }
@@ -273,10 +269,10 @@ private fun RegistrationFormSection (
     ) {
         TaskyTextField(
             state = state.name,
-            endIcon = if (state.isNameValid) {
+            endIcon = if (state.isValidName) {
                 Icon_Check
             } else null,
-            borderColor = if (!state.isNameValid){
+            borderColor = if (!state.isValidName && state.name.text.isNotEmpty()){
                 MaterialTheme.colorScheme.error
             } else {
                 MaterialTheme.colorScheme.surfaceHigher
@@ -284,16 +280,17 @@ private fun RegistrationFormSection (
             hint = stringResource(R.string.name),
             modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Text,
+            errorLabel = state.nameErrorText?.asString()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         TaskyTextField(
             state = state.email,
-            endIcon = if (state.isEmailValid) {
+            endIcon = if (state.isValidEmail) {
                 Icon_Check
             } else null,
-            borderColor = if (!state.isEmailValid){
+            borderColor = if (!state.isValidEmail && state.email.text.isNotEmpty()){
                 MaterialTheme.colorScheme.error
             } else {
                 MaterialTheme.colorScheme.surfaceHigher
@@ -301,6 +298,7 @@ private fun RegistrationFormSection (
             hint = stringResource(R.string.email_address),
             modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Email,
+            errorLabel = state.emailErrorText?.asString()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -311,7 +309,14 @@ private fun RegistrationFormSection (
             onTogglePasswordVisibility = {
                 onAction(RegisterAction.OnTogglePasswordVisibilityClick)
             },
-            hint = stringResource(R.string.password)
+            hint = stringResource(R.string.password),
+            borderColor = if (!state.passwordValidationState.isValidPassword && state.password.text.isNotEmpty()){
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.surfaceHigher
+            },
+            passwordErrorLabel = state.passwordErrorText?.asString(),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

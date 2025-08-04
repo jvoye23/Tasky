@@ -51,20 +51,24 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegisterScreenRoot(
+    onLogInClick: () -> Unit,
+    onSuccessfulRegistration: () -> Unit,
     viewModel: RegisterViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     RegisterScreen(
         state = state,
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
+        onLogInClick = onLogInClick
     )
 }
 
 @Composable
 private fun RegisterScreen(
     state: RegisterState,
-    onAction: (RegisterAction) -> Unit
+    onAction: (RegisterAction) -> Unit,
+    onLogInClick: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier
@@ -110,7 +114,8 @@ private fun RegisterScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         RegistrationButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            onLogInClick = onLogInClick
                         )
                     }
                 }
@@ -160,7 +165,8 @@ private fun RegisterScreen(
                             Spacer(modifier = Modifier.height(32.dp))
 
                             RegistrationButtonSection(
-                                onAction = onAction
+                                onAction = onAction,
+                                onLogInClick = onLogInClick
                             )
                         }
                     }
@@ -196,7 +202,8 @@ private fun RegisterScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         RegistrationButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            onLogInClick = onLogInClick
                         )
                     }
                 }
@@ -234,7 +241,8 @@ private fun RegisterScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         RegistrationButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            onLogInClick = onLogInClick
                         )
                     }
                 }
@@ -326,7 +334,8 @@ private fun RegistrationFormSection (
 
 @Composable
 private fun RegistrationButtonSection(
-    onAction: (RegisterAction) -> Unit
+    onAction: (RegisterAction) -> Unit,
+    onLogInClick: () -> Unit
 ) {
     TaskyFilledButton(
         text = stringResource(R.string.get_started),
@@ -347,7 +356,7 @@ private fun RegistrationButtonSection(
             LinkAnnotation.Clickable(
                 tag = "Login_click",
                 linkInteractionListener = {
-                    onAction(RegisterAction.OnLoginClick)
+                    onLogInClick()
                 }
             )
         ) {
@@ -376,7 +385,8 @@ private fun RegisterScreenPreview() {
     TaskyTheme {
         RegisterScreen(
             state = RegisterState(),
-            onAction = {}
+            onAction = {},
+            onLogInClick = {}
         ) 
     }
 }

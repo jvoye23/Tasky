@@ -16,4 +16,12 @@
     <string name="name_error_label">Invalid name. The full name must be between 4 and 50 characters.</string>
     <string name="email_error_label">Invalid email.</string>
     <string name="password_error_label">The password needs to be at least 9 characters, contain an upper and lower case letter and a number.</string>
+    <string name="error_disk_full">Failed to save the item because your disk is full.</string>
+    <string name="error_request_timeout">The request timed out</string>
+    <string name="error_too_many_requests">You\'ve hit your API rate limit.</string>
+    <string name="error_no_internet">Please check your internet connection, couldn\'t reach the server</string>
+    <string name="error_payload_too_large">The file you\'re trying to upload is too large</string>
+    <string name="error_server_error">Oops, something went wrong. Please try again.</string>
+    <string name="error_serialization">Oops, couldn\'t parse data</string>
+    <string name="error_unknown">Oops, an unknown error occurred.</string>
 </resources>

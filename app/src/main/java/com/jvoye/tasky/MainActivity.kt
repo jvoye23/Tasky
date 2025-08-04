@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.navigation.NavigationRoot
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TaskyTheme {
-                RegisterScreenRoot()
+                NavigationRoot()
             }
         }
     }

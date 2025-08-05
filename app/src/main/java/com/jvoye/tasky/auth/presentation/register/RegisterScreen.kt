@@ -1,5 +1,6 @@
 package com.jvoye.tasky.auth.presentation.register
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -47,6 +50,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.link
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
+import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -55,6 +59,31 @@ fun RegisterScreenRoot(
     onSuccessfulRegistration: () -> Unit,
     viewModel: RegisterViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when(event) {
+            is RegisterEvent.Error -> {
+                keyboardController?.hide()
+                Toast.makeText(
+                    context,
+                    event.error.asString(context),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            RegisterEvent.RegistrationSuccess -> {
+                keyboardController?.hide()
+                Toast.makeText(
+                    context,
+                    R.string.registration_successful,
+                    Toast.LENGTH_LONG
+                ).show()
+                onSuccessfulRegistration()
+            }
+        }
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     RegisterScreen(

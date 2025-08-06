@@ -42,7 +42,7 @@ fun NavigationRoot(
                         RegisterScreenRoot(
                             viewModel = koinViewModel(),
                             onLogInClick = { backStack.add(LoginScreen) },
-                            onSuccessfulRegistration = { }
+                            onSuccessfulRegistration = { backStack.add(LoginScreen) }
                         )
                     }
                 }
@@ -50,7 +50,11 @@ fun NavigationRoot(
                     NavEntry(
                         key = key
                     ) {
-                        LoginScreenRoot()
+                        LoginScreenRoot(
+                            onSignUpClick = { backStack.remove(LoginScreen) },
+                            onSuccessfulLogin = { backStack.add(RegisterScreen) },
+                            viewModel = koinViewModel()
+                        )
                     }
                 }
                 else -> throw RuntimeException("Invalid NavKey")

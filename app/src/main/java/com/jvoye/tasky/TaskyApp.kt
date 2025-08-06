@@ -2,6 +2,7 @@ package com.jvoye.tasky
 
 import android.app.Application
 import com.jvoye.tasky.auth.di.authModule
+import com.jvoye.tasky.core.data.di.coreDataModule
 import com.jvoye.tasky.di.appModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,8 @@ class TaskyApp: Application() {
             androidContext(this@TaskyApp)
             modules(
                 appModule,
-                authModule
+                authModule,
+                coreDataModule
             )
         }
     }

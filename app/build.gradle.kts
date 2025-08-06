@@ -22,16 +22,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        val properties = Properties()
-        properties.load(rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "API_KEY", properties.getProperty("API_KEY"))
-        buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
     }
 
     buildTypes {
+        val properties = Properties()
+        properties.load(rootProject.file("local.properties").inputStream())
+        debug {
+            isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
+            buildConfigField("String", "API_KEY", properties.getProperty("API_KEY"))
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
+            buildConfigField("String", "API_KEY", properties.getProperty("API_KEY"))
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

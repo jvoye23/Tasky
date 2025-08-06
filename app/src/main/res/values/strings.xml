@@ -24,4 +24,10 @@
     <string name="error_server_error">Oops, something went wrong. Please try again.</string>
     <string name="error_serialization">Oops, couldn\'t parse data</string>
     <string name="error_unknown">Oops, an unknown error occurred.</string>
+    <string name="error_email_exists">A user with that email already exists.</string>
+    <string name="registration_successful">Registration successful! You can log in now.</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="dont_have_an_account">DON\'T HAVE AN ACCOUNT?</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="welcome_back_landscape">Welcome\n Back!</string>
 </resources>

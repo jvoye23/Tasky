@@ -9,6 +9,7 @@ import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.auth.domain.UserDataValidator
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
+import com.jvoye.tasky.core.domain.util.textAsFlow
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import com.jvoye.tasky.core.presentation.ui.asUiText
 import kotlinx.coroutines.channels.Channel
@@ -136,5 +137,3 @@ class RegisterViewModel(
         }
     }
 }
-
-private fun TextFieldState.textAsFlow() = snapshotFlow { text }

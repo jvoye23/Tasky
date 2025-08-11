@@ -6,7 +6,7 @@ import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
 import io.ktor.client.HttpClient
 
-class AuthRepositoryImpl(
+class KtorAuthRepository(
     private val httpClient: HttpClient
 ): AuthRepository{
     override suspend fun register(

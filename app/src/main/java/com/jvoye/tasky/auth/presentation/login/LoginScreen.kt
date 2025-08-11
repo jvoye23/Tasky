@@ -59,16 +59,20 @@ fun LoginScreenRoot(
 
     LoginScreen(
         state = state,
-        onAction = viewModel::onAction,
-        onSignUpClick = onSignUpClick
+        onAction = { action ->
+            when(action) {
+                is LoginAction.OnSignUpClick -> onSignUpClick
+                else -> Unit
+            }
+            viewModel.onAction(action)
+        }
     )
 }
 
 @Composable
 private fun LoginScreen(
     state: LoginState,
-    onAction: (LoginAction) -> Unit,
-    onSignUpClick: () -> Unit,
+    onAction: (LoginAction) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -108,14 +112,15 @@ private fun LoginScreen(
                     ) {
                         LoginFormSection(
                             state = state,
-                            onAction = onAction
+                            onTogglePasswordVisibility = {
+                                onAction(LoginAction.OnTogglePasswordVisibilityClick)
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction,
-                            onSignUpClick = onSignUpClick
+                            onAction = onAction
                         )
                     }
                 }
@@ -159,15 +164,16 @@ private fun LoginScreen(
                         item {
                             LoginFormSection(
                                 state = state,
-                                onAction = onAction
+                                onTogglePasswordVisibility = {
+                                    onAction(LoginAction.OnTogglePasswordVisibilityClick)
+                                }
                             )
                         }
                         item {
                             Spacer(modifier = Modifier.height(32.dp))
 
                             LoginButtonSection(
-                                onAction = onAction,
-                                onSignUpClick = onSignUpClick
+                                onAction = onAction
                             )
                         }
                     }
@@ -197,14 +203,15 @@ private fun LoginScreen(
                     ) {
                         LoginFormSection(
                             state = state,
-                            onAction = onAction
+                            onTogglePasswordVisibility = {
+                                onAction(LoginAction.OnTogglePasswordVisibilityClick)
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction,
-                            onSignUpClick = onSignUpClick
+                            onAction = onAction
                         )
                     }
                 }
@@ -236,14 +243,15 @@ private fun LoginScreen(
                     ) {
                         LoginFormSection(
                             state = state,
-                            onAction = onAction
+                            onTogglePasswordVisibility = {
+                                onAction(LoginAction.OnTogglePasswordVisibilityClick)
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction,
-                            onSignUpClick = onSignUpClick
+                            onAction = onAction
                         )
                     }
                 }
@@ -276,8 +284,7 @@ private fun LoginHeaderSection(
 @Composable
 private fun LoginFormSection (
     state: LoginState,
-    onAction: (LoginAction) -> Unit
-
+    onTogglePasswordVisibility: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -304,7 +311,7 @@ private fun LoginFormSection (
             state = state.password,
             isPasswordVisible = state.isPasswordVisible,
             onTogglePasswordVisibility = {
-                onAction(LoginAction.OnTogglePasswordVisibilityClick)
+                onTogglePasswordVisibility()
             },
             hint = stringResource(R.string.password),
             borderColor = MaterialTheme.colorScheme.surfaceHigher,
@@ -316,8 +323,7 @@ private fun LoginFormSection (
 
 @Composable
 private fun LoginButtonSection(
-    onAction: (LoginAction) -> Unit,
-    onSignUpClick: () -> Unit
+    onAction: (LoginAction) -> Unit
 ) {
     TaskyFilledButton(
         text = stringResource(R.string.login),
@@ -338,7 +344,7 @@ private fun LoginButtonSection(
             LinkAnnotation.Clickable(
                 tag = "SignUp_click",
                 linkInteractionListener = {
-                    onSignUpClick()
+                    onAction(LoginAction.OnSignUpClick)
                 }
             )
         ) {
@@ -366,8 +372,7 @@ fun LoginScreenPreview() {
     TaskyTheme {
         LoginScreen(
             state = LoginState(),
-            onAction = {},
-            onSignUpClick = {}
+            onAction = {}
         )
     }
 }

@@ -1,7 +1,5 @@
 package com.jvoye.tasky.auth.presentation.register
 
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
@@ -9,7 +7,7 @@ import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.auth.domain.UserDataValidator
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
-import com.jvoye.tasky.core.domain.util.textAsFlow
+import com.jvoye.tasky.core.presentation.designsystem.util.textAsFlow
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import com.jvoye.tasky.core.presentation.ui.asUiText
 import kotlinx.coroutines.channels.Channel

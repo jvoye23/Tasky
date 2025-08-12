@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.auth.domain.UserDataValidator
-import com.jvoye.tasky.core.domain.util.textAsFlow
+import com.jvoye.tasky.core.presentation.designsystem.util.textAsFlow
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

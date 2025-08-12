@@ -1,6 +1,6 @@
 package com.jvoye.tasky.auth.di
 
-import com.jvoye.tasky.auth.data.AuthRepositoryImpl
+import com.jvoye.tasky.auth.data.KtorAuthRepository
 import com.jvoye.tasky.auth.data.EmailPatternValidator
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.auth.domain.PatternValidator
@@ -17,7 +17,7 @@ val authModule = module {
         EmailPatternValidator
     }
     singleOf(::UserDataValidator)
-    singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
+    singleOf(::KtorAuthRepository).bind<AuthRepository>()
 
     viewModelOf(::RegisterViewModel)
     viewModelOf(::LoginViewModel)

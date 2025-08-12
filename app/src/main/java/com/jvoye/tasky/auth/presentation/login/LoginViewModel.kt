@@ -1,12 +1,11 @@
 package com.jvoye.tasky.auth.presentation.login
 
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.auth.domain.UserDataValidator
+import com.jvoye.tasky.core.domain.util.textAsFlow
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -56,15 +55,9 @@ class LoginViewModel(
             .launchIn(viewModelScope)
     }
 
-
-
-
-
-
     fun onAction(action: LoginAction) {
         when(action) {
             LoginAction.OnLoginClick -> onLoginClick()
-            LoginAction.OnSignUpClick -> onSignUpClick()
             LoginAction.OnTogglePasswordVisibilityClick -> {
                 _state.update {
                     it.copy(
@@ -72,17 +65,11 @@ class LoginViewModel(
                     )
                 }
             }
+            else -> Unit
         }
     }
 
     private fun onLoginClick(){
 
     }
-
-    private fun onSignUpClick(){
-
-    }
-
 }
-
-private fun TextFieldState.textAsFlow() = snapshotFlow { text }

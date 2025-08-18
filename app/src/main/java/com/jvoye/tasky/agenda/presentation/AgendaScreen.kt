@@ -19,7 +19,6 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 
 @Composable
 fun AgendaScreenRoot(
-    modifier: Modifier = Modifier
 ) {
     AgendaScreen()
 }

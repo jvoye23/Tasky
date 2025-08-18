@@ -1,5 +1,6 @@
 package com.jvoye.tasky.auth.presentation.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -47,6 +50,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.link
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
+import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -55,6 +59,31 @@ fun LoginScreenRoot(
     onSuccessfulLogin: () -> Unit,
     viewModel: LoginViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when(event) {
+            is LoginEvent.Error -> {
+                keyboardController?.hide()
+                Toast.makeText(
+                    context,
+                    event.error.asString(context),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            LoginEvent.LoginSuccess -> {
+                keyboardController?.hide()
+                Toast.makeText(
+                    context,
+                    R.string.login_successful,
+                    Toast.LENGTH_LONG
+                ).show()
+                onSuccessfulLogin()
+            }
+        }
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LoginScreen(
@@ -120,7 +149,8 @@ private fun LoginScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            isLoggingIn = state.isLoggingIn
                         )
                     }
                 }
@@ -173,7 +203,8 @@ private fun LoginScreen(
                             Spacer(modifier = Modifier.height(32.dp))
 
                             LoginButtonSection(
-                                onAction = onAction
+                                onAction = onAction,
+                                isLoggingIn = state.isLoggingIn
                             )
                         }
                     }
@@ -211,7 +242,8 @@ private fun LoginScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            isLoggingIn = state.isLoggingIn
                         )
                     }
                 }
@@ -251,7 +283,8 @@ private fun LoginScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         LoginButtonSection(
-                            onAction = onAction
+                            onAction = onAction,
+                            isLoggingIn = state.isLoggingIn
                         )
                     }
                 }
@@ -323,11 +356,13 @@ private fun LoginFormSection (
 
 @Composable
 private fun LoginButtonSection(
-    onAction: (LoginAction) -> Unit
+    onAction: (LoginAction) -> Unit,
+    isLoggingIn: Boolean
 ) {
     TaskyFilledButton(
         text = stringResource(R.string.login),
-        onClick = { onAction(LoginAction.OnLoginClick) }
+        onClick = { onAction(LoginAction.OnLoginClick) },
+        isLoading = isLoggingIn
     )
 
     Spacer(modifier = Modifier.height(20.dp))

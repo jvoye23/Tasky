@@ -144,7 +144,8 @@ private fun RegisterScreen(
 
                         RegistrationButtonSection(
                             onAction = onAction,
-                            onLogInClick = onLogInClick
+                            onLogInClick = onLogInClick,
+                            isRegistering = state.isRegistering
                         )
                     }
                 }
@@ -195,7 +196,8 @@ private fun RegisterScreen(
 
                             RegistrationButtonSection(
                                 onAction = onAction,
-                                onLogInClick = onLogInClick
+                                onLogInClick = onLogInClick,
+                                isRegistering = state.isRegistering
                             )
                         }
                     }
@@ -232,7 +234,8 @@ private fun RegisterScreen(
 
                         RegistrationButtonSection(
                             onAction = onAction,
-                            onLogInClick = onLogInClick
+                            onLogInClick = onLogInClick,
+                            isRegistering = state.isRegistering
                         )
                     }
                 }
@@ -271,7 +274,8 @@ private fun RegisterScreen(
 
                         RegistrationButtonSection(
                             onAction = onAction,
-                            onLogInClick = onLogInClick
+                            onLogInClick = onLogInClick,
+                            isRegistering = state.isRegistering
                         )
                     }
                 }
@@ -364,11 +368,13 @@ private fun RegistrationFormSection (
 @Composable
 private fun RegistrationButtonSection(
     onAction: (RegisterAction) -> Unit,
-    onLogInClick: () -> Unit
+    onLogInClick: () -> Unit,
+    isRegistering: Boolean
 ) {
     TaskyFilledButton(
         text = stringResource(R.string.get_started),
-        onClick = { onAction(RegisterAction.OnGetStartedClick) }
+        onClick = { onAction(RegisterAction.OnGetStartedClick) },
+        isLoading = isRegistering
     )
 
     Spacer(modifier = Modifier.height(20.dp))

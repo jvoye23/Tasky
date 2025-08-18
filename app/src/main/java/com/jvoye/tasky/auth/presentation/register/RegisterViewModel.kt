@@ -111,11 +111,17 @@ class RegisterViewModel(
 
     private fun register() {
         viewModelScope.launch {
+            _state.update { it.copy(
+                isRegistering = true
+            ) }
             val result = authRepository.register(
                 fullName = state.value.name.text.toString(),
                 email = state.value.email.text.toString().trim(),
                 password = state.value.password.text.toString()
             )
+            _state.update { it.copy(
+                isRegistering = false
+            ) }
 
             when(result) {
                 is Result.Error -> {

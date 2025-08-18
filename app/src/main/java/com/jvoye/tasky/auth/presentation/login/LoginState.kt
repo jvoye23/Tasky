@@ -10,5 +10,6 @@ data class LoginState (
     val password: TextFieldState = TextFieldState(),
     val isPasswordVisible: Boolean = false,
     val isValidPassword: Boolean = false,
-    val passwordErrorText: UiText.StringResource? = null
+    val passwordErrorText: UiText.StringResource? = null,
+    val isLoggingIn: Boolean = false
 )

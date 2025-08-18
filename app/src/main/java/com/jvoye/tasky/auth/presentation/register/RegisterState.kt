@@ -15,5 +15,6 @@ data class RegisterState(
     val password: TextFieldState = TextFieldState(),
     val isPasswordVisible: Boolean = false,
     val passwordValidationState: PasswordValidationState = PasswordValidationState(),
-    val passwordErrorText: UiText.StringResource? = null
+    val passwordErrorText: UiText.StringResource? = null,
+    val isRegistering: Boolean = false
 )

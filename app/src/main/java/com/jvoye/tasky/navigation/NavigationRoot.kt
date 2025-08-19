@@ -1,6 +1,7 @@
 package com.jvoye.tasky.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -26,9 +27,15 @@ data object AgendaScreen: NavKey
 
 @Composable
 fun NavigationRoot(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoggedIn: Boolean
 ) {
-    val backStack = rememberNavBackStack(RegisterScreen)
+   val backStack = rememberNavBackStack(RegisterScreen)
+   if (isLoggedIn) {
+       backStack.clear()
+       backStack.add(AgendaScreen)
+   }
+
     NavDisplay(
         modifier = modifier,
         backStack = backStack,
@@ -56,7 +63,10 @@ fun NavigationRoot(
                     ) {
                         LoginScreenRoot(
                             onSignUpClick = { backStack.remove(LoginScreen) },
-                            onSuccessfulLogin = { backStack.add(AgendaScreen) },
+                            onSuccessfulLogin = {
+                                backStack.clear()
+                                backStack.add(AgendaScreen)
+                            },
                             viewModel = koinViewModel()
                         )
                     }

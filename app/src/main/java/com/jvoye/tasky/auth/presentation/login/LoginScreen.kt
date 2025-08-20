@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -60,12 +60,12 @@ fun LoginScreenRoot(
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     ObserveAsEvents(viewModel.events) { event ->
         when(event) {
             is LoginEvent.Error -> {
-                keyboardController?.hide()
+                focusManager.clearFocus()
                 Toast.makeText(
                     context,
                     event.error.asString(context),
@@ -73,7 +73,7 @@ fun LoginScreenRoot(
                 ).show()
             }
             LoginEvent.LoginSuccess -> {
-                keyboardController?.hide()
+                focusManager.clearFocus()
                 Toast.makeText(
                     context,
                     R.string.login_successful,

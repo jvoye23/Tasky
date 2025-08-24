@@ -2,6 +2,7 @@ package com.jvoye.tasky
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -9,12 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.navigation.NavigationRoot
-import io.ktor.client.plugins.logging.Logging
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +27,9 @@ class MainActivity : ComponentActivity() {
                 viewModel.state.value.isCheckingAuth
             }
         }
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(0)
+        )
         setContent {
 
             val state = viewModel.state.collectAsStateWithLifecycle()
@@ -40,9 +41,7 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     if (!state.value.isCheckingAuth){
-                        NavigationRoot(
-                            isLoggedIn = state.value.isLoggedIn
-                        )
+                        NavigationRoot(isLoggedIn = state.value.isLoggedIn)
                     }
                 }
             }

@@ -122,4 +122,7 @@ dependencies {
 
     // For Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Kotlin DateTime
+    implementation(libs.kotlinx.datetime)
 }

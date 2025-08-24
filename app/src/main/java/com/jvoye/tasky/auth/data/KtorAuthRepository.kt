@@ -61,12 +61,7 @@ class KtorAuthRepository(
         )
         if (result is Result.Success) {
             sessionStorage.set(
-                AuthInfo(
-                    accessToken = "",
-                    refreshToken = "",
-                    userId = "",
-                    username = ""
-                )
+                info = null
             )
         }
         return result.asEmptyDataResult()

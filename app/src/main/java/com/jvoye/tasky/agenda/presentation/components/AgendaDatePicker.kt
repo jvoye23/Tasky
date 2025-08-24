@@ -31,7 +31,6 @@ fun AgendaDatePicker(
                 enabled = datePickerState.selectedDateMillis != null,
                 onClick = {
                     action(AgendaAction.ConfirmDateSelection(selectedDateMillis = datePickerState.selectedDateMillis!!))
-                    action(AgendaAction.OnDismissDatePickerDialog)
                 }
             ) {
                 Text(text = stringResource(R.string.ok))

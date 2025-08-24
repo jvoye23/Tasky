@@ -46,7 +46,7 @@ class AgendaViewModel(
         }
         .stateIn(
             viewModelScope,
-            SharingStarted.Lazily,
+            SharingStarted.WhileSubscribed(5_000L),
             _state.value
         )
 
@@ -67,7 +67,8 @@ class AgendaViewModel(
 
             is AgendaAction.ConfirmDateSelection -> {
                 _state.update { it.copy(
-                    selectedDateMillis = action.selectedDateMillis)
+                    selectedDateMillis = action.selectedDateMillis,
+                    isDatePickerDialogVisible = false)
                 }
             }
 

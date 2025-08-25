@@ -32,4 +32,8 @@
     <string name="welcome_back_landscape">Welcome\n Back!</string>
     <string name="login_successful">Login successful</string>
     <string name="error_email_password_incorrect">The combination of email and password is incorrect.</string>
+    <string name="ok">OK</string>
+    <string name="select_a_date">Select a date</string>
+    <string name="log_out">Log out</string>
+    <string name="logout_sucessful">Logout successful</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.jvoye.tasky.core.data.networking
 
 import com.jvoye.tasky.BuildConfig
-import com.jvoye.tasky.core.domain.AuthInfo
+import com.jvoye.tasky.core.domain.model.AuthInfo
 import com.jvoye.tasky.core.domain.SessionStorage
 import com.jvoye.tasky.core.domain.util.Result
 import io.ktor.client.HttpClient
@@ -68,7 +68,8 @@ class HttpClientFactory(
                             val newAuthInfo = AuthInfo(
                                 accessToken = response.data.accessToken,
                                 refreshToken = info?.refreshToken ?: "",
-                                userId = info?.userId ?: ""
+                                userId = info?.userId ?: "",
+                                username = info?.username ?: ""
                             )
                             sessionStorage.set(newAuthInfo)
 

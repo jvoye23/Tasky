@@ -2,7 +2,7 @@ package com.jvoye.tasky.core.data.auth
 
 import android.content.Context
 import androidx.datastore.dataStore
-import com.jvoye.tasky.core.domain.AuthInfo
+import com.jvoye.tasky.core.domain.model.AuthInfo
 import com.jvoye.tasky.core.domain.SessionStorage
 import kotlinx.coroutines.flow.first
 
@@ -16,18 +16,12 @@ class EncryptedSessionDataStore(
 ): SessionStorage {
 
     override suspend fun get(): AuthInfo? {
-        val accessToken = context.dataStore.data.first().accessToken
+        val data = context.dataStore.data.first().toAuthInfo()
         val refreshToken = context.dataStore.data.first().refreshToken
-        val userId = context.dataStore.data.first().userId
 
-        val data = if (accessToken != null) {
-            AuthInfoSerializable(
-                accessToken = accessToken,
-                refreshToken = refreshToken,
-                userId = userId
-            ).toAuthInfo()
+        return if (refreshToken != null) {
+            data
         } else null
-        return data
     }
 
     override suspend fun set(info: AuthInfo?) {

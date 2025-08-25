@@ -75,7 +75,13 @@ fun NavigationRoot(
                     NavEntry(
                         key= key
                     ) {
-                        AgendaScreenRoot()
+                        AgendaScreenRoot(
+                            onSuccessfulLogout = {
+                                backStack.clear()
+                                backStack.add(LoginScreen)
+                            },
+                            viewModel = koinViewModel()
+                        )
                     }
                 }
                 else -> throw RuntimeException("Invalid NavKey")

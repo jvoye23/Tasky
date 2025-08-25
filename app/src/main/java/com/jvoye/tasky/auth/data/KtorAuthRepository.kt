@@ -2,7 +2,7 @@ package com.jvoye.tasky.auth.data
 
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.networking.post
-import com.jvoye.tasky.core.domain.AuthInfo
+import com.jvoye.tasky.core.domain.model.AuthInfo
 import com.jvoye.tasky.core.domain.SessionStorage
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
@@ -42,8 +42,26 @@ class KtorAuthRepository(
                 AuthInfo(
                     accessToken = result.data.accessToken,
                     refreshToken = result.data.refreshToken,
-                    userId = result.data.userId
+                    userId = result.data.userId,
+                    username = result.data.username
                 )
+            )
+
+        }
+        return result.asEmptyDataResult()
+    }
+
+    override suspend fun logout(): EmptyResult<DataError.Network> {
+        val refreshToken = sessionStorage.get()?.refreshToken
+        val result = httpClient.post<LogoutRequest, Unit>(
+            route = "/auth/logout",
+            body = LogoutRequest(
+                refreshToken = refreshToken.toString()
+            )
+        )
+        if (result is Result.Success) {
+            sessionStorage.set(
+                info = null
             )
         }
         return result.asEmptyDataResult()

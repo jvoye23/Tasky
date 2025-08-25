@@ -46,7 +46,6 @@ class KtorAuthRepository(
                     username = result.data.username
                 )
             )
-
         }
         return result.asEmptyDataResult()
     }

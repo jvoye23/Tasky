@@ -83,8 +83,6 @@ class HttpClientFactory(
                                 refreshToken = ""
                             )
                         }
-
-
                     }
                 }
             }

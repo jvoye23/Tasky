@@ -16,12 +16,7 @@ class EncryptedSessionDataStore(
 ): SessionStorage {
 
     override suspend fun get(): AuthInfo? {
-        val data = context.dataStore.data.first().toAuthInfo()
-        val refreshToken = context.dataStore.data.first().refreshToken
-
-        return if (refreshToken != null) {
-            data
-        } else null
+        return context.dataStore.data.first().toAuthInfo()
     }
 
     override suspend fun set(info: AuthInfo?) {
@@ -29,6 +24,7 @@ class EncryptedSessionDataStore(
             AuthInfoSerializable(
                 accessToken = info?.accessToken,
                 refreshToken = info?.refreshToken,
+                username = info?.username,
                 userId = info?.userId
             )
         }.toAuthInfo()

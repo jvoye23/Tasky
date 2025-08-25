@@ -11,11 +11,15 @@ fun AuthInfo.toAuthInfoSerializable(): AuthInfoSerializable {
     )
 }
 
-fun AuthInfoSerializable.toAuthInfo(): AuthInfo {
-    return AuthInfo(
-        accessToken = accessToken.toString(),
-        refreshToken = refreshToken.toString(),
-        userId = userId.toString(),
-        username = username.toString()
-    )
+fun AuthInfoSerializable.toAuthInfo(): AuthInfo? {
+    return if (accessToken == null || refreshToken == null || userId == null || username == null) {
+        null
+    } else {
+        AuthInfo(
+            accessToken = accessToken,
+            refreshToken = refreshToken,
+            userId = userId,
+            username = username
+        )
+    }
 }

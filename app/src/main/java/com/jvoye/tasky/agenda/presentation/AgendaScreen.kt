@@ -179,7 +179,7 @@ fun FullScreenLoadingIndicator() {
 
 @Preview(device = Devices.PIXEL_6_PRO, showSystemUi = true)
 @Composable
-fun AgendaScreenPreview(modifier: Modifier = Modifier) {
+fun AgendaScreenPreview() {
     TaskyTheme {
         AgendaScreen(
             state = AgendaState(),
@@ -187,31 +187,3 @@ fun AgendaScreenPreview(modifier: Modifier = Modifier) {
         )
     }
 }
-
-
-/*
-Box(
-modifier = Modifier
-.fillMaxSize()
-.background(Color.Red)
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Green),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Progress",
-            color = MaterialTheme.colorScheme.error
-        )
-
-    }
-
-
-
-
-
-}*/

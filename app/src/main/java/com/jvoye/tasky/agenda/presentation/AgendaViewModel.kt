@@ -5,6 +5,7 @@ package com.jvoye.tasky.agenda.presentation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
 import com.jvoye.tasky.core.domain.util.Result
@@ -23,13 +24,10 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
-import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import kotlinx.datetime.yearMonth
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
 class AgendaViewModel(
@@ -49,6 +47,7 @@ class AgendaViewModel(
             if (!hasLoadedInitialData) {
                 getCurrentMonthName()
                 getUserInitials()
+                getDateRowEntries()
                 hasLoadedInitialData = true
             }
         }
@@ -93,6 +92,13 @@ class AgendaViewModel(
             }
 
             AgendaAction.OnLogOutClick -> onLogoutClick()
+            is AgendaAction.OnDateRowItemClick -> {
+                _state.update { it.copy(
+                    currentDate = action.selectedDate,
+                    dateHeadline = action.selectedDate.toString()
+
+                ) }
+            }
         }
     }
 
@@ -100,31 +106,31 @@ class AgendaViewModel(
         val instant = Clock.System.now()
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
         val month: Month = localDateTime.month
-
-        // for example: 29
-        val day = localDateTime.day
-        
-        // for example: FRIDAY
-        val dayOfTheWeek = localDateTime.dayOfWeek
-        
-        // for example: 2025-09-01
-        //val today = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-        val today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-
-        // for example: 2025-08
-        val yearMonth = today.yearMonth
-
-        // for example: 31 days for August
-        val daysInMonth = today.yearMonth.numberOfDays
-
-        val fifteenDaysAgo = today.minus(DatePeriod(days = 15))
-        val fifteenDaysAhead = today.plus(DatePeriod(days = 15))
-
         _state.update { it.copy(
             currentMonthName = month.name
         ) }
+    }
 
-        println("LocalDateTime: today: $today, Ago: $fifteenDaysAgo Ahead: $fifteenDaysAhead, yearMonth: $yearMonth days: $daysInMonth")
+
+    private fun getDateRowEntries() {
+        val entries = mutableListOf<DateRowEntry>()
+        val today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val fifteenDaysAgo = today.minus(DatePeriod(days = 15))
+        val fifteenDaysAhead = today.plus(DatePeriod(days = 15))
+
+        for (date in fifteenDaysAgo..fifteenDaysAhead) {
+            val entry = DateRowEntry(
+                localDate = date,
+                dayOfTheMonth = date.day,
+                dayOfWeek = date.dayOfWeek
+            )
+            entries.add(entry)
+        }
+
+        _state.update { it.copy(
+            currentDate = today,
+            dateRowEntries = entries
+        ) }
     }
 
     private suspend fun getUserInitials() {

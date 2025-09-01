@@ -142,9 +142,13 @@ private fun AgendaScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        ScrollableDateRow()
+        ScrollableDateRow(
+            currentDate = state.currentDate,
+            entries = state.dateRowEntries,
+            action = action
+        )
         Text(
-            text = "Agenda Screen",
+            text = state.dateHeadline,
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface
         )

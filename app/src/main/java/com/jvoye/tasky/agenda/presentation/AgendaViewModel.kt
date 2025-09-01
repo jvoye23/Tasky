@@ -18,10 +18,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.number
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.todayIn
+import kotlinx.datetime.yearMonth
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
 class AgendaViewModel(
@@ -93,9 +101,30 @@ class AgendaViewModel(
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
         val month: Month = localDateTime.month
 
+        // for example: 29
+        val day = localDateTime.day
+        
+        // for example: FRIDAY
+        val dayOfTheWeek = localDateTime.dayOfWeek
+        
+        // for example: 2025-09-01
+        //val today = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+        val today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+        // for example: 2025-08
+        val yearMonth = today.yearMonth
+
+        // for example: 31 days for August
+        val daysInMonth = today.yearMonth.numberOfDays
+
+        val fifteenDaysAgo = today.minus(DatePeriod(days = 15))
+        val fifteenDaysAhead = today.plus(DatePeriod(days = 15))
+
         _state.update { it.copy(
             currentMonthName = month.name
         ) }
+
+        println("LocalDateTime: today: $today, Ago: $fifteenDaysAgo Ahead: $fifteenDaysAhead, yearMonth: $yearMonth days: $daysInMonth")
     }
 
     private suspend fun getUserInitials() {

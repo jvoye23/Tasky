@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.components.AgendaDatePicker
 import com.jvoye.tasky.agenda.presentation.components.AgendaTopBar
+import com.jvoye.tasky.agenda.presentation.components.ScrollableDateRow
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.compose.viewmodel.koinViewModel
@@ -135,11 +136,13 @@ private fun AgendaScreenContent(
                     topEnd = 24.dp
                 )
             )
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 16.dp),
 
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        ScrollableDateRow()
         Text(
             text = "Agenda Screen",
             style = MaterialTheme.typography.headlineLarge,

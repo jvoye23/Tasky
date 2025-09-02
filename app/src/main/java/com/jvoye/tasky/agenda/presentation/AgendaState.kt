@@ -1,7 +1,8 @@
 package com.jvoye.tasky.agenda.presentation
 
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
+import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 data class AgendaState(
@@ -10,5 +11,8 @@ data class AgendaState(
     val currentMonthName: String = "",
     val userInitials: String = "",
     val isLogoutDropdownVisible: Boolean = false,
-    val isLoggingOut: Boolean = false
+    val isLoggingOut: Boolean = false,
+    val dateRowEntries: List<DateRowEntry>? = null,
+    val currentDate: LocalDate? = null,
+    val dateHeadline: String = "Date Headline"
 )

@@ -6,9 +6,11 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,9 +23,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.agenda.presentation.AgendaAction
 import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
+import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.labelXSmall
 import com.jvoye.tasky.core.presentation.designsystem.theme.supplementary
 import kotlinx.coroutines.delay
@@ -43,31 +47,12 @@ fun ScrollableDateRow(
     val centerIndex = 15
 
     LaunchedEffect(Unit) {
-        // Wait for a short duration to allow initial composition and measurement.
-        delay(100)
-
-        // A loop to keep retrying until the target item is found.
-        var isCentered = false
-        while (!isCentered) {
-            val itemInfo = lazyListState.layoutInfo.visibleItemsInfo.find { it.index == centerIndex }
-
-            if (itemInfo != null) {
-                // Calculation to center the item.
-                val viewportWidth = lazyListState.layoutInfo.viewportSize.width
-                val scrollOffset = itemInfo.offset - (viewportWidth / 2 - itemInfo.size / 2)
-
-                coroutineScope.launch {
-                    lazyListState.animateScrollBy(scrollOffset.toFloat())
-                }
-                isCentered = true
-            } else {
-                // If the item isn't visible yet, scroll to its general location to bring it into view.
-                lazyListState.scrollToItem(index = centerIndex)
-                delay(50) // Wait for a short moment before retrying.
-            }
-        }
+        delay(50)
+        lazyListState.animateScrollToItem(
+            index = centerIndex,
+            scrollOffset = -lazyListState.layoutInfo.viewportSize.width / 2
+        )
     }
-
     LazyRow(
         state = lazyListState,
         modifier = Modifier
@@ -99,28 +84,28 @@ fun DateRowItem(
 ) {
     Column(
         modifier = modifier
-            .height(70.dp)
-            .width(40.dp)
+            .widthIn(min = 55.dp)
             .clip(RoundedCornerShape(50.dp))
             .background(
-                if (isSelected) MaterialTheme .colorScheme.supplementary
+                if (isSelected) MaterialTheme.colorScheme.supplementary
                 else MaterialTheme.colorScheme.surface
             )
-            .padding(vertical = 14.dp)
+            .padding(15.dp)
             .clickable {
                 onItemClick(date.localDate)
             },
-        verticalArrangement = Arrangement.SpaceBetween,
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
             text = date.dayOfWeek.toString().take(1),
-            style = MaterialTheme.typography.labelXSmall,
+            style = MaterialTheme.typography.labelSmall,
             color = if (isSystemInDarkTheme() && isSelected) MaterialTheme.colorScheme.onPrimary
                     else if (isSelected) MaterialTheme.colorScheme.onSurface
                         else MaterialTheme.colorScheme.onSurface
         )
+        Spacer(Modifier.height(12.dp))
 
         Text(
             text = date.dayOfTheMonth.toString(),
@@ -129,4 +114,22 @@ fun DateRowItem(
                      else MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Preview(showBackground = true, showSystemUi = false)@Composable
+private fun DateRowItemPreview() {
+    TaskyTheme {
+        DateRowItem(
+            modifier = Modifier,
+            isSelected = true,
+            date = DateRowEntry(
+                localDate = LocalDate(2023, 10, 10),
+                dayOfTheMonth = 10,
+                dayOfWeek = LocalDate(2023, 10, 10).dayOfWeek
+            ),
+            onItemClick = {}
+        )
+
+    }
+    
 }

@@ -36,4 +36,7 @@
     <string name="select_a_date">Select a date</string>
     <string name="log_out">Log out</string>
     <string name="logout_sucessful">Logout successful</string>
+    <string name="agenda_item_status_icon">Agenda item status icon</string>
+    <string name="agenda_item_more_icon">Agenda item more icon</string>
+    <string name="today">Today</string>
 </resources>

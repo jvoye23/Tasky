@@ -11,4 +11,6 @@ sealed interface AgendaAction {
     data object OnDismissAgendaLogoutDropdown: AgendaAction
     data object OnLogOutClick: AgendaAction
     data class OnDateRowItemClick(val selectedDate: LocalDate): AgendaAction
+    data class OnAgendaTaskFinishedClick(val agendaItemId: Int): AgendaAction
+    data object OnItemMoreClick: AgendaAction
 }

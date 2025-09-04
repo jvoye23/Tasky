@@ -6,6 +6,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import com.jvoye.tasky.R
 
@@ -94,4 +95,13 @@ val Typography.errorLabel: TextStyle
         fontWeight = FontWeight.Normal,
         fontSize = 11.sp,
         lineHeight = 12.sp
+    )
+val Typography.agendaItemFinished: TextStyle
+    @Composable
+    get() = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 24.sp,
+        textDecoration = TextDecoration.LineThrough
     )

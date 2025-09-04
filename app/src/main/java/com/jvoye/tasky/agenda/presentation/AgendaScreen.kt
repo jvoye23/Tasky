@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePickerState
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.components.AgendaDatePicker
+import com.jvoye.tasky.agenda.presentation.components.AgendaItemCard
 import com.jvoye.tasky.agenda.presentation.components.AgendaTopBar
 import com.jvoye.tasky.agenda.presentation.components.ScrollableDateRow
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
@@ -148,11 +152,30 @@ private fun AgendaScreenContent(
             action = action
         )
         Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp)
+                .padding(horizontal = 16.dp),
             text = state.dateHeadline,
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
         )
-
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (state.agendaList != null) {
+                items(state.agendaList) { agendaItem ->
+                    AgendaItemCard(
+                        agendaItem = agendaItem,
+                        action = action,
+                        onAgendaItemClick = { }
+                    )
+                }
+            }
+        }
         if (state.isDatePickerDialogVisible){
             AgendaDatePicker(
                 action = action,

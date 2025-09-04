@@ -5,6 +5,7 @@ package com.jvoye.tasky.agenda.presentation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
@@ -32,7 +33,8 @@ import kotlin.time.ExperimentalTime
 
 class AgendaViewModel(
     private val encryptedSessionDataStore: EncryptedSessionDataStore,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val agendaRepository: AgendaRepository
 ): ViewModel() {
 
     private val eventChannel = Channel<AgendaEvent>()
@@ -48,6 +50,8 @@ class AgendaViewModel(
                 getCurrentMonthName()
                 getUserInitials()
                 getDateRowEntries()
+                getAgendaListTitle()
+                getAgendaItems()
                 hasLoadedInitialData = true
             }
         }
@@ -92,12 +96,17 @@ class AgendaViewModel(
             }
 
             AgendaAction.OnLogOutClick -> onLogoutClick()
+
             is AgendaAction.OnDateRowItemClick -> {
                 _state.update { it.copy(
-                    currentDate = action.selectedDate,
-                    dateHeadline = action.selectedDate.toString()
-
+                    currentDate = action.selectedDate
                 ) }
+                getAgendaListTitle()
+            }
+
+            AgendaAction.OnItemMoreClick -> { }
+            is AgendaAction.OnAgendaTaskFinishedClick -> {
+
             }
         }
     }
@@ -109,6 +118,28 @@ class AgendaViewModel(
         _state.update { it.copy(
             currentMonthName = month.name
         ) }
+    }
+
+    private fun getAgendaListTitle() {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val currentDate = state.value.currentDate
+        if (currentDate == today) {
+            _state.update { it.copy(
+                dateHeadline = "Today"
+            ) }
+        } else {
+            _state.update { it.copy(
+                dateHeadline = currentDate.toString()
+            ) }
+        }
+    }
+
+    private fun getAgendaItems() {
+        viewModelScope.launch {
+            _state.update { it.copy(
+                agendaList = agendaRepository.getAgendaItems()
+            ) }
+        }
     }
 
 

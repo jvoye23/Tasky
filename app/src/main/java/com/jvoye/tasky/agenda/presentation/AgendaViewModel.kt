@@ -108,6 +108,11 @@ class AgendaViewModel(
             is AgendaAction.OnAgendaTaskFinishedClick -> {
 
             }
+
+            AgendaAction.OnAddAgendaItemClick -> {
+
+            }
+
         }
     }
 

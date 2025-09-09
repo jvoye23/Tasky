@@ -13,4 +13,5 @@ sealed interface AgendaAction {
     data class OnDateRowItemClick(val selectedDate: LocalDate): AgendaAction
     data class OnAgendaTaskFinishedClick(val agendaItemId: Int): AgendaAction
     data object OnItemMoreClick: AgendaAction
+    data object OnAddAgendaItemClick: AgendaAction
 }

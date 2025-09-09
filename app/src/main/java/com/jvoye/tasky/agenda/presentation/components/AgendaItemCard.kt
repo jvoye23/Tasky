@@ -2,7 +2,9 @@ package com.jvoye.tasky.agenda.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,20 +12,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaItem
+import com.jvoye.tasky.agenda.domain.AgendaMenuType
 import com.jvoye.tasky.agenda.domain.AgendaType
 import com.jvoye.tasky.agenda.presentation.AgendaAction
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Awaiting
@@ -35,10 +44,18 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 
 @Composable
 fun AgendaItemCard(
+    modifier: Modifier = Modifier,
     agendaItem: AgendaItem,
+    onAgendaItemClick: (agendaItemId: Int) -> Unit,
+    onAgendaItemMenuClick: (agendaItemId: Int) -> Unit,
     action: (AgendaAction) -> Unit,
-    onAgendaItemClick: () -> Unit    
 ) {
+    val menuItems = listOf(
+        AgendaMenuType.OPEN to stringResource(R.string.open),
+        AgendaMenuType.EDIT to stringResource(R.string.edit),
+        AgendaMenuType.DELETE to stringResource(R.string.delete)
+    )           
+
     val agendaItemTextColor = when(agendaItem.agendaItemType) {
         AgendaType.TASK -> MaterialTheme.colorScheme.onBackground
         AgendaType.EVENT -> MaterialTheme.colorScheme.background
@@ -46,16 +63,16 @@ fun AgendaItemCard(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(124.dp)
-            .clip(RoundedCornerShape(16.dp))
             .background(
-                when(agendaItem.agendaItemType) {
+                color = when(agendaItem.agendaItemType) {
                     AgendaType.EVENT -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
                     AgendaType.TASK -> MaterialTheme.colorScheme.secondary
                     AgendaType.REMINDER -> MaterialTheme.colorScheme.surfaceHigher.copy(alpha = 0.8f)
-                }
+                },
+                shape = RoundedCornerShape(16.dp)
             )
             .padding(
                 top = 8.dp,
@@ -99,19 +116,46 @@ fun AgendaItemCard(
                     style = if (agendaItem.isAgendaItemFinished) MaterialTheme.typography.agendaItemFinished else MaterialTheme.typography.headlineMedium,
                     color = agendaItemTextColor
                 )
-                IconButton(
-                    onClick = { action(AgendaAction.OnItemMoreClick) },
+                Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .offset(x = 12.dp)
+                        .wrapContentSize(Alignment.TopEnd)
                 ) {
-                    Icon(
-                        imageVector = Icon_More,
-                        contentDescription = stringResource(R.string.agenda_item_more_icon),
-                        tint = agendaItemTextColor,
+                    var isMenuExpanded by remember { mutableStateOf(false) }
+
+                    IconButton(
+                        onClick = { isMenuExpanded = !isMenuExpanded },
                         modifier = Modifier
-                            .size(16.dp)
-                    )
+                            .size(40.dp)
+                            .offset(x = 12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icon_More,
+                            contentDescription = stringResource(R.string.agenda_item_more_icon),
+                            tint = agendaItemTextColor,
+                            modifier = Modifier
+                                .size(16.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = { isMenuExpanded = false },
+                        shape = RoundedCornerShape(8.dp),
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ) {
+                        menuItems.forEach { item ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = item.second,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                },
+                                onClick = {  },
+                                contentPadding = PaddingValues(start = 12.dp, end = 40.dp)
+                            )
+                        }
+                    }
                 }
             }
             Row(
@@ -164,7 +208,8 @@ private fun AgendaItemPreview() {
                     isAgendaItemFinished = true
                 ),
                 action = {},
-                onAgendaItemClick = {}
+                onAgendaItemClick = {},
+                onAgendaItemMenuClick = {}
             )
         }
     }

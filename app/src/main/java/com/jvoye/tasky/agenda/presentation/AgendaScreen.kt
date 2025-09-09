@@ -7,9 +7,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,7 +38,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
+import com.jvoye.tasky.agenda.domain.AgendaType
 import com.jvoye.tasky.agenda.presentation.components.AgendaDatePicker
+import com.jvoye.tasky.agenda.presentation.components.AgendaFab
 import com.jvoye.tasky.agenda.presentation.components.AgendaItemCard
 import com.jvoye.tasky.agenda.presentation.components.AgendaTopBar
 import com.jvoye.tasky.agenda.presentation.components.ScrollableDateRow
@@ -49,6 +53,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun AgendaScreenRoot(
     onSuccessfulLogout: () -> Unit,
+    onFabMenuItemClick: (AgendaType) -> Unit,
     viewModel: AgendaViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -83,7 +88,8 @@ fun AgendaScreenRoot(
     ) {
         AgendaScreen(
             state = state,
-            action = viewModel::onAction
+            action = viewModel::onAction,
+            onFabMenuItemClick = onFabMenuItemClick
         )
         if(state.isLoggingOut) {
             FullScreenLoadingIndicator()
@@ -94,7 +100,8 @@ fun AgendaScreenRoot(
 @Composable
 private fun AgendaScreen(
     state: AgendaState,
-    action: (AgendaAction) -> Unit
+    action: (AgendaAction) -> Unit,
+    onFabMenuItemClick: (AgendaType) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = state.selectedDateMillis
@@ -109,6 +116,14 @@ private fun AgendaScreen(
                 state = state,
                 action = action
             )
+        },
+        floatingActionButton = {
+            AgendaFab(
+                modifier = Modifier
+                    .padding(bottom = 25.dp)
+                    .offset(x = 4.dp),
+                onFabMenuItemClick = onFabMenuItemClick
+            )
         }
     ) { innerPadding ->
         AgendaScreenContent(
@@ -117,7 +132,8 @@ private fun AgendaScreen(
                 .alpha(1f),
             state = state,
             action = action,
-            datePickerState = datePickerState
+            datePickerState = datePickerState,
+
         )
     }
 }
@@ -129,7 +145,7 @@ private fun AgendaScreenContent(
     modifier: Modifier = Modifier,
     state: AgendaState,
     action: (AgendaAction) -> Unit,
-    datePickerState: DatePickerState
+    datePickerState: DatePickerState,
 ) {
     Column(
         modifier = modifier
@@ -166,13 +182,20 @@ private fun AgendaScreenContent(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (state.agendaList != null) {
-                items(state.agendaList) { agendaItem ->
-                    AgendaItemCard(
-                        agendaItem = agendaItem,
-                        action = action,
-                        onAgendaItemClick = { }
-                    )
+            state.agendaList?.let { agendaList ->
+                items(
+                    items = agendaList,
+                    key = { agendaItem -> agendaItem.agendaItemId },
+                    contentType = {it.agendaItemType }
+                ) { agendaItem ->
+                    Row(modifier = Modifier.animateItem()) {
+                        AgendaItemCard(
+                            agendaItem = agendaItem,
+                            action = action,
+                            onAgendaItemClick = { },
+                            onAgendaItemMenuClick = { }
+                        )
+                    }
                 }
             }
         }
@@ -213,7 +236,8 @@ fun AgendaScreenPreview() {
     TaskyTheme {
         AgendaScreen(
             state = AgendaState(),
-            action = {}
+            action = {},
+            onFabMenuItemClick = {}
         )
     }
 }

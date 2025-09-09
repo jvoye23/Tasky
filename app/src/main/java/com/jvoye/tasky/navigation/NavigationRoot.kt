@@ -1,7 +1,6 @@
 package com.jvoye.tasky.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -10,11 +9,14 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import com.jvoye.tasky.agenda.domain.AgendaType
 import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
+import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Serializable
 data object RegisterScreen: NavKey
@@ -24,6 +26,9 @@ data object LoginScreen: NavKey
 
 @Serializable
 data object AgendaScreen: NavKey
+
+@Serializable
+data class AgendaDetailScreen(val type: AgendaType): NavKey
 
 @Composable
 fun NavigationRoot(
@@ -80,7 +85,21 @@ fun NavigationRoot(
                                 backStack.clear()
                                 backStack.add(LoginScreen)
                             },
-                            viewModel = koinViewModel()
+                            viewModel = koinViewModel(),
+                            onFabMenuItemClick = { agendaType ->
+                                backStack.add(AgendaDetailScreen(agendaType))
+                            }
+                        )
+                    }
+                }
+                is AgendaDetailScreen -> {
+                    NavEntry(
+                        key= key
+                    ) {
+                        AgendaDetailScreenRoot(
+                            viewModel = koinViewModel {
+                                parametersOf(key.type)
+                            }
                         )
                     }
                 }

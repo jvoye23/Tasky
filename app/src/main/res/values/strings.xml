@@ -2,7 +2,7 @@
     <string name="app_name">Tasky</string>
     <string name="get_started">GET STARTED</string>
     <string name="cancel">CANCEL</string>
-    <string name="delete">DELETE</string>
+    <string name="delete">Delete</string>
     <string name="plus_icon">Plus Icon</string>
     <string name="email_address">Email address</string>
     <string name="show_password">Show password</string>
@@ -39,4 +39,9 @@
     <string name="agenda_item_status_icon">Agenda item status icon</string>
     <string name="agenda_item_more_icon">Agenda item more icon</string>
     <string name="today">Today</string>
+    <string name="edit">Edit</string>
+    <string name="open">Open</string>
+    <string name="event">Event</string>
+    <string name="task">Task</string>
+    <string name="reminder">Reminder</string>
 </resources>

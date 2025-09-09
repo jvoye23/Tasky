@@ -2,6 +2,7 @@ package com.jvoye.tasky
 
 import android.app.Application
 import com.jvoye.tasky.agenda.di.agendaModule
+import com.jvoye.tasky.agenda_detail.di.agendaDetailModule
 import com.jvoye.tasky.auth.di.authModule
 import com.jvoye.tasky.core.data.di.coreDataModule
 import com.jvoye.tasky.di.appModule
@@ -29,7 +30,8 @@ class TaskyApp: Application() {
                 appModule,
                 authModule,
                 coreDataModule,
-                agendaModule
+                agendaModule,
+                agendaDetailModule
             )
         }
     }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Tasky</string>
     <string name="get_started">GET STARTED</string>
-    <string name="cancel">CANCEL</string>
+    <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="plus_icon">Plus Icon</string>
     <string name="email_address">Email address</string>
@@ -44,4 +44,9 @@
     <string name="event">Event</string>
     <string name="task">Task</string>
     <string name="reminder">Reminder</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="edit_uppercase">EDIT</string>
+    <string name="at">At</string>
+    <string name="delete_task">DELETE TASK</string>
 </resources>

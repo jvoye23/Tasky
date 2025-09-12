@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,10 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.agenda.presentation.AgendaAction
 import com.jvoye.tasky.agenda.presentation.AgendaState
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDateTimePicker
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Calendar_Today
 
 @Composable
@@ -38,11 +37,14 @@ fun AgendaTopBar(
         modifier = Modifier
             .padding(horizontal = 16.dp),
         title = {
-            AgendaMonthTextButton(
-                monthText = state.currentMonthName,
+            TaskyDateTimePicker(
+                text = state.currentMonthName,
                 onClick = {
                     action(AgendaAction.OnMonthTextClick)
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                textStyle = MaterialTheme.typography.labelMedium,
             )
         },
         colors = TopAppBarColors(

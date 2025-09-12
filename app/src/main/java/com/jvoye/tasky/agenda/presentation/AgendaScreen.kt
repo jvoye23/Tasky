@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.domain.AgendaType
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.components.AgendaDatePicker
 import com.jvoye.tasky.agenda.presentation.components.AgendaFab
 import com.jvoye.tasky.agenda.presentation.components.AgendaItemCard
@@ -53,7 +53,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun AgendaScreenRoot(
     onSuccessfulLogout: () -> Unit,
-    onFabMenuItemClick: (AgendaType) -> Unit,
+    onFabMenuItemClick: (Boolean, TaskyType) -> Unit,
+    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
+    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit,
     viewModel: AgendaViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -89,7 +91,9 @@ fun AgendaScreenRoot(
         AgendaScreen(
             state = state,
             action = viewModel::onAction,
-            onFabMenuItemClick = onFabMenuItemClick
+            onFabMenuItemClick = onFabMenuItemClick,
+            onAgendaItemClick = onAgendaItemClick,
+            onAgendaItemMenuClick = onAgendaItemMenuClick
         )
         if(state.isLoggingOut) {
             FullScreenLoadingIndicator()
@@ -101,7 +105,9 @@ fun AgendaScreenRoot(
 private fun AgendaScreen(
     state: AgendaState,
     action: (AgendaAction) -> Unit,
-    onFabMenuItemClick: (AgendaType) -> Unit
+    onFabMenuItemClick: (Boolean, TaskyType) -> Unit,
+    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
+    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = state.selectedDateMillis
@@ -133,7 +139,8 @@ private fun AgendaScreen(
             state = state,
             action = action,
             datePickerState = datePickerState,
-
+            onAgendaItemClick = onAgendaItemClick,
+            onAgendaItemMenuClick = onAgendaItemMenuClick
         )
     }
 }
@@ -146,6 +153,8 @@ private fun AgendaScreenContent(
     state: AgendaState,
     action: (AgendaAction) -> Unit,
     datePickerState: DatePickerState,
+    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
+    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -185,15 +194,15 @@ private fun AgendaScreenContent(
             state.agendaList?.let { agendaList ->
                 items(
                     items = agendaList,
-                    key = { agendaItem -> agendaItem.agendaItemId },
-                    contentType = {it.agendaItemType }
-                ) { agendaItem ->
+                    key = { taskyItem -> taskyItem.id },
+                    contentType = {it.type }
+                ) { taskyItem ->
                     Row(modifier = Modifier.animateItem()) {
                         AgendaItemCard(
-                            agendaItem = agendaItem,
+                            taskyItem = taskyItem,
                             action = action,
-                            onAgendaItemClick = { },
-                            onAgendaItemMenuClick = { }
+                            onAgendaItemClick = onAgendaItemClick,
+                            onAgendaItemMenuClick = onAgendaItemMenuClick
                         )
                     }
                 }
@@ -237,7 +246,9 @@ fun AgendaScreenPreview() {
         AgendaScreen(
             state = AgendaState(),
             action = {},
-            onFabMenuItemClick = {}
+            onFabMenuItemClick = {} as (Boolean, TaskyType) -> Unit,
+            onAgendaItemClick = {} as (TaskyType, Long) -> Unit as (Boolean, TaskyType, Long) -> Unit,
+            onAgendaItemMenuClick = {} as (Boolean, TaskyType, Long) -> Unit
         )
     }
 }

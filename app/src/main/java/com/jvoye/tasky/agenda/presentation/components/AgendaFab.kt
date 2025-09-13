@@ -26,11 +26,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.domain.AgendaType
-import com.jvoye.tasky.agenda.presentation.util.AgendaFabMenuEntry
-import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Bell
-import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Calendar
-import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Circle_Check
+import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.mappers.toFabEntry
+import com.jvoye.tasky.agenda.presentation.model.AgendaFabMenuItemUi
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_X
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
@@ -38,33 +36,17 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 @Composable
 fun AgendaFab(
     modifier: Modifier = Modifier,
-    onFabMenuItemClick: (AgendaType) -> Unit,
+    onFabMenuItemClick: ( Boolean, TaskyType) -> Unit,
+    menuItems: List<AgendaFabMenuItemUi> = TaskyType.entries.map { it.toFabEntry() }
 ) {
     val fabShadowColor = Color(0xFF16161C).copy(alpha = 0.2f)
+    var isFabMenuExpanded by remember { mutableStateOf(false) }
 
-    val items = listOf(
-        AgendaFabMenuEntry(
-            agendaType = AgendaType.EVENT,
-            leadingIcon = Icon_Calendar,
-            label = stringResource(R.string.event)
-        ),
-        AgendaFabMenuEntry(
-            agendaType = AgendaType.TASK,
-            leadingIcon = Icon_Circle_Check,
-            label = stringResource(R.string.task)
-        ),
-        AgendaFabMenuEntry(
-            agendaType = AgendaType.REMINDER,
-            leadingIcon = Icon_Bell,
-            label = stringResource(R.string.reminder)
-        )
-    )
     Box(
         modifier = modifier
             .wrapContentSize(Alignment.BottomEnd)
     ) {
-        var isFabMenuExpanded by remember { mutableStateOf(false) }
-        // FAB
+        // FAB toggle
         Box(
             modifier = Modifier
                 .clickable { isFabMenuExpanded = !isFabMenuExpanded }
@@ -87,7 +69,7 @@ fun AgendaFab(
                 modifier = Modifier
                     .size(24.dp),
                 imageVector = if (isFabMenuExpanded) Icon_X else Icon_plus,
-                contentDescription = "Add",
+                contentDescription = stringResource(R.string.add),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
@@ -97,16 +79,19 @@ fun AgendaFab(
             shape = RoundedCornerShape(8.dp),
             containerColor = MaterialTheme.colorScheme.surface
         ) {
-            items.forEach { item ->
+            menuItems.forEach { item ->
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = item.label,
+                            text = item.label.asString(),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
                     },
-                    onClick = { onFabMenuItemClick(item.agendaType) },
+                    onClick = {
+                        isFabMenuExpanded = false
+                        onFabMenuItemClick(true, item.taskyType)
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = item.leadingIcon,
@@ -127,7 +112,7 @@ fun AgendaFab(
 private fun AgendaFabPreview() {
     TaskyTheme {
         AgendaFab(
-            onFabMenuItemClick = {},
+            onFabMenuItemClick = {} as (Boolean, TaskyType) -> Unit,
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.jvoye.tasky.agenda.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,46 +32,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.domain.AgendaItem
 import com.jvoye.tasky.agenda.domain.AgendaMenuType
-import com.jvoye.tasky.agenda.domain.AgendaType
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaAction
+import com.jvoye.tasky.agenda.presentation.mappers.toUiText
+import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Awaiting
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Done
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_More
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.agendaItemFinished
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
+import com.jvoye.tasky.core.presentation.designsystem.util.UiText
+import com.jvoye.tasky.core.presentation.designsystem.util.UiText.*
+import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun AgendaItemCard(
     modifier: Modifier = Modifier,
-    agendaItem: AgendaItem,
-    onAgendaItemClick: (agendaItemId: Int) -> Unit,
-    onAgendaItemMenuClick: (agendaItemId: Int) -> Unit,
+    taskyItem: TaskyItem,
+    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
+    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit,
     action: (AgendaAction) -> Unit,
+    menuItems: List<UiText> = AgendaMenuType.entries.map { it.toUiText() }
 ) {
-    val menuItems = listOf(
-        AgendaMenuType.OPEN to stringResource(R.string.open),
-        AgendaMenuType.EDIT to stringResource(R.string.edit),
-        AgendaMenuType.DELETE to stringResource(R.string.delete)
-    )           
-
-    val agendaItemTextColor = when(agendaItem.agendaItemType) {
-        AgendaType.TASK -> MaterialTheme.colorScheme.onBackground
-        AgendaType.EVENT -> MaterialTheme.colorScheme.background
-        AgendaType.REMINDER -> MaterialTheme.colorScheme.primary
+    val agendaItemTextColor = when(taskyItem.type) {
+        TaskyType.TASK -> MaterialTheme.colorScheme.onBackground
+        TaskyType.EVENT -> MaterialTheme.colorScheme.background
+        TaskyType.REMINDER -> MaterialTheme.colorScheme.primary
     }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(124.dp)
+            .clickable {
+                onAgendaItemClick(false, taskyItem.type, taskyItem.id)
+            }
             .background(
-                color = when(agendaItem.agendaItemType) {
-                    AgendaType.EVENT -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
-                    AgendaType.TASK -> MaterialTheme.colorScheme.secondary
-                    AgendaType.REMINDER -> MaterialTheme.colorScheme.surfaceHigher.copy(alpha = 0.8f)
+                color = when(taskyItem.type) {
+                    TaskyType.EVENT -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
+                    TaskyType.TASK -> MaterialTheme.colorScheme.secondary
+                    TaskyType.REMINDER -> MaterialTheme.colorScheme.surfaceHigher.copy(alpha = 0.8f)
                 },
                 shape = RoundedCornerShape(16.dp)
             )
@@ -78,20 +82,21 @@ fun AgendaItemCard(
                 top = 8.dp,
                 bottom = 16.dp
             )
-            .padding(start = if (agendaItem.agendaItemType != AgendaType.TASK) 16.dp else 0.dp)
+            .padding(start = if (taskyItem.type != TaskyType.TASK) 16.dp else 0.dp)
             .padding(end = 16.dp)
     ) {
-        if (agendaItem.agendaItemType == AgendaType.TASK) {
+        if (taskyItem.type == TaskyType.TASK) {
+
             Column(
                 verticalArrangement = Arrangement.Top
             ) {
                 IconButton(
-                    onClick = { action(AgendaAction.OnAgendaTaskFinishedClick(agendaItem.agendaItemId)) },
+                    onClick = { action(AgendaAction.OnAgendaTaskFinishedClick(taskyItem.id)) },
                     modifier = Modifier
                         .size(40.dp)
                 ) {
                     Icon(
-                        imageVector = if (agendaItem.isAgendaItemFinished) Icon_Done else Icon_Awaiting,
+                        imageVector = if (taskyItem.details is TaskyItemDetails.Task && taskyItem.details.isDone) Icon_Done else Icon_Awaiting,
                         contentDescription = stringResource(R.string.agenda_item_status_icon),
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
@@ -112,8 +117,8 @@ fun AgendaItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = agendaItem.agendaItemTitle,
-                    style = if (agendaItem.isAgendaItemFinished) MaterialTheme.typography.agendaItemFinished else MaterialTheme.typography.headlineMedium,
+                    text = taskyItem.title,
+                    style = if (taskyItem.details is TaskyItemDetails.Task && taskyItem.details.isDone) MaterialTheme.typography.agendaItemFinished else MaterialTheme.typography.headlineMedium,
                     color = agendaItemTextColor
                 )
                 Box(
@@ -146,12 +151,22 @@ fun AgendaItemCard(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = item.second,
+                                        text = item.asString(),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                 },
-                                onClick = {  },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    onAgendaItemMenuClick(
+                                        when(item) {
+                                            StringResource(R.string.edit) -> true
+                                            else -> true
+                                        },
+                                        taskyItem.type,
+                                        taskyItem.id
+                                    )
+                                },
                                 contentPadding = PaddingValues(start = 12.dp, end = 40.dp)
                             )
                         }
@@ -166,7 +181,7 @@ fun AgendaItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = agendaItem.agendaItemDescription,
+                    text = taskyItem.description,
                     style = MaterialTheme.typography.bodySmall,
                     color = agendaItemTextColor
                 )
@@ -179,7 +194,7 @@ fun AgendaItemCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text = agendaItem.agendaItemDate,
+                    text = taskyItem.time.toString(),
                     style = MaterialTheme.typography.bodySmall,
                     color = agendaItemTextColor
                 )
@@ -199,17 +214,19 @@ private fun AgendaItemPreview() {
             verticalArrangement = Arrangement.Center
         ) {
             AgendaItemCard(
-                agendaItem = AgendaItem(
-                    agendaItemId = 1,
-                    agendaItemType = AgendaType.TASK,
-                    agendaItemTitle = "Event 1",
-                    agendaItemDescription = "Description for Event 1",
-                    agendaItemDate = "Mar 5, 10:00 - Mar 07, 11:59",
-                    isAgendaItemFinished = true
+                taskyItem = TaskyItem(
+                    id = 8,
+                    title = "Task 4 Title",
+                    description = "Task 4 description",
+                    time = LocalDateTime(2023, 3, 1, 10, 0, 0, 0),
+                    type = TaskyType.TASK,
+                    details = TaskyItemDetails.Task(
+                        isDone = true
+                    )
                 ),
                 action = {},
-                onAgendaItemClick = {},
-                onAgendaItemMenuClick = {}
+                onAgendaItemClick = {} as (Boolean, TaskyType, Long) -> Unit,
+                onAgendaItemMenuClick = {} as (Boolean, TaskyType, Long) -> Unit
             )
         }
     }

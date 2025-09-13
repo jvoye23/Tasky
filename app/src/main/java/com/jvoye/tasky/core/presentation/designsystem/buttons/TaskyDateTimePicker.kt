@@ -1,12 +1,10 @@
-package com.jvoye.tasky.agenda.presentation.components
+package com.jvoye.tasky.core.presentation.designsystem.buttons
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,28 +14,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Dropdown
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 
 @Composable
-fun AgendaMonthTextButton(
-    monthText: String,
+fun TaskyDateTimePicker(
+    modifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier,
+    isEditMode: Boolean = true,
+    text: String,
+    textStyle: TextStyle,
+    containerColor: Color,
+    contentColor: Color,
     onClick: () -> Unit
 ) {
     Row (
-        modifier = Modifier
-            .fillMaxHeight(0.8f)
-            .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = 2.dp)
+        modifier = modifier
+            .background(containerColor)
+            .padding(vertical = 4.dp)
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = monthText.uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            modifier = textModifier,
+            text = text.uppercase(),
+            style = textStyle,
+            color = contentColor
         )
         Spacer(modifier = Modifier.width(4.dp))
 
@@ -46,8 +52,9 @@ fun AgendaMonthTextButton(
             contentDescription = null,
             modifier = Modifier
                 .size(20.dp),
-            tint = MaterialTheme.colorScheme.onBackground
+            tint = if (isEditMode) contentColor else containerColor.copy(alpha = 0f)
         )
+        
     }
 }
 
@@ -55,9 +62,15 @@ fun AgendaMonthTextButton(
 @Composable
 private fun AgendaMonthTextButtonPreview() {
     TaskyTheme {
-        AgendaMonthTextButton(
-            monthText = "August",
-            onClick = {}
+        TaskyDateTimePicker(
+            text = "August",
+            onClick = {},
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier,
+            isEditMode = true,
+            textStyle = MaterialTheme.typography.labelMedium,
+            textModifier = Modifier
         )
     }
 }

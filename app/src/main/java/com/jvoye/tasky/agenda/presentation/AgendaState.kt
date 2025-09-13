@@ -3,10 +3,8 @@
 package com.jvoye.tasky.agenda.presentation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.domain.AgendaItem
 import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
-import com.jvoye.tasky.core.presentation.designsystem.util.UiText
+import com.jvoye.tasky.core.domain.model.TaskyItem
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -24,5 +22,5 @@ data class AgendaState(
     val dateRowEntries: List<DateRowEntry>? = null,
     val currentDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     val dateHeadline: String = "Today",
-    val agendaList: List<AgendaItem>? = null
+    val agendaList: List<TaskyItem>? = null
     )

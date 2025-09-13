@@ -142,7 +142,7 @@ class AgendaViewModel(
     private fun getAgendaItems() {
         viewModelScope.launch {
             _state.update { it.copy(
-                agendaList = agendaRepository.getAgendaItems()
+                agendaList = agendaRepository.getTaskyItems()
             ) }
         }
     }

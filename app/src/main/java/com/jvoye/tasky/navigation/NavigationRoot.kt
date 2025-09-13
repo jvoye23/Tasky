@@ -9,11 +9,11 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import com.jvoye.tasky.agenda.domain.AgendaType
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
+import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
-import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -28,7 +28,11 @@ data object LoginScreen: NavKey
 data object AgendaScreen: NavKey
 
 @Serializable
-data class AgendaDetailScreen(val type: AgendaType): NavKey
+data class AgendaDetailScreen(
+    val isEdit: Boolean,
+    val taskyType: TaskyType,
+    val taskyItemId: Long? = null
+): NavKey
 
 @Composable
 fun NavigationRoot(
@@ -86,8 +90,29 @@ fun NavigationRoot(
                                 backStack.add(LoginScreen)
                             },
                             viewModel = koinViewModel(),
-                            onFabMenuItemClick = { agendaType ->
-                                backStack.add(AgendaDetailScreen(agendaType))
+                            onFabMenuItemClick = { isEdit, agendaType ->
+                                backStack.add(AgendaDetailScreen(
+                                    isEdit = false,
+                                    taskyType = agendaType
+                                    )
+                                )
+                            },
+                            onAgendaItemClick = { _, agendaType, taskyItemId ->
+                                backStack.add(AgendaDetailScreen(
+                                    isEdit = false,
+                                    taskyType = agendaType,
+                                    taskyItemId = taskyItemId
+                                    )
+                                )
+                            },
+
+                            onAgendaItemMenuClick = { isEdit, taskyType, taskyItemId ->
+                                backStack.add(AgendaDetailScreen(
+                                    isEdit = isEdit,
+                                    taskyType = taskyType,
+                                    taskyItemId = taskyItemId
+                                    )
+                                )
                             }
                         )
                     }
@@ -98,7 +123,7 @@ fun NavigationRoot(
                     ) {
                         AgendaDetailScreenRoot(
                             viewModel = koinViewModel {
-                                parametersOf(key.type)
+                                parametersOf(key.isEdit, key.taskyType, key.taskyItemId)
                             }
                         )
                     }

@@ -2,6 +2,7 @@ package com.jvoye.tasky.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -14,6 +15,7 @@ import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
+import com.jvoye.tasky.core.domain.model.TaskyNavParcelable
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -31,7 +33,9 @@ data object AgendaScreen: NavKey
 data class AgendaDetailScreen(
     val isEdit: Boolean,
     val taskyType: TaskyType,
-    val taskyItemId: Long? = null
+    val taskyItemId: Long? = null,
+    val savedState: TaskyNavParcelable? = null
+
 ): NavKey
 
 @Composable
@@ -123,7 +127,7 @@ fun NavigationRoot(
                     ) {
                         AgendaDetailScreenRoot(
                             viewModel = koinViewModel {
-                                parametersOf(key.isEdit, key.taskyType, key.taskyItemId)
+                                parametersOf(key.isEdit, key.taskyType, key.taskyItemId, key.savedState)
                             }
                         )
                     }

@@ -45,15 +45,12 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.agendaItemFinished
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
-import com.jvoye.tasky.core.presentation.designsystem.util.UiText.*
 import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun AgendaItemCard(
     modifier: Modifier = Modifier,
     taskyItem: TaskyItem,
-    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
-    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit,
     action: (AgendaAction) -> Unit,
     menuItems: List<UiText> = AgendaMenuType.entries.map { it.toUiText() }
 ) {
@@ -68,7 +65,7 @@ fun AgendaItemCard(
             .fillMaxWidth()
             .height(124.dp)
             .clickable {
-                onAgendaItemClick(false, taskyItem.type, taskyItem.id)
+                action(AgendaAction.OnAgendaItemClick(false, taskyItem.type, taskyItem.id))
             }
             .background(
                 color = when(taskyItem.type) {
@@ -158,14 +155,14 @@ fun AgendaItemCard(
                                 },
                                 onClick = {
                                     isMenuExpanded = false
-                                    onAgendaItemMenuClick(
-                                        when(item) {
-                                            StringResource(R.string.edit) -> true
-                                            else -> true
+                                    action(AgendaAction.OnAgendaItemMenuClick(
+                                        when(menuItems.indexOf(item)) {
+                                            1 -> true
+                                            else -> false
                                         },
                                         taskyItem.type,
                                         taskyItem.id
-                                    )
+                                    ))
                                 },
                                 contentPadding = PaddingValues(start = 12.dp, end = 40.dp)
                             )
@@ -224,9 +221,7 @@ private fun AgendaItemPreview() {
                         isDone = true
                     )
                 ),
-                action = {},
-                onAgendaItemClick = {} as (Boolean, TaskyType, Long) -> Unit,
-                onAgendaItemMenuClick = {} as (Boolean, TaskyType, Long) -> Unit
+                action = {}
             )
         }
     }

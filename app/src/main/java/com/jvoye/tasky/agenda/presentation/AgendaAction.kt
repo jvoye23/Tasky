@@ -1,5 +1,6 @@
 package com.jvoye.tasky.agenda.presentation
 
+import com.jvoye.tasky.agenda.domain.TaskyType
 import kotlinx.datetime.LocalDate
 
 sealed interface AgendaAction {
@@ -12,6 +13,10 @@ sealed interface AgendaAction {
     data object OnLogOutClick: AgendaAction
     data class OnDateRowItemClick(val selectedDate: LocalDate): AgendaAction
     data class OnAgendaTaskFinishedClick(val taskyItemId: Long): AgendaAction
-    data object OnItemMoreClick: AgendaAction
-    data object OnAddAgendaItemClick: AgendaAction
+    data object OnToggleAgendaItemMoreMenu: AgendaAction
+    data object OnToggleAgendaFabMenu: AgendaAction
+    data class OnFabMenuItemClick(val isEditMode: Boolean, val taskyType: TaskyType): AgendaAction
+    data class OnSaveNavParcelable(val taskyItemId: Long?, val taskyType: TaskyType, val isEditMode: Boolean): AgendaAction
+    data class OnAgendaItemClick(val isEditMode: Boolean, val taskyType: TaskyType, val taskyItemId: Long): AgendaAction
+    data class OnAgendaItemMenuClick(val isEditMode: Boolean, val taskyType: TaskyType, val taskyItemId: Long): AgendaAction
 }

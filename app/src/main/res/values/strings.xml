@@ -49,4 +49,6 @@
     <string name="edit_uppercase">EDIT</string>
     <string name="at">At</string>
     <string name="delete_task">DELETE TASK</string>
+    <string name="description">Description</string>
+    <string name="title">Title</string>
 </resources>

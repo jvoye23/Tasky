@@ -16,6 +16,6 @@ class TestAgendaRepository : AgendaRepository {
     }
 
     override suspend fun getTaskyItem(taskyItemId: Long): TaskyItem {
-        return testTaskyItems.first { it.id == taskyItemId }
+        return testTaskyItems.first() { it.id == taskyItemId }
     }
 }

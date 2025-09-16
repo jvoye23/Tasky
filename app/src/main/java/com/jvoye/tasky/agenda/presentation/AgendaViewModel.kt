@@ -3,12 +3,14 @@
 package com.jvoye.tasky.agenda.presentation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
+import com.jvoye.tasky.core.domain.model.TaskyNavParcelable
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.mappers.toUserUi
 import com.jvoye.tasky.core.presentation.ui.asUiText
@@ -34,7 +36,8 @@ import kotlin.time.ExperimentalTime
 class AgendaViewModel(
     private val encryptedSessionDataStore: EncryptedSessionDataStore,
     private val authRepository: AuthRepository,
-    private val agendaRepository: AgendaRepository
+    private val agendaRepository: AgendaRepository,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
     private val eventChannel = Channel<AgendaEvent>()
@@ -104,16 +107,40 @@ class AgendaViewModel(
                 getAgendaListTitle()
             }
 
-            AgendaAction.OnItemMoreClick -> { }
+            AgendaAction.OnToggleAgendaItemMoreMenu -> {
+                _state.update { it.copy(
+                    isAgendaItemMenuExpanded = it.isAgendaItemMenuExpanded.not()
+                ) }
+            }
             is AgendaAction.OnAgendaTaskFinishedClick -> {
 
             }
 
-            AgendaAction.OnAddAgendaItemClick -> {
+            AgendaAction.OnToggleAgendaFabMenu -> {
+                _state.update {
+                    it.copy(
+                        isFabMenuExpanded = it.isFabMenuExpanded.not()
+                    )
+                }
+            }
+
+            is AgendaAction.OnSaveNavParcelable -> {
+                savedStateHandle["TaskyNavArgs"] = TaskyNavParcelable(
+                    taskyItemId = action.taskyItemId,
+                    taskyItemType = action.taskyType,
+                    isEditMode = action.isEditMode
+                )
+                println("SAVED STATE 1: ${savedStateHandle.get<TaskyNavParcelable>("TaskyNavArgs")}")
 
             }
 
+            else -> Unit
         }
+    }
+
+    private fun saveState(navParcelable: TaskyNavParcelable) {
+        savedStateHandle["taskyNavArgs"] = navParcelable
+
     }
 
     private fun getCurrentMonthName() {

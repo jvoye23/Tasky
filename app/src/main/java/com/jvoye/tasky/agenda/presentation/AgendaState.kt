@@ -22,5 +22,7 @@ data class AgendaState(
     val dateRowEntries: List<DateRowEntry>? = null,
     val currentDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     val dateHeadline: String = "Today",
-    val agendaList: List<TaskyItem>? = null
+    val agendaList: List<TaskyItem>? = null,
+    val isFabMenuExpanded: Boolean = false,
+    val isAgendaItemMenuExpanded: Boolean = false,
     )

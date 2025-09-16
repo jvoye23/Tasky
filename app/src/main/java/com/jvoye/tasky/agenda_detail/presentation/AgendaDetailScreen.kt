@@ -171,7 +171,7 @@ private fun TaskContent(
                 Text(
                     modifier = Modifier
                         .weight(1f),
-                    text = state.taskyItem?.title.toString(),
+                    text = if (state.taskyItem?.title == null) stringResource(R.string.title) else state.taskyItem.title,
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -202,7 +202,7 @@ private fun TaskContent(
                 Text(
                     modifier = Modifier
                         .weight(1f),
-                    text = state.taskyItem?.description.toString(),
+                    text = if(state.taskyItem?.description == null) stringResource(R.string.description) else  state.taskyItem.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )

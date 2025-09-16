@@ -1,5 +1,6 @@
 package com.jvoye.tasky.agenda.presentation.components
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,10 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
@@ -27,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.AgendaAction
+import com.jvoye.tasky.agenda.presentation.AgendaState
 import com.jvoye.tasky.agenda.presentation.mappers.toFabEntry
 import com.jvoye.tasky.agenda.presentation.model.AgendaFabMenuItemUi
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_X
@@ -36,11 +35,11 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 @Composable
 fun AgendaFab(
     modifier: Modifier = Modifier,
-    onFabMenuItemClick: ( Boolean, TaskyType) -> Unit,
+    action: (AgendaAction) -> Unit,
+    state: AgendaState,
     menuItems: List<AgendaFabMenuItemUi> = TaskyType.entries.map { it.toFabEntry() }
 ) {
     val fabShadowColor = Color(0xFF16161C).copy(alpha = 0.2f)
-    var isFabMenuExpanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -49,7 +48,7 @@ fun AgendaFab(
         // FAB toggle
         Box(
             modifier = Modifier
-                .clickable { isFabMenuExpanded = !isFabMenuExpanded }
+                .clickable { action(AgendaAction.OnToggleAgendaFabMenu) }
                 .size(68.dp)
                 .dropShadow(
                     shape = RoundedCornerShape(20.dp)
@@ -68,14 +67,14 @@ fun AgendaFab(
             Icon(
                 modifier = Modifier
                     .size(24.dp),
-                imageVector = if (isFabMenuExpanded) Icon_X else Icon_plus,
+                imageVector = if (state.isFabMenuExpanded) Icon_X else Icon_plus,
                 contentDescription = stringResource(R.string.add),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
         DropdownMenu(
-            expanded = isFabMenuExpanded,
-            onDismissRequest = { isFabMenuExpanded = false },
+            expanded = state.isFabMenuExpanded,
+            onDismissRequest = { action(AgendaAction.OnToggleAgendaFabMenu) },
             shape = RoundedCornerShape(8.dp),
             containerColor = MaterialTheme.colorScheme.surface
         ) {
@@ -89,8 +88,9 @@ fun AgendaFab(
                         )
                     },
                     onClick = {
-                        isFabMenuExpanded = false
-                        onFabMenuItemClick(true, item.taskyType)
+                        action(AgendaAction.OnToggleAgendaFabMenu)
+                        action(AgendaAction.OnSaveNavParcelable(null, item.taskyType, false))
+                        action(AgendaAction.OnFabMenuItemClick(true, item.taskyType))
                     },
                     leadingIcon = {
                         Icon(
@@ -112,7 +112,8 @@ fun AgendaFab(
 private fun AgendaFabPreview() {
     TaskyTheme {
         AgendaFab(
-            onFabMenuItemClick = {} as (Boolean, TaskyType) -> Unit,
+            action = {},
+            state = AgendaState()
         )
     }
 }

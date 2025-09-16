@@ -58,6 +58,9 @@ fun AgendaScreenRoot(
     onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit,
     viewModel: AgendaViewModel = koinViewModel()
 ) {
+
+
+
     val context = LocalContext.current
 
     ObserveAsEvents(viewModel.events) { event ->
@@ -80,8 +83,6 @@ fun AgendaScreenRoot(
         }
     }
 
-
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Box(
@@ -90,10 +91,16 @@ fun AgendaScreenRoot(
     ) {
         AgendaScreen(
             state = state,
-            action = viewModel::onAction,
-            onFabMenuItemClick = onFabMenuItemClick,
-            onAgendaItemClick = onAgendaItemClick,
-            onAgendaItemMenuClick = onAgendaItemMenuClick
+            onAction = { action ->
+                when(action) {
+                    is AgendaAction.OnFabMenuItemClick -> onFabMenuItemClick(action.isEditMode, action.taskyType)
+                    is AgendaAction.OnAgendaItemClick -> onAgendaItemClick(action.isEditMode, action.taskyType, action.taskyItemId)
+                    is AgendaAction.OnAgendaItemMenuClick -> onAgendaItemMenuClick(action.isEditMode, action.taskyType, action.taskyItemId)
+                    else -> Unit
+                }
+                viewModel.onAction(action)
+
+            }
         )
         if(state.isLoggingOut) {
             FullScreenLoadingIndicator()
@@ -104,10 +111,7 @@ fun AgendaScreenRoot(
 @Composable
 private fun AgendaScreen(
     state: AgendaState,
-    action: (AgendaAction) -> Unit,
-    onFabMenuItemClick: (Boolean, TaskyType) -> Unit,
-    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
-    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit
+    onAction: (AgendaAction) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = state.selectedDateMillis
@@ -120,7 +124,7 @@ private fun AgendaScreen(
         topBar = {
             AgendaTopBar(
                 state = state,
-                action = action
+                action = onAction
             )
         },
         floatingActionButton = {
@@ -128,7 +132,8 @@ private fun AgendaScreen(
                 modifier = Modifier
                     .padding(bottom = 25.dp)
                     .offset(x = 4.dp),
-                onFabMenuItemClick = onFabMenuItemClick
+                action = onAction,
+                state = state
             )
         }
     ) { innerPadding ->
@@ -137,10 +142,8 @@ private fun AgendaScreen(
                 .padding(innerPadding)
                 .alpha(1f),
             state = state,
-            action = action,
-            datePickerState = datePickerState,
-            onAgendaItemClick = onAgendaItemClick,
-            onAgendaItemMenuClick = onAgendaItemMenuClick
+            action = onAction,
+            datePickerState = datePickerState
         )
     }
 }
@@ -152,9 +155,7 @@ private fun AgendaScreenContent(
     modifier: Modifier = Modifier,
     state: AgendaState,
     action: (AgendaAction) -> Unit,
-    datePickerState: DatePickerState,
-    onAgendaItemClick: (Boolean, TaskyType, Long) -> Unit,
-    onAgendaItemMenuClick: (Boolean, TaskyType, Long) -> Unit
+    datePickerState: DatePickerState
 ) {
     Column(
         modifier = modifier
@@ -200,9 +201,7 @@ private fun AgendaScreenContent(
                     Row(modifier = Modifier.animateItem()) {
                         AgendaItemCard(
                             taskyItem = taskyItem,
-                            action = action,
-                            onAgendaItemClick = onAgendaItemClick,
-                            onAgendaItemMenuClick = onAgendaItemMenuClick
+                            action = action
                         )
                     }
                 }
@@ -245,10 +244,7 @@ fun AgendaScreenPreview() {
     TaskyTheme {
         AgendaScreen(
             state = AgendaState(),
-            action = {},
-            onFabMenuItemClick = {} as (Boolean, TaskyType) -> Unit,
-            onAgendaItemClick = {} as (TaskyType, Long) -> Unit as (Boolean, TaskyType, Long) -> Unit,
-            onAgendaItemMenuClick = {} as (Boolean, TaskyType, Long) -> Unit
+            onAction = {}
         )
     }
 }

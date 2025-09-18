@@ -35,6 +35,7 @@ import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaMenuType
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaAction
+import com.jvoye.tasky.agenda.presentation.mappers.getItemCardDateTimeString
 import com.jvoye.tasky.agenda.presentation.mappers.toUiText
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
@@ -191,7 +192,8 @@ fun AgendaItemCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text = taskyItem.time.toString(),
+                    //text = taskyItem.time.toString(),
+                    text = getItemCardDateTimeString(taskyItem.time),
                     style = MaterialTheme.typography.bodySmall,
                     color = agendaItemTextColor
                 )

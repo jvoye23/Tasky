@@ -36,8 +36,7 @@ import kotlin.time.ExperimentalTime
 class AgendaViewModel(
     private val encryptedSessionDataStore: EncryptedSessionDataStore,
     private val authRepository: AuthRepository,
-    private val agendaRepository: AgendaRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val agendaRepository: AgendaRepository
 ): ViewModel() {
 
     private val eventChannel = Channel<AgendaEvent>()
@@ -123,26 +122,9 @@ class AgendaViewModel(
                     )
                 }
             }
-
-            is AgendaAction.OnSaveNavParcelable -> {
-                savedStateHandle["TaskyNavArgs"] = TaskyNavParcelable(
-                    taskyItemId = action.taskyItemId,
-                    taskyItemType = action.taskyType,
-                    isEditMode = action.isEditMode
-                )
-                println("SAVED STATE 1: ${savedStateHandle.get<TaskyNavParcelable>("TaskyNavArgs")}")
-
-            }
-
             else -> Unit
         }
     }
-
-    private fun saveState(navParcelable: TaskyNavParcelable) {
-        savedStateHandle["taskyNavArgs"] = navParcelable
-
-    }
-
     private fun getCurrentMonthName() {
         val instant = Clock.System.now()
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())

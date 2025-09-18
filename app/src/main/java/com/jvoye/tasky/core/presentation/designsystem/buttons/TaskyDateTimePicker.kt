@@ -41,7 +41,7 @@ fun TaskyDateTimePicker(
     ) {
         Text(
             modifier = textModifier,
-            text = text.uppercase(),
+            text = text,
             style = textStyle,
             color = contentColor
         )

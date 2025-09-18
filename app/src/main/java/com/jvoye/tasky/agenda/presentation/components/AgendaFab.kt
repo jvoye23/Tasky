@@ -89,7 +89,6 @@ fun AgendaFab(
                     },
                     onClick = {
                         action(AgendaAction.OnToggleAgendaFabMenu)
-                        action(AgendaAction.OnSaveNavParcelable(null, item.taskyType, false))
                         action(AgendaAction.OnFabMenuItemClick(true, item.taskyType))
                     },
                     leadingIcon = {

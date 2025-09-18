@@ -37,7 +37,7 @@ fun AgendaLogoutDropdown(
                         .padding(start = 8.dp, end = 60.dp),
                     text = stringResource(R.string.log_out),
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.bodyMedium
                 )
             },
             onClick = {

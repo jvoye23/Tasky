@@ -14,13 +14,12 @@ val agendaDetailModule = module {
 
     singleOf(::TestAgendaRepository).bind<AgendaRepository>()
 
-    viewModel { (isEdit: Boolean, taskyType: TaskyType, taskyItemId: Long?, savedStateHandle: SavedStateHandle) ->
+    viewModel { (isEdit: Boolean, taskyType: TaskyType, taskyItemId: Long?) ->
         AgendaDetailScreenViewModel(
             isEdit = isEdit,
             taskyType = taskyType,
             taskyItemId = taskyItemId,
-            agendaRepository = get(),
-            savedStateHandle = savedStateHandle
+            agendaRepository = get()
         )
     }
 }

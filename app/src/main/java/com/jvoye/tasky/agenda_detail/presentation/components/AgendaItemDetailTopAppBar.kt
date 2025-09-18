@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailAction
+import com.jvoye.tasky.agenda_detail.presentation.mappers.getItemDetailDateString
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Edit
@@ -38,7 +40,9 @@ import kotlin.time.ExperimentalTime
 fun AgendaItemDetailTopAppBar(
     modifier: Modifier = Modifier,
     isEditMode: Boolean,
-    taskyItem: TaskyItem?
+    taskyItem: TaskyItem?,
+    onAction: (AgendaDetailAction) -> Unit
+
 ) {
     TopAppBar(
         title = {
@@ -48,9 +52,10 @@ fun AgendaItemDetailTopAppBar(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
+                    // TODO() Replace DateTime string to date set in Agenda Screen
                     text = if (isEditMode){
                         stringResource(R.string.edit_uppercase) + " " + taskyItem?.type.toString().uppercase()
-                    } else taskyItem?.time.toString(),
+                    } else getItemDetailDateString(taskyItem?.time).uppercase(),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -59,7 +64,7 @@ fun AgendaItemDetailTopAppBar(
         navigationIcon = {
             if (isEditMode) {
                 TextButton(
-                    onClick = {},
+                    onClick = { onAction(AgendaDetailAction.OnCloseAndCancelClick) },
                     modifier = Modifier,
                     contentPadding = PaddingValues(16.dp)
                 ) {
@@ -74,7 +79,7 @@ fun AgendaItemDetailTopAppBar(
                     modifier = Modifier
                         .size(40.dp),
                     onClick = {
-                        //action(AgendaAction.OnCalendarIconClick)
+                        onAction(AgendaDetailAction.OnCloseAndCancelClick)
                     },
                     content = {
                         Icon(
@@ -89,7 +94,7 @@ fun AgendaItemDetailTopAppBar(
         actions = {
             if (isEditMode) {
                 TextButton(
-                    onClick = {},
+                    onClick = { onAction(AgendaDetailAction.OnSaveClick) } ,
                     modifier = Modifier,
                     contentPadding = PaddingValues(16.dp)
                 ) {
@@ -104,7 +109,7 @@ fun AgendaItemDetailTopAppBar(
                     modifier = Modifier
                         .size(40.dp),
                     onClick = {
-                        //action(AgendaAction.OnCalendarIconClick)
+                        onAction(AgendaDetailAction.OnEditModeClick)
                     },
 
                     content = {
@@ -150,7 +155,9 @@ private fun TopAppBarPreview() {
                     details = TaskyItemDetails.Task(
                         isDone = false
                     )
-                )
+                ),
+
+                onAction = {}
             )
         }
 

@@ -11,6 +11,7 @@ import kotlinx.datetime.todayIn
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+// TODO(): Change dateHeadline string to UiText
 @OptIn(ExperimentalMaterial3Api::class)
 data class AgendaState(
     val selectedDateMillis: Long? = null,

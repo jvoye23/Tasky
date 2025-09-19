@@ -51,10 +51,12 @@
     <string name="delete_task">DELETE TASK</string>
     <string name="description">Description</string>
     <string name="title">Title</string>
-    <string name="select_time">Select time</string>
+    <string name="select_time">Select a time</string>
     <string name="thirty_minutes_before">30 minutes before</string>
     <string name="ten_minutes_before">10 minutes before</string>
     <string name="one_hour_before">1 hour before</string>
     <string name="six_hours_before">6 hours before</string>
     <string name="one_day_before">1 day before</string>
+    <string name="edit_title">EDIT TITLE</string>
+    <string name="edit_description">EDIT DESCRIPTION</string>
 </resources>

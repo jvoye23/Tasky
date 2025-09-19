@@ -65,7 +65,8 @@ fun AgendaTopBar(
             ) {
                 Icon(
                     imageVector = Icon_Calendar_Today,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))

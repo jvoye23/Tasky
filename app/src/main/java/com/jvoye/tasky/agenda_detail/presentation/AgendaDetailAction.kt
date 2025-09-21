@@ -10,8 +10,7 @@ sealed interface AgendaDetailAction {
     data object OnEditModeClick : AgendaDetailAction
     data object OnSaveClick : AgendaDetailAction
     data object OnCloseAndCancelClick : AgendaDetailAction
-    data object OnEditTitleClick : AgendaDetailAction
-    data object OnEditDescriptionClick : AgendaDetailAction
+    data class OnEditTextClick(val text: String, val isTitle: Boolean) : AgendaDetailAction
     data object OnSetTimeClick : AgendaDetailAction
     data object OnSetDateClick : AgendaDetailAction
     data object OnNotificationTimerClick : AgendaDetailAction
@@ -21,5 +20,4 @@ sealed interface AgendaDetailAction {
     data object OnDismissTimePickerDialog : AgendaDetailAction
     data object OnToggleNotificationDropdown : AgendaDetailAction
     data class OnNotificationItemClick(val notificationType: NotificationType) : AgendaDetailAction
-
 }

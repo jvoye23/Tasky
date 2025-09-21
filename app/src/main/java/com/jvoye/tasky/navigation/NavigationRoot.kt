@@ -12,6 +12,7 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
+import com.jvoye.tasky.agenda_detail.presentation.EditTextScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
 import kotlinx.serialization.Serializable
@@ -32,6 +33,12 @@ data class AgendaDetailScreen(
     val isEditMode: Boolean,
     val taskyType: TaskyType,
     val taskyItemId: Long? = null
+): NavKey
+
+@Serializable
+data class EditTextScreen(
+    val editText: String, 
+    val isTitle: Boolean
 ): NavKey
 
 @Composable
@@ -125,7 +132,29 @@ fun NavigationRoot(
                             onCloseAndCancelClick = { backStack.remove(key) },
                             viewModel = koinViewModel {
                                 parametersOf(key.isEditMode, key.taskyType, key.taskyItemId)
+                            },
+                            onEditTextClick = { text, isTitle ->
+                                backStack.add(EditTextScreen(
+                                    editText = text,
+                                    isTitle = isTitle
+                                    )
+                                )
                             }
+                        )
+                    }
+                }
+                is EditTextScreen -> {
+                    NavEntry(
+                        key = key
+                    ) {
+                        EditTextScreenRoot(
+                            editText = key.editText,
+                            onCancelClick = { backStack.remove(key) },
+                            onSaveClick = {
+                                //Pass the updated text to the previous screen
+                                //backStack.remove()
+                            },
+                            isTitle = key.isTitle
                         )
                     }
                 }

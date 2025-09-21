@@ -38,11 +38,9 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgendaItemDetailTopAppBar(
-    modifier: Modifier = Modifier,
     isEditMode: Boolean,
     taskyItem: TaskyItem?,
     onAction: (AgendaDetailAction) -> Unit
-
 ) {
     TopAppBar(
         title = {
@@ -84,12 +82,12 @@ fun AgendaItemDetailTopAppBar(
                     content = {
                         Icon(
                             imageVector = Icon_X,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 )
             }
-
         },
         actions = {
             if (isEditMode) {
@@ -115,21 +113,20 @@ fun AgendaItemDetailTopAppBar(
                     content = {
                         Icon(
                             imageVector = Icon_Edit,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 )
             }
-
         },
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             scrolledContainerColor = MaterialTheme.colorScheme.background,
             navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-
-            )
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+        )
     )
 }
 

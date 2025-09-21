@@ -57,6 +57,7 @@ import kotlin.time.ExperimentalTime
 fun AgendaDetailScreenRoot(
     modifier: Modifier = Modifier,
     onCloseAndCancelClick: () -> Unit,
+    onEditTextClick: (String, Boolean) -> Unit,
     viewModel: AgendaDetailScreenViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -66,6 +67,7 @@ fun AgendaDetailScreenRoot(
         onAction = { action ->
             when(action) {
                 is AgendaDetailAction.OnCloseAndCancelClick -> onCloseAndCancelClick()
+                is AgendaDetailAction.OnEditTextClick -> onEditTextClick(action.text, action.isTitle)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -191,7 +193,7 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
-                    .clickable {/*TODO()*/ },
+                    .clickable {onAction(AgendaDetailAction.OnEditTextClick(state.taskyItem.title, true)) },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
@@ -206,7 +208,7 @@ private fun TaskContent(
                 Text(
                     modifier = Modifier
                         .weight(1f),
-                    text = if (state.taskyItem?.title == null) stringResource(R.string.title) else state.taskyItem.title,
+                    text = state.taskyItem.title,
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -230,14 +232,14 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 24.dp)
-                    .clickable {/*TODO()*/ },
+                    .clickable {onAction(AgendaDetailAction.OnEditTextClick(state.taskyItem.description, false))},
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
                 Text(
                     modifier = Modifier
                         .weight(1f),
-                    text = if(state.taskyItem?.description == null) stringResource(R.string.description) else  state.taskyItem.description,
+                    text = state.taskyItem.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )

@@ -68,19 +68,13 @@ class AgendaDetailScreenViewModel(
 
     fun onAction(action: AgendaDetailAction) {
         when (action) {
-            AgendaDetailAction.OnEditDescriptionClick -> {
-                /*TODO()*/
-            }
+
             AgendaDetailAction.OnEditModeClick -> {
                 _state.update { it.copy(
                     isEditMode = true
                 ) }
             }
-            AgendaDetailAction.OnEditTitleClick -> {
-                _state.update { it.copy(
-                    isEditMode = true
-                ) }
-            }
+
             AgendaDetailAction.OnNotificationTimerClick -> {
                 /*TODO()*/
             }

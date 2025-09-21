@@ -2,6 +2,7 @@ package com.jvoye.tasky.agenda_detail.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -93,12 +94,14 @@ fun AgendaItemDetailNotificationDropdown(
                 onDismissRequest = { onAction(AgendaDetailAction.OnToggleNotificationDropdown) },
                 offset = DpOffset(0.dp, 8.dp),
                 shape = RoundedCornerShape(8.dp),
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceHigher
+                    else  MaterialTheme.colorScheme.surface,
             ) {
                 dropdownItems.forEach { item ->
                     DropdownMenuItem(
                         modifier = Modifier
-                            .background( color = if(state.notificationType == item) MaterialTheme.colorScheme.surfaceHigher
+                            .background( color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceHigher
+                                else if(state.notificationType == item) MaterialTheme.colorScheme.surfaceHigher
                                 else MaterialTheme.colorScheme.surface
                             ),
                         text = {

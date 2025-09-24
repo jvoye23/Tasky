@@ -1,6 +1,8 @@
 package com.jvoye.tasky.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -11,7 +13,9 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
+import com.jvoye.tasky.agenda_detail.domain.EditTextType
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
+import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenViewModel
 import com.jvoye.tasky.agenda_detail.presentation.EditTextScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
@@ -20,25 +24,27 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Serializable
-data object RegisterScreen: NavKey
+data object RegisterNavKey: NavKey
 
 @Serializable
-data object LoginScreen: NavKey
+data object LoginNavKey: NavKey
 
 @Serializable
-data object AgendaScreen: NavKey
+data object AgendaNavKey: NavKey
 
 @Serializable
-data class AgendaDetailScreen(
+data class AgendaDetailNavKey(
     val isEditMode: Boolean,
     val taskyType: TaskyType,
-    val taskyItemId: Long? = null
+    val taskyItemId: Long? = null,
+    val editedText: String? = null,
+    val editTextType: EditTextType? = null
 ): NavKey
 
 @Serializable
-data class EditTextScreen(
+data class EditTextNavKey(
     val editText: String, 
-    val isTitle: Boolean
+    val editTextType: EditTextType
 ): NavKey
 
 @Composable
@@ -46,11 +52,10 @@ fun NavigationRoot(
     modifier: Modifier = Modifier,
     isLoggedIn: Boolean
 ) {
-   val backStack = rememberNavBackStack(RegisterScreen)
-   if (isLoggedIn) {
-       backStack.clear()
-       backStack.add(AgendaScreen)
-   }
+    val backStack = rememberNavBackStack(
+        if (isLoggedIn) AgendaNavKey else RegisterNavKey
+    )
+    val editTextCallback = remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     NavDisplay(
         modifier = modifier,
@@ -62,50 +67,50 @@ fun NavigationRoot(
         ),
         entryProvider = { key ->
             when(key) {
-                is RegisterScreen -> {
+                is RegisterNavKey -> {
                     NavEntry(
-                        key = RegisterScreen
+                        key = RegisterNavKey
                     ) {
                         RegisterScreenRoot(
                             viewModel = koinViewModel(),
-                            onLogInClick = { backStack.add(LoginScreen) },
-                            onSuccessfulRegistration = { backStack.add(LoginScreen) }
+                            onLogInClick = { backStack.add(LoginNavKey) },
+                            onSuccessfulRegistration = { backStack.add(LoginNavKey) }
                         )
                     }
                 }
-                is LoginScreen -> {
+                is LoginNavKey -> {
                     NavEntry(
                         key = key
                     ) {
                         LoginScreenRoot(
-                            onSignUpClick = { backStack.remove(LoginScreen) },
+                            onSignUpClick = { backStack.remove(LoginNavKey) },
                             onSuccessfulLogin = {
                                 backStack.clear()
-                                backStack.add(AgendaScreen)
+                                backStack.add(AgendaNavKey)
                             },
                             viewModel = koinViewModel()
                         )
                     }
                 }
-                is AgendaScreen -> {
+                is AgendaNavKey -> {
                     NavEntry(
                         key= key
                     ) {
                         AgendaScreenRoot(
                             onSuccessfulLogout = {
                                 backStack.clear()
-                                backStack.add(LoginScreen)
+                                backStack.add(LoginNavKey)
                             },
                             viewModel = koinViewModel(),
                             onFabMenuItemClick = { isEdit, agendaType ->
-                                backStack.add(AgendaDetailScreen(
+                                backStack.add(AgendaDetailNavKey(
                                     isEditMode = true,
                                     taskyType = agendaType
                                     )
                                 )
                             },
-                            onAgendaItemClick = { _, agendaType, taskyItemId ->
-                                backStack.add(AgendaDetailScreen(
+                            onAgendaItemClick = { _, agendaType, taskyItemId->
+                                backStack.add(AgendaDetailNavKey(
                                     isEditMode = false,
                                     taskyType = agendaType,
                                     taskyItemId = taskyItemId
@@ -114,7 +119,7 @@ fun NavigationRoot(
                             },
 
                             onAgendaItemMenuClick = { isEdit, taskyType, taskyItemId ->
-                                backStack.add(AgendaDetailScreen(
+                                backStack.add(AgendaDetailNavKey(
                                     isEditMode = isEdit,
                                     taskyType = taskyType,
                                     taskyItemId = taskyItemId
@@ -124,37 +129,44 @@ fun NavigationRoot(
                         )
                     }
                 }
-                is AgendaDetailScreen -> {
+                is AgendaDetailNavKey -> {
                     NavEntry(
                         key= key
                     ) {
+                        val detailVm: AgendaDetailScreenViewModel = koinViewModel {
+                            parametersOf(key.isEditMode, key.taskyType, key.taskyItemId, key.editedText, key.editTextType)
+                        }
+
                         AgendaDetailScreenRoot(
                             onCloseAndCancelClick = { backStack.remove(key) },
-                            viewModel = koinViewModel {
-                                parametersOf(key.isEditMode, key.taskyType, key.taskyItemId)
-                            },
-                            onEditTextClick = { text, isTitle ->
-                                backStack.add(EditTextScreen(
-                                    editText = text,
-                                    isTitle = isTitle
+                            viewModel = detailVm,
+                            onEditTextClick = { text, editTextType ->
+                                editTextCallback.value = { newText ->
+                                    detailVm.updateEditedText(
+                                        editedText = newText,
+                                        editTextType = editTextType
                                     )
-                                )
+                                }
+                                backStack.add(EditTextNavKey(
+                                    editText = text,
+                                    editTextType = editTextType
+                                    ))
                             }
                         )
                     }
                 }
-                is EditTextScreen -> {
+                is EditTextNavKey -> {
                     NavEntry(
                         key = key
                     ) {
                         EditTextScreenRoot(
                             editText = key.editText,
                             onCancelClick = { backStack.remove(key) },
-                            onSaveClick = {
-                                //Pass the updated text to the previous screen
-                                //backStack.remove()
+                            onSaveClick = { newText,_ ->
+                                editTextCallback.value?.invoke(newText.trim())
+                                backStack.remove(key)
                             },
-                            isTitle = key.isTitle
+                            editTextType = key.editTextType,
                         )
                     }
                 }

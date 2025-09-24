@@ -66,7 +66,7 @@ fun AgendaItemCard(
             .fillMaxWidth()
             .height(124.dp)
             .clickable {
-                action(AgendaAction.OnAgendaItemClick(false, taskyItem.type, taskyItem.id))
+                action(AgendaAction.OnAgendaItemClick(false, taskyItem.type, taskyItem.id ))
             }
             .background(
                 color = when(taskyItem.type) {

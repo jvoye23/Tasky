@@ -28,7 +28,7 @@ import kotlin.time.ExperimentalTime
 fun EditTextTopAppBar(
     title: String,
     onCancelClick: () -> Unit,
-    onSaveClick: (String) -> Unit,
+    onSaveClick: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
@@ -61,7 +61,7 @@ fun EditTextTopAppBar(
         },
         actions = {
             TextButton(
-                onClick = {  } ,
+                onClick = { onSaveClick() } ,
                 modifier = Modifier,
                 contentPadding = PaddingValues(16.dp)
             ) {

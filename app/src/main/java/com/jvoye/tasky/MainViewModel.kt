@@ -21,9 +21,6 @@ class MainViewModel(
             if (!hasLoadedInitialData) {
 
                 _state.update { it.copy(
-                    isCheckingAuth = true
-                ) }
-                _state.update { it.copy(
                     isLoggedIn = sessionStorage.get() != null
                 ) }
 

@@ -16,25 +16,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jvoye.tasky.R
+import com.jvoye.tasky.agenda_detail.domain.EditTextType
 import com.jvoye.tasky.agenda_detail.presentation.components.EditTextTopAppBar
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 
 @Composable
 fun EditTextScreenRoot(
+    editTextType: EditTextType,
     editText: String,
-    isTitle: Boolean,
     onCancelClick: () -> Unit,
-    onSaveClick: (String) -> Unit
+    onSaveClick: (String, EditTextType) -> Unit
 ) {
     EditTextScreen(
+        editTextType = editTextType,
         editText = editText,
-        isTitle = isTitle,
         onCancelClick = onCancelClick,
         onSaveClick = onSaveClick
     )
@@ -42,12 +44,12 @@ fun EditTextScreenRoot(
 
 @Composable
 private fun EditTextScreen(
+    editTextType: EditTextType,
     editText: String,
-    isTitle: Boolean,
     onCancelClick: () -> Unit,
-    onSaveClick: (updatedText: String) -> Unit
+    onSaveClick: (updatedText: String, editTextType: EditTextType) -> Unit
 ) {
-    var currentText by remember { mutableStateOf(editText) }
+    var currentText by rememberSaveable { mutableStateOf(editText) }
 
     Scaffold(
         modifier = Modifier
@@ -56,8 +58,11 @@ private fun EditTextScreen(
         topBar = {
             EditTextTopAppBar(
                 onCancelClick = onCancelClick,
-                onSaveClick = { onSaveClick(currentText) },
-                title = if(isTitle) stringResource(R.string.title) else stringResource(R.string.description),
+                onSaveClick = { onSaveClick(currentText, editTextType) },
+                title = when(editTextType) {
+                    EditTextType.TITLE -> stringResource(R.string.title)
+                    EditTextType.DESCRIPTION -> stringResource(R.string.description)
+                },
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.primary
             )
@@ -74,11 +79,20 @@ private fun EditTextScreen(
                 onValueChange = { currentText = it },
                 placeholder = {
                     Text(
-                        text = if(isTitle) stringResource(R.string.title) else stringResource(R.string.description),
-                        style = if(isTitle) MaterialTheme.typography.titleLarge else MaterialTheme.typography.bodyMedium,
+                        text = when(editTextType) {
+                            EditTextType.TITLE -> stringResource(R.string.title)
+                            EditTextType.DESCRIPTION -> stringResource(R.string.description)
+                        },
+                        style = when(editTextType) {
+                            EditTextType.TITLE -> MaterialTheme.typography.titleLarge
+                            EditTextType.DESCRIPTION -> MaterialTheme.typography.bodyMedium
+                        }
                     )
                 },
-                textStyle = if(isTitle) MaterialTheme.typography.titleLarge else MaterialTheme.typography.bodyMedium,
+                textStyle = when(editTextType) {
+                    EditTextType.TITLE -> MaterialTheme.typography.titleLarge
+                    EditTextType.DESCRIPTION -> MaterialTheme.typography.bodyMedium
+                },
                 shape = RectangleShape,
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = MaterialTheme.colorScheme.surface,
@@ -88,8 +102,8 @@ private fun EditTextScreen(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
-                singleLine = isTitle,
-                modifier = if (isTitle) Modifier.fillMaxWidth() else Modifier.fillMaxSize(),
+                singleLine = editTextType == EditTextType.TITLE,
+                modifier = if (editTextType == EditTextType.TITLE) Modifier.fillMaxWidth() else Modifier.fillMaxSize(),
             )
         }
     }
@@ -100,10 +114,10 @@ private fun EditTextScreen(
 private fun EditTextScreenPreview() {
     TaskyTheme {
         EditTextScreen(
+            editTextType = EditTextType.DESCRIPTION,
             editText = "My Title",
-            isTitle = true,
             onCancelClick = {},
-            onSaveClick = {}
+            onSaveClick = {_, _ -> }
         )
     }
 }

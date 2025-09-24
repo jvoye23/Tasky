@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda_detail.domain.EditTextType
 import com.jvoye.tasky.agenda_detail.presentation.components.AgendaDetailDatePicker
 import com.jvoye.tasky.agenda_detail.presentation.components.AgendaItemDetailNotificationDropdown
 import com.jvoye.tasky.agenda_detail.presentation.components.AgendaItemDetailTimePicker
@@ -57,7 +58,7 @@ import kotlin.time.ExperimentalTime
 fun AgendaDetailScreenRoot(
     modifier: Modifier = Modifier,
     onCloseAndCancelClick: () -> Unit,
-    onEditTextClick: (String, Boolean) -> Unit,
+    onEditTextClick: (String, EditTextType) -> Unit,
     viewModel: AgendaDetailScreenViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -67,7 +68,7 @@ fun AgendaDetailScreenRoot(
         onAction = { action ->
             when(action) {
                 is AgendaDetailAction.OnCloseAndCancelClick -> onCloseAndCancelClick()
-                is AgendaDetailAction.OnEditTextClick -> onEditTextClick(action.text, action.isTitle)
+                is AgendaDetailAction.OnEditTextClick -> onEditTextClick(action.text, action.editTextType)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -193,7 +194,8 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
-                    .clickable {onAction(AgendaDetailAction.OnEditTextClick(state.taskyItem.title, true)) },
+                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.taskyItem.title,
+                        editTextType = EditTextType.TITLE)) },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
@@ -232,7 +234,8 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 24.dp)
-                    .clickable {onAction(AgendaDetailAction.OnEditTextClick(state.taskyItem.description, false))},
+                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.taskyItem.description,
+                        editTextType = EditTextType.DESCRIPTION))},
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {

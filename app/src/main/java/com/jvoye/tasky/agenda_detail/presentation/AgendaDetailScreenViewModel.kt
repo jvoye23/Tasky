@@ -3,12 +3,16 @@
 package com.jvoye.tasky.agenda_detail.presentation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda_detail.domain.EditTextType
+import com.jvoye.tasky.core.domain.model.TaskyItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -23,25 +27,35 @@ class AgendaDetailScreenViewModel(
     private val isEdit: Boolean,
     private val taskyType: TaskyType,
     private val taskyItemId: Long?,
-    private val agendaRepository: AgendaRepository
+    private val agendaRepository: AgendaRepository,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
-
     private val _state = MutableStateFlow(AgendaDetailState(
+
     ))
     private var hasLoadedInitialData = false
-
-
-
-
 
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
+                // Try to restore TaskyItem from SavedStateHandle first
+                val restoredTaskyItem = savedStateHandle.get<TaskyItem>(TASKY_ITEM_KEY)
+
+                if (restoredTaskyItem != null) {
+                    _state.update { it.copy(
+                        taskyItem = restoredTaskyItem
+                    )}
+                } else {
+                    // If not available in SavedStateHandle, loading from repository
+                    getTaskyItemFromRepo(taskyItemId)
+                }
                 getTypeAndEditMode(isEdit, taskyType)
-                getTaskyItem(taskyItemId)
                 hasLoadedInitialData = true
             }
-            println("CURRENT STATE: ${_state.value}")
+        }
+        .onEach {
+            savedStateHandle[TASKY_ITEM_KEY] = it.taskyItem
+            println("TASKY ITEM SAVED STATE: ${it.taskyItem}")
         }
         .stateIn(
             viewModelScope,
@@ -49,13 +63,35 @@ class AgendaDetailScreenViewModel(
             _state.value
         )
 
-    private suspend fun getTaskyItem(taskyItemId: Long?) {
-        if (taskyItemId == null) return
-        _state.update { it.copy(
-            taskyItem = agendaRepository.getTaskyItem(taskyItemId)
-        ) }
-        println("CURRENT STATE: ${_state.value}")
+    fun updateEditedText(editedText: String, editTextType: EditTextType) {
+        when(editTextType){
+            EditTextType.TITLE -> {
+                _state.update { it.copy(
+                    taskyItem = it.taskyItem.copy(
+                        title = editedText
+                    )
+                ) }
+            }
+            EditTextType.DESCRIPTION -> {
+                _state.update { it.copy(
+                    taskyItem = it.taskyItem.copy(
+                        description = editedText
+                    )
+                ) }
+            }
+        }
     }
+
+
+    private suspend fun getTaskyItemFromRepo(taskyItemId: Long?) {
+        if (taskyItemId == null) return
+
+        val itemFromRepo = agendaRepository.getTaskyItem(taskyItemId)
+        _state.update { it.copy(
+            taskyItem = itemFromRepo
+        ) }
+    }
+
 
     private fun getTypeAndEditMode(editMode: Boolean, type: TaskyType){
         _state.update { it.copy(
@@ -155,7 +191,9 @@ class AgendaDetailScreenViewModel(
             else -> Unit
         }
     }
-
+    companion object {
+        private const val TASKY_ITEM_KEY = "taskyItemState"
+    }
 }
 
 /*

@@ -1,6 +1,7 @@
 package com.jvoye.tasky.core.data
 
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda_detail.domain.NotificationType
 import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.TaskyItem
@@ -21,7 +22,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(
             isDone = false
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 2,
@@ -31,7 +33,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(
             isDone = true
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 3,
@@ -52,7 +55,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                     id = 1
                 )
             )
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 4,
@@ -73,7 +77,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                     id = 2
                 )
             )
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 5,
@@ -81,7 +86,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         description = "Reminder 1 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
-        details = TaskyItemDetails.Reminder
+        details = TaskyItemDetails.Reminder,
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 6,
@@ -89,7 +95,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         description = "Reminder 2 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
-        details = TaskyItemDetails.Reminder
+        details = TaskyItemDetails.Reminder,
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 7,
@@ -99,7 +106,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(
             isDone = false
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 8,
@@ -109,7 +117,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(
             isDone = true
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 9,
@@ -130,7 +139,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                     id = 3
                 )
             )
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 10,
@@ -151,7 +161,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                     id = 4
                 )
             )
-        )
+        ),
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 11,
@@ -159,7 +170,8 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         description = "Reminder 3 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
-        details = TaskyItemDetails.Reminder
+        details = TaskyItemDetails.Reminder,
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
         id = 12,
@@ -167,6 +179,7 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         description = "Reminder 4 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
-        details = TaskyItemDetails.Reminder
+        details = TaskyItemDetails.Reminder,
+        notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
 )

@@ -59,4 +59,6 @@
     <string name="one_day_before">1 day before</string>
     <string name="edit_title">EDIT TITLE</string>
     <string name="edit_description">EDIT DESCRIPTION</string>
+    <string name="delete_task_question">Delete task?</string>
+    <string name="this_action_cannot_be_reversed">This action cannot be reversed</string>
 </resources>

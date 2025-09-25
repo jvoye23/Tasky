@@ -3,7 +3,6 @@
 package com.jvoye.tasky.agenda_detail.presentation.components
 
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -18,11 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jvoye.tasky.R
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
-import com.jvoye.tasky.core.presentation.designsystem.theme.success
-import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.Calendar
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 

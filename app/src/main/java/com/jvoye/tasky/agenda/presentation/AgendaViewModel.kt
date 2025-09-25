@@ -10,7 +10,6 @@ import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
-import com.jvoye.tasky.core.domain.model.TaskyNavParcelable
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.mappers.toUserUi
 import com.jvoye.tasky.core.presentation.ui.asUiText

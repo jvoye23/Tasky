@@ -14,6 +14,7 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
 import com.jvoye.tasky.agenda_detail.domain.EditTextType
+import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailAction
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenViewModel
 import com.jvoye.tasky.agenda_detail.presentation.EditTextScreenRoot
@@ -142,9 +143,11 @@ fun NavigationRoot(
                             viewModel = detailVm,
                             onEditTextClick = { text, editTextType ->
                                 editTextCallback.value = { newText ->
-                                    detailVm.updateEditedText(
-                                        editedText = newText,
-                                        editTextType = editTextType
+                                    detailVm.onAction(
+                                        action = AgendaDetailAction.OnEditTextChanged(
+                                            editTextType = editTextType,
+                                            value = newText
+                                        )
                                     )
                                 }
                                 backStack.add(EditTextNavKey(

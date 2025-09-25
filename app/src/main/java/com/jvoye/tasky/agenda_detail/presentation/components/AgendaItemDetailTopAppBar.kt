@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda_detail.domain.NotificationType
 import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailAction
 import com.jvoye.tasky.agenda_detail.presentation.mappers.getItemDetailDateString
 import com.jvoye.tasky.core.domain.model.TaskyItem
@@ -32,6 +33,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.builtins.NothingSerializer
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -151,7 +153,8 @@ private fun TopAppBarPreview() {
                     type = TaskyType.TASK,
                     details = TaskyItemDetails.Task(
                         isDone = false
-                    )
+                    ),
+                    notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
 
                 onAction = {}

@@ -5,6 +5,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -49,4 +50,14 @@ fun LocalDateTime.toDatePickerString(): String {
             year()
         }
     )
+}
+
+@OptIn(ExperimentalTime::class)
+fun LocalDateTime.toEpochMilliseconds(): Long {
+    return this.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+}
+
+@OptIn(ExperimentalTime::class)
+fun Long.toLocalDateTime(): LocalDateTime {
+    return Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault())
 }

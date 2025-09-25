@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda_detail.domain.EditTextType
-import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.agenda_detail.domain.NotificationType
+import com.jvoye.tasky.agenda_detail.presentation.mappers.toEpochMilliseconds
+import com.jvoye.tasky.agenda_detail.presentation.mappers.toLocalDateTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
@@ -17,11 +19,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atTime
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 class AgendaDetailScreenViewModel(
     private val isEdit: Boolean,
@@ -31,31 +29,42 @@ class AgendaDetailScreenViewModel(
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
-
+        titleText = savedStateHandle["titleText"],
+        descriptionText = savedStateHandle["descriptionText"],
+        isEditMode = savedStateHandle.get<Boolean>("isEditMode") ?: false,
+        selectedDateMillis = savedStateHandle.get<Long>("selectedDateMillis"),
+        notificationType = savedStateHandle.get<NotificationType>("notificationType") ?: NotificationType.THIRTY_MINUTES_BEFORE
     ))
     private var hasLoadedInitialData = false
 
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
-                // Try to restore TaskyItem from SavedStateHandle first
-                val restoredTaskyItem = savedStateHandle.get<TaskyItem>(TASKY_ITEM_KEY)
-
-                if (restoredTaskyItem != null) {
+                val restoredItemId = savedStateHandle.get<Long>("itemId")
+                if (restoredItemId != null) {
                     _state.update { it.copy(
-                        taskyItem = restoredTaskyItem
+                         taskyItem = it.taskyItem.copy(
+                             id = restoredItemId
+                         )
                     )}
                 } else {
-                    // If not available in SavedStateHandle, loading from repository
+                    // If not available in SavedStateHandle, loading data from repository
                     getTaskyItemFromRepo(taskyItemId)
+                    savedStateHandle["itemId"] = taskyItemId
+
                 }
+
                 getTypeAndEditMode(isEdit, taskyType)
                 hasLoadedInitialData = true
             }
         }
-        .onEach {
-            savedStateHandle[TASKY_ITEM_KEY] = it.taskyItem
-            println("TASKY ITEM SAVED STATE: ${it.taskyItem}")
+        .onEach { state ->
+            savedStateHandle["titleText"] = state.titleText
+            savedStateHandle["descriptionText"] = state.descriptionText
+            savedStateHandle["isEditMode"] = state.isEditMode
+            savedStateHandle["selectedDateMillis"] = state.selectedDateMillis
+            savedStateHandle["notificationType"] = state.notificationType
+
         }
         .stateIn(
             viewModelScope,
@@ -63,32 +72,17 @@ class AgendaDetailScreenViewModel(
             _state.value
         )
 
-    fun updateEditedText(editedText: String, editTextType: EditTextType) {
-        when(editTextType){
-            EditTextType.TITLE -> {
-                _state.update { it.copy(
-                    taskyItem = it.taskyItem.copy(
-                        title = editedText
-                    )
-                ) }
-            }
-            EditTextType.DESCRIPTION -> {
-                _state.update { it.copy(
-                    taskyItem = it.taskyItem.copy(
-                        description = editedText
-                    )
-                ) }
-            }
-        }
-    }
-
-
     private suspend fun getTaskyItemFromRepo(taskyItemId: Long?) {
         if (taskyItemId == null) return
 
         val itemFromRepo = agendaRepository.getTaskyItem(taskyItemId)
         _state.update { it.copy(
-            taskyItem = itemFromRepo
+            taskyItem = itemFromRepo,
+            titleText = itemFromRepo.title,
+            descriptionText = itemFromRepo.description,
+            time = itemFromRepo.time,
+            selectedDateMillis = itemFromRepo.time.toEpochMilliseconds(),
+            notificationType = itemFromRepo.notificationType
         ) }
     }
 
@@ -111,9 +105,6 @@ class AgendaDetailScreenViewModel(
                 ) }
             }
 
-            AgendaDetailAction.OnNotificationTimerClick -> {
-                /*TODO()*/
-            }
             AgendaDetailAction.OnSaveClick -> {
                 /*TODO()*/
             }
@@ -128,14 +119,20 @@ class AgendaDetailScreenViewModel(
                 )}
             }
             is AgendaDetailAction.ConfirmDateSelection -> {
-
-                val dateMillis = action.selectedDateMillis
-                val dateInstant = Instant.fromEpochMilliseconds(dateMillis)
-                val newLocalDate = dateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
-
+                val currentSelectedTime = _state.value.time.time
+                val newDate = action.selectedDateMillis.toLocalDateTime().date
+                val newLocalDateTime = LocalDateTime(
+                    year = newDate.year,
+                    month = newDate.month,
+                    day = newDate.day,
+                    hour = currentSelectedTime.hour,
+                    minute = currentSelectedTime.minute,
+                    second = 0,
+                    nanosecond = 0
+                )
                 _state.update { it.copy(
-                    taskyItem = it.taskyItem.copy(
-                        time = newLocalDate.atTime(it.taskyItem.time.hour, it.taskyItem.time.minute)),
+                    selectedDateMillis = newLocalDateTime.toEpochMilliseconds(),
+                    time = newLocalDateTime,
                     isDatePickerDialogVisible = false
                 ) }
             }
@@ -149,7 +146,7 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.ConfirmTimeSelection -> {
                 val newHour = action.timePickerState.hour
                 val newMinute = action.timePickerState.minute
-                val currentDate = _state.value.taskyItem.time.date
+                val currentDate = _state.value.time.date
                 val newLocalDateTime = LocalDateTime(
                     year = currentDate.year,
                     month = currentDate.month,
@@ -161,12 +158,10 @@ class AgendaDetailScreenViewModel(
                 )
 
                 _state.update { it.copy(
-                    taskyItem = it.taskyItem.copy(
-                        time = newLocalDateTime
-                    ),
+                    selectedDateMillis = newLocalDateTime.toEpochMilliseconds(),
+                    time = newLocalDateTime,
                     isTimePickerDialogVisible = false
                 ) }
-
             }
 
             AgendaDetailAction.OnDismissTimePickerDialog -> {
@@ -187,12 +182,29 @@ class AgendaDetailScreenViewModel(
                     isNotificationDropdownExpanded = false
                 ) }
             }
+            AgendaDetailAction.OnToggleDeleteBottomSheet -> {
+                _state.update { it.copy(
+                    isDeleteBottomSheetVisible = !it.isDeleteBottomSheetVisible
+                ) }
+            }
+
+            is AgendaDetailAction.OnEditTextChanged -> {
+                when(action.editTextType) {
+                    EditTextType.TITLE -> {
+                        _state.update { it.copy(
+                            titleText = action.value
+                        ) }
+                    }
+                    EditTextType.DESCRIPTION -> {
+                        _state.update { it.copy(
+                            descriptionText = action.value
+                        ) }
+                    }
+                }
+            }
 
             else -> Unit
         }
-    }
-    companion object {
-        private const val TASKY_ITEM_KEY = "taskyItemState"
     }
 }
 

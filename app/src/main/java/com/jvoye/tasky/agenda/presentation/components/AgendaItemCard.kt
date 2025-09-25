@@ -37,6 +37,7 @@ import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.AgendaAction
 import com.jvoye.tasky.agenda.presentation.mappers.getItemCardDateTimeString
 import com.jvoye.tasky.agenda.presentation.mappers.toUiText
+import com.jvoye.tasky.agenda_detail.domain.NotificationType
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Awaiting
@@ -192,7 +193,6 @@ fun AgendaItemCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    //text = taskyItem.time.toString(),
                     text = getItemCardDateTimeString(taskyItem.time),
                     style = MaterialTheme.typography.bodySmall,
                     color = agendaItemTextColor
@@ -221,7 +221,8 @@ private fun AgendaItemPreview() {
                     type = TaskyType.TASK,
                     details = TaskyItemDetails.Task(
                         isDone = true
-                    )
+                    ),
+                    notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 action = {}
             )

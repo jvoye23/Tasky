@@ -43,8 +43,7 @@ fun TaskyOutlinedButton(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 22.dp),
+                .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(

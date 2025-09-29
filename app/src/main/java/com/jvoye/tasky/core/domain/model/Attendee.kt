@@ -1,6 +1,13 @@
 package com.jvoye.tasky.core.domain.model
 
+import kotlinx.datetime.LocalDateTime
+
 data class Attendee(
-    val name: String,
+    val username: String,
     val email: String,
+    val userId: String,
+    val eventId: String,
+    val isGoing: Boolean,
+    val remindAt: LocalDateTime
+
 )

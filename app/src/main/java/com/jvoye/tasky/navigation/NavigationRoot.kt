@@ -12,12 +12,12 @@ import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda.presentation.AgendaScreenRoot
-import com.jvoye.tasky.agenda_detail.domain.EditTextType
-import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailAction
-import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenRoot
-import com.jvoye.tasky.agenda_detail.presentation.AgendaDetailScreenViewModel
-import com.jvoye.tasky.agenda_detail.presentation.EditTextScreenRoot
+import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaScreenRoot
+import com.jvoye.tasky.agenda.domain.EditTextType
+import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
+import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailScreenRoot
+import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailScreenViewModel
+import com.jvoye.tasky.agenda.presentation.agenda_details.EditTextScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
 import kotlinx.serialization.Serializable
@@ -37,7 +37,7 @@ data object AgendaNavKey: NavKey
 data class AgendaDetailNavKey(
     val isEditMode: Boolean,
     val taskyType: TaskyType,
-    val taskyItemId: Long? = null,
+    val taskyItemId: String? = null,
     val editedText: String? = null,
     val editTextType: EditTextType? = null
 ): NavKey

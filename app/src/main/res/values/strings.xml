@@ -61,4 +61,5 @@
     <string name="edit_description">EDIT DESCRIPTION</string>
     <string name="delete_task_question">Delete task?</string>
     <string name="this_action_cannot_be_reversed">This action cannot be reversed</string>
+    <string name="tasky_item_saved">Successfully saved.</string>
 </resources>

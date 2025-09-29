@@ -2,9 +2,11 @@ package com.jvoye.tasky
 
 import android.app.Application
 import com.jvoye.tasky.agenda.di.agendaModule
-import com.jvoye.tasky.agenda_detail.di.agendaDetailModule
+import com.jvoye.tasky.agenda.di.agendaDetailModule
 import com.jvoye.tasky.auth.di.authModule
 import com.jvoye.tasky.core.data.di.coreDataModule
+import com.jvoye.tasky.core.data.networking.di.networkModule
+import com.jvoye.tasky.core.database.di.databaseModule
 import com.jvoye.tasky.di.appModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +33,9 @@ class TaskyApp: Application() {
                 authModule,
                 coreDataModule,
                 agendaModule,
-                agendaDetailModule
+                agendaDetailModule,
+                databaseModule,
+                networkModule
             )
         }
     }

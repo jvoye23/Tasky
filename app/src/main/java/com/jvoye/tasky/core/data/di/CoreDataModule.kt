@@ -1,5 +1,7 @@
 package com.jvoye.tasky.core.data.di
 
+import com.jvoye.tasky.agenda.data.OfflineFirstAgendaRepository
+import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
 import com.jvoye.tasky.core.data.networking.HttpClientFactory
 import com.jvoye.tasky.core.domain.SessionStorage
@@ -12,4 +14,6 @@ val coreDataModule = module {
         HttpClientFactory(get()).build()
     }
     singleOf(::EncryptedSessionDataStore).bind<SessionStorage>()
+
+    singleOf(::OfflineFirstAgendaRepository).bind<AgendaRepository>()
 }

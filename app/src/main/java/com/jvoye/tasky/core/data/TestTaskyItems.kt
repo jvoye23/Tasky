@@ -1,7 +1,7 @@
 package com.jvoye.tasky.core.data
 
 import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda_detail.domain.NotificationType
+import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.TaskyItem
@@ -15,7 +15,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 val testTaskyItems = mutableListOf<TaskyItem>(
     TaskyItem(
-        id = 1,
+        id = "1",
         title = "Task 1 Title",
         description = "Task 1 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -23,10 +23,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         details = TaskyItemDetails.Task(
             isDone = false
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 2,
+        id = "2",
         title = "Task 2 Title",
         description = "Task 2 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -34,10 +35,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         details = TaskyItemDetails.Task(
             isDone = true
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 3,
+        id = "3",
         title = "Event 1 Title",
         description = "Event 1 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -56,10 +58,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             )
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 4,
+        id = "4",
         title = "Event 2 Title",
         description = "Event 2 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -78,28 +81,31 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             )
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 5,
+        id = "5",
         title = "Reminder 1 Title",
         description = "Reminder 1 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
         details = TaskyItemDetails.Reminder,
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 6,
+        id = "6",
         title = "Reminder 2 Title",
         description = "Reminder 2 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
         details = TaskyItemDetails.Reminder,
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 7,
+        id = "7",
         title = "Task 3 Title",
         description = "Task 3 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -107,10 +113,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         details = TaskyItemDetails.Task(
             isDone = false
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 8,
+        id = "8",
         title = "Task 4 Title",
         description = "Task 4 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -118,10 +125,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         details = TaskyItemDetails.Task(
             isDone = true
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 9,
+        id = "9",
         title = "Event 3 Title",
         description = "Event 1 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -140,10 +148,11 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             )
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 10,
+        id = "10",
         title = "Event 4 Title",
         description = "Event 4 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -162,24 +171,27 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             )
         ),
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 11,
+        id = "11",
         title = "Reminder 3 Title",
         description = "Reminder 3 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
         details = TaskyItemDetails.Reminder,
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     TaskyItem(
-        id = 12,
+        id = "12",
         title = "Reminder 4 Title",
         description = "Reminder 4 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.REMINDER,
         details = TaskyItemDetails.Reminder,
+        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
 )

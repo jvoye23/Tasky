@@ -6,5 +6,6 @@ import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 sealed interface AgendaDetailEvent {
 
     data object TaskyItemSaved: AgendaDetailEvent
+    data object TaskyItemDeleted: AgendaDetailEvent
     data class Error(val error: UiText): AgendaDetailEvent
 }

@@ -223,7 +223,7 @@ private fun AgendaItemPreview() {
                     details = TaskyItemDetails.Task(
                         isDone = true
                     ),
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0),
+                    remindAt = LocalDateTime(2023, 1, 1, 11, 30),
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 action = {}

@@ -61,3 +61,15 @@ fun LocalDateTime.toEpochMilliseconds(): Long {
 fun Long.toLocalDateTime(): LocalDateTime {
     return Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault())
 }
+
+@OptIn(ExperimentalTime::class)
+fun convertIsoStringToSystemLocalDateTime(isoString: String): LocalDateTime {
+    val instant = Instant.parse(isoString)
+    return instant.toLocalDateTime(TimeZone.currentSystemDefault())
+}
+
+@OptIn(ExperimentalTime::class)
+fun convertIsoStringToUtcDateTime(isoString: String): LocalDateTime {
+    val instant = Instant.parse(isoString)
+    return instant.toLocalDateTime(TimeZone.UTC)
+}

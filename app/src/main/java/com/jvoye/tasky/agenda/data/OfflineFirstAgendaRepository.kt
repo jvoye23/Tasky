@@ -71,10 +71,20 @@ class OfflineFirstAgendaRepository(
         }
     }
 
-    override suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId) {
+    override suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError> {
         localTaskyItemDataSource.deleteTaskyItem(taskyType, taskyItemId)
         val remoteResult = applicationScope.async {
             remoteTaskyItemDataSource.deleteTaskyItem(taskyItemId, taskyType)
         }.await()
+        return when (remoteResult) {
+            is Result.Error -> {
+                // TODO: handle error case later
+                Result.Success(Unit)
+            } else -> return remoteResult.asEmptyDataResult()
+        }
+    }
+
+    override suspend fun deleteAllLocalTaskyItems() {
+        localTaskyItemDataSource.deleteAllTaskyItems()
     }
 }

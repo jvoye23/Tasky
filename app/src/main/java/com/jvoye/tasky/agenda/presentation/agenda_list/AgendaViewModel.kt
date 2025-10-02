@@ -6,6 +6,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
+import com.jvoye.tasky.agenda.domain.MockAgendaRepository
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
@@ -14,6 +16,7 @@ import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.mappers.toUserUi
 import com.jvoye.tasky.core.presentation.ui.asUiText
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
@@ -195,6 +198,8 @@ class AgendaViewModel(
                 isLogoutDropdownVisible = false,
                 isLoggingOut = true,
             ) }
+
+            agendaRepository.deleteAllLocalTaskyItems()
 
             val result = authRepository.logout()
 

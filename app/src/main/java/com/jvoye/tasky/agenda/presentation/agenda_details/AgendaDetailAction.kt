@@ -10,6 +10,7 @@ import com.jvoye.tasky.agenda.domain.NotificationType
 sealed interface AgendaDetailAction {
     data object OnEditModeClick : AgendaDetailAction
     data object OnSaveClick : AgendaDetailAction
+    data object OnDeleteClick : AgendaDetailAction
     data object OnCloseAndCancelClick : AgendaDetailAction
     data class OnEditTextClick(val text: String, val editTextType: EditTextType) : AgendaDetailAction
     data object OnSetTimeClick : AgendaDetailAction

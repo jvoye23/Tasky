@@ -12,7 +12,6 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMillise
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
-import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaEvent
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.ui.asUiText
@@ -26,7 +25,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
+import kotlinx.datetime.*
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 class AgendaDetailScreenViewModel(
     private val isEdit: Boolean,
@@ -119,7 +122,7 @@ class AgendaDetailScreenViewModel(
                 time = _state.value.time,
                 id = _state.value.taskyItem.id,
                 type = _state.value.taskyItem.type,
-                remindAt = _state.value.time,
+                remindAt = _state.value.remindAt,
                 details = _state.value.taskyItem.details,
                 notificationType = _state.value.notificationType,
             )
@@ -138,6 +141,31 @@ class AgendaDetailScreenViewModel(
         ) }
     }
 
+    private fun deleteTaskyItem() {
+        _state.update { it.copy(
+            isDeletingTaskyItem = true
+        ) }
+
+        viewModelScope.launch {
+            when(val result = agendaRepository.deleteTaskyItem(
+                taskyItemId = _state.value.taskyItem.id,
+                taskyType = _state.value.taskyItem.type
+            )) {
+                is Result.Error -> {
+                    eventChannel.send(AgendaDetailEvent.Error(result.error.asUiText()))
+                }
+                is Result.Success -> {
+                    eventChannel.send(AgendaDetailEvent.TaskyItemDeleted)
+                }
+            }
+        }
+        _state.update { it.copy(
+            isDeletingTaskyItem = false
+        ) }
+    }
+
+
+
     fun onAction(action: AgendaDetailAction) {
         when (action) {
 
@@ -149,6 +177,9 @@ class AgendaDetailScreenViewModel(
 
             AgendaDetailAction.OnSaveClick -> {
                 saveTaskyItem()
+            }
+            AgendaDetailAction.OnDeleteClick -> {
+                deleteTaskyItem()
             }
             AgendaDetailAction.OnSetDateClick -> {
                 _state.update { it.copy(
@@ -188,6 +219,7 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.ConfirmTimeSelection -> {
                 val newHour = action.timePickerState.hour
                 val newMinute = action.timePickerState.minute
+                val newSecond = 0
                 val currentDate = _state.value.time.date
                 val newLocalDateTime = LocalDateTime(
                     year = currentDate.year,
@@ -195,10 +227,8 @@ class AgendaDetailScreenViewModel(
                     day = currentDate.day,
                     hour = newHour,
                     minute = newMinute,
-                    second = 0,
-                    nanosecond = 0
+                    second = newSecond
                 )
-
                 _state.update { it.copy(
                     selectedDateMillis = newLocalDateTime.toEpochMilliseconds(),
                     time = newLocalDateTime,
@@ -219,10 +249,57 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.OnNotificationItemClick -> {
-                _state.update { it.copy(
-                    notificationType = action.notificationType,
-                    isNotificationDropdownExpanded = false
-                ) }
+                val time = _state.value.time
+                val timeInstant = time.toInstant(TimeZone.currentSystemDefault())
+
+                _state.update {
+                    it.copy(
+                        notificationType = action.notificationType,
+                        isNotificationDropdownExpanded = false
+                    )
+                }
+
+                when (action.notificationType) {
+                    NotificationType.THIRTY_MINUTES_BEFORE -> {
+                        _state.update {
+                            it.copy(
+                                remindAt = (timeInstant - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
+                            )
+                        }
+                    }
+
+                    NotificationType.TEN_MINUTES_BEFORE -> {
+                        _state.update {
+                            it.copy(
+                                remindAt = (timeInstant - 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
+                            )
+                        }
+                    }
+
+                    NotificationType.ONE_HOUR_BEFORE -> {
+                        _state.update {
+                            it.copy(
+                                remindAt = (timeInstant - 1.hours).toLocalDateTime(TimeZone.currentSystemDefault())
+                            )
+                        }
+                    }
+
+                    NotificationType.SIX_HOURS_BEFORE -> {
+                        _state.update {
+                            it.copy(
+                                remindAt = (timeInstant - 6.hours).toLocalDateTime(TimeZone.currentSystemDefault())
+                            )
+                        }
+                    }
+
+                    NotificationType.ONE_DAY_BEFORE -> {
+                        _state.update {
+                            it.copy(
+                                remindAt = (timeInstant - 1.days).toLocalDateTime(TimeZone.currentSystemDefault())
+                            )
+                        }
+                    }
+                }
             }
             AgendaDetailAction.OnToggleDeleteBottomSheet -> {
                 _state.update { it.copy(

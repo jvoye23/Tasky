@@ -48,15 +48,22 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
             attendees = listOf<Attendee>(
                 Attendee(
-                    name = "Attendee 1",
-                    email = "test1@email.com"
+                    email = "test1@email.com",
+                    username = "Attendee 1",
+                    userId = "1",
+                    eventId = "2",
+                    isGoing = true,
+                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
                 )
             ),
             photos = listOf(
                 EventPhoto(
-                    id = 1
+                    key = "key 1",
+                    url = "url 1"
                 )
-            )
+            ),
+            isUserEventCreator = true,
+            host = "Host 1"
         ),
         remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
@@ -71,15 +78,22 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
             attendees = listOf<Attendee>(
                 Attendee(
-                    name = "Attendee 2",
-                    email = "test2@email.com"
+                    email = "test1@email.com",
+                    username = "Attendee 1",
+                    userId = "2",
+                    eventId = "2",
+                    isGoing = true,
+                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
                 )
             ),
             photos = listOf(
                 EventPhoto(
-                    id = 2
+                    key = "key 2",
+                    url = "url 2"
                 )
-            )
+            ),
+            isUserEventCreator = true,
+            host = "Host 2"
         ),
         remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
@@ -131,22 +145,29 @@ val testTaskyItems = mutableListOf<TaskyItem>(
     TaskyItem(
         id = "9",
         title = "Event 3 Title",
-        description = "Event 1 description",
+        description = "Event 3 description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
             attendees = listOf<Attendee>(
                 Attendee(
-                    name = "Attendee 3",
-                    email = "test3@email.com"
+                    email = "test1@email.com",
+                    username = "Attendee 1",
+                    userId = "3",
+                    eventId = "3",
+                    isGoing = true,
+                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
                 )
             ),
             photos = listOf(
                 EventPhoto(
-                    id = 3
+                    key = "key 3",
+                    url = "url 3"
                 )
-            )
+            ),
+            isUserEventCreator = true,
+            host = "Host 1"
         ),
         remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
@@ -161,15 +182,22 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
             attendees = listOf<Attendee>(
                 Attendee(
-                    name = "Attendee 4",
-                    email = "test4@email.com"
+                    email = "test4@email.com",
+                    username = "Attendee 4",
+                    userId = "4",
+                    eventId = "4",
+                    isGoing = true,
+                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
                 )
             ),
             photos = listOf(
                 EventPhoto(
-                    id = 4
+                    key = "key 1",
+                    url = "url 1"
                 )
-            )
+            ),
+            isUserEventCreator = true,
+            host = "Host 4"
         ),
         remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE

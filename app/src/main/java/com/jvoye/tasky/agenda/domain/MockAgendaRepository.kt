@@ -6,7 +6,7 @@ import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
 import kotlinx.coroutines.flow.Flow
 
-interface AgendaRepository {
+interface MockAgendaRepository {
 
     fun getTaskyItems(): Flow<List<TaskyItem>>
     suspend fun fetchFullAgenda(): EmptyResult<DataError>
@@ -14,8 +14,6 @@ interface AgendaRepository {
 
     suspend fun upsertTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError>
 
-    suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError>
-
-    suspend fun deleteAllLocalTaskyItems()
+    suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId)
 
 }

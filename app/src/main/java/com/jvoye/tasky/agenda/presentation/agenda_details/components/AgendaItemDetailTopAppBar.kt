@@ -31,6 +31,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Edit
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_X
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.success
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -145,7 +146,7 @@ private fun TopAppBarPreview() {
             AgendaItemDetailTopAppBar(
                 isEditMode = true,
                 taskyItem = TaskyItem(
-                    id = 1,
+                    id = "1",
                     title = "Task 1 Title",
                     description = "Task 1 description",
                     time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -153,7 +154,8 @@ private fun TopAppBarPreview() {
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),
-                    notificationType = NotificationType.THIRTY_MINUTES_BEFORE
+                    notificationType = NotificationType.THIRTY_MINUTES_BEFORE,
+                    remindAt = LocalDateTime(2023, 1, 1, 11, 30)
                 ),
 
                 onAction = {}

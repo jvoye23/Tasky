@@ -94,7 +94,7 @@ private fun SheetContent(
                 text = stringResource(R.string.cancel).uppercase(),
             )
             TaskyDeleteButton(
-              onClick = { /*TODO() Delete Item*/ },
+              onClick = { onAction(AgendaDetailAction.OnDeleteClick) },
                 text = stringResource(R.string.delete).uppercase(),
                 isLoading = state.isDeleteButtonLoading,
                 modifier = Modifier

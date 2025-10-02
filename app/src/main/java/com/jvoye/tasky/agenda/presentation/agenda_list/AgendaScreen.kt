@@ -58,9 +58,6 @@ fun AgendaScreenRoot(
     onAgendaItemMenuClick: (Boolean, TaskyType, String) -> Unit,
     viewModel: AgendaViewModel = koinViewModel()
 ) {
-
-
-
     val context = LocalContext.current
 
     ObserveAsEvents(viewModel.events) { event ->

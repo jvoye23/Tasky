@@ -1,39 +1,42 @@
 package com.jvoye.tasky.agenda.data
 
 import com.jvoye.tasky.agenda.domain.AgendaRepository
+import com.jvoye.tasky.agenda.domain.MockAgendaRepository
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.core.data.testTaskyItems
 import com.jvoye.tasky.core.domain.TaskyItemId
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
+import com.jvoye.tasky.core.domain.util.Result
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-class TestAgendaRepository : AgendaRepository {
+class TestAgendaRepository : MockAgendaRepository {
     override fun getTaskyItems(): Flow<List<TaskyItem>> {
-        TODO("Not yet implemented")
+        return flowOf(testTaskyItems)
     }
 
     override suspend fun fetchFullAgenda(): EmptyResult<DataError> {
-        TODO("Not yet implemented")
+        return Result.Success(Unit)
     }
 
     override suspend fun getTaskyItem(
         taskyType: TaskyType,
         taskyItemId: TaskyItemId
     ): TaskyItem {
-        TODO("Not yet implemented")
+        return testTaskyItems.first() { it.id == taskyItemId }
     }
 
     override suspend fun upsertTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError> {
-        TODO("Not yet implemented")
+        return Result.Success(Unit)
     }
 
     override suspend fun deleteTaskyItem(
         taskyType: TaskyType,
         taskyItemId: TaskyItemId
     ) {
-        TODO("Not yet implemented")
+        testTaskyItems.removeIf { it.id == taskyItemId }
     }
 
 }

@@ -42,7 +42,7 @@ class RoomLocalTaskyItemDataSource(
             }
 
         return combine(tasks, reminders, events) { tasks, reminders, events ->
-            tasks + reminders + events
+            (tasks + reminders + events).sortedBy { it.time }
         }
 
     }
@@ -50,15 +50,15 @@ class RoomLocalTaskyItemDataSource(
     override suspend fun getTaskyItem(taskyType: TaskyType, taskyItemId: String): TaskyItem {
         return when(taskyType) {
             TaskyType.TASK -> {
-                taskDao.getTask(taskyItemId).toTaskyItem()
+                taskDao.getTask(taskyItemId)?.toTaskyItem() ?: throw Exception("Task not found")
             }
 
             TaskyType.REMINDER -> {
-                reminderDao.getReminder(taskyItemId).toTaskyItem()
+                reminderDao.getReminder(taskyItemId)?.toTaskyItem() ?: throw Exception("Reminder not found")
             }
 
             TaskyType.EVENT -> {
-                eventDao.getEvent(taskyItemId).toTaskyItem()
+                eventDao.getEvent(taskyItemId)?.toTaskyItem() ?: throw Exception("Event not found")
             }
         }
     }

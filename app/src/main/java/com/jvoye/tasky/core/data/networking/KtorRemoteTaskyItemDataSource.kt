@@ -30,24 +30,18 @@ class KtorRemoteTaskyItemDataSource(
     override suspend fun postTaskyItem(taskyItem: TaskyItem): Result<TaskyItem, DataError.Network> {
         when (taskyItem.type) {
             TaskyType.TASK -> {
-                val result = safeCall<TaskDto> {
-                    httpClient.post<CreateTaskRequest, TaskDto>(
-                        route = "/task",
-                        body = taskyItem.toCreateTaskRequest()
-                    ) as HttpResponse
-                }
-                return result.map {
+                return httpClient.post<CreateTaskRequest, TaskDto>(
+                    route = "/task",
+                    body = taskyItem.toCreateTaskRequest()
+                ).map {
                     it.toTaskyItem()
                 }
             }
             TaskyType.REMINDER -> {
-                val result = safeCall<ReminderDto> {
-                    httpClient.post<CreateReminderRequest, ReminderDto>(
-                        route = "/reminder",
-                        body = taskyItem.toCreateReminderRequest()
-                    ) as HttpResponse
-                }
-                return result.map {
+                return httpClient.post<CreateReminderRequest, ReminderDto>(
+                    route = "/reminder",
+                    body = taskyItem.toCreateReminderRequest()
+                ).map {
                     it.toTaskyItem()
                 }
             }
@@ -65,26 +59,17 @@ class KtorRemoteTaskyItemDataSource(
         when (taskyType) {
             TaskyType.TASK -> {
                 return httpClient.delete(
-                    route = "/task",
-                    queryParameters = mapOf(
-                        "taskId" to taskyItemId
-                    )
+                    route = "/task/$taskyItemId",
                 )
             }
             TaskyType.REMINDER -> {
                 return httpClient.delete(
-                    route = "/reminder",
-                    queryParameters = mapOf(
-                        "reminderId" to taskyItemId
-                    )
+                    route = "/reminder/$taskyItemId",
                 )
             }
             TaskyType.EVENT -> {
                 return httpClient.delete(
-                    route = "/event",
-                    queryParameters = mapOf(
-                        "eventId" to taskyItemId
-                    )
+                    route = "/event/$taskyItemId"
                 )
             }
         }

@@ -1,6 +1,7 @@
 package com.jvoye.tasky.core.data.networking.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.convertIsoStringToSystemLocalDateTime
 import com.jvoye.tasky.core.data.networking.AttendeeDto
 import com.jvoye.tasky.core.data.networking.CreateReminderRequest
 import com.jvoye.tasky.core.data.networking.CreateTaskRequest
@@ -16,17 +17,57 @@ import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toInstant
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+
+/*POST TASK
+{
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", (String)
+    "title": "Complete API documentation", (String)
+    "description": "Write comprehensive API docs", (String)
+    "time": "2024-01-15T14:00:00Z", (String)
+    "remindAt": "2024-01-15T13:45:00Z", (String)
+    "updatedAt": "2024-01-15T12:00:00Z", (String)
+    "isDone": false (Boolean)
+}
+RESPONSE TASK
+{
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", (String)
+    "title": "Complete API documentation", (String)
+    "description": "Write comprehensive API docs", (String)
+    "time": "2024-01-15T14:00:00Z", (String)
+    "remindAt": "2024-01-15T13:45:00Z", (String)
+    "isDone": true (Boolean)
+}
+
+RESPONSE REMINDER
+{
+ "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", (String)
+ "title": "Doctor Appointment", (String)
+ "description": "Annual checkup", (String)
+ "time": "2024-01-15T16:00:00Z", (String)
+ "remindAt": "2024-01-15T15:30:00Z" (String)
+}
+
+RESPONSE FULL AGENDA
+{
+"events": [...events], (List<Event>)
+"tasks": [...tasks], (List<Task>)
+"reminders": [...reminders] (List<Reminder>)
+}
+*/
+
+
 
 fun TaskDto.toTaskyItem(): TaskyItem {
     return TaskyItem(
         id = id,
         title = title,
         description = description,
-        time = LocalDateTime.parse(time),
-        remindAt = LocalDateTime.parse(remindAt),
+        time = convertIsoStringToSystemLocalDateTime(time),
+        remindAt = convertIsoStringToSystemLocalDateTime(remindAt),
         details = TaskyItemDetails.Task(
             isDone = isDone
         ),
@@ -40,8 +81,8 @@ fun ReminderDto.toTaskyItem(): TaskyItem {
         id = id,
         title = title,
         description = description,
-        time = LocalDateTime.parse(time),
-        remindAt = LocalDateTime.parse(remindAt),
+        time = convertIsoStringToSystemLocalDateTime(time),
+        remindAt = convertIsoStringToSystemLocalDateTime(remindAt),
         details = TaskyItemDetails.Reminder,
         type = TaskyType.REMINDER
     )
@@ -53,11 +94,11 @@ fun EventDto.toTaskyItem(): TaskyItem {
         id = event.id,
         title = event.title,
         description = event.description,
-        time = LocalDateTime.parse(event.from),
-        remindAt = LocalDateTime.parse(event.remindAt),
+        time = convertIsoStringToSystemLocalDateTime(event.from),
+        remindAt = convertIsoStringToSystemLocalDateTime(event.remindAt),
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
-            toTime = LocalDateTime.parse(event.to),
+            toTime = convertIsoStringToSystemLocalDateTime(event.to),
             attendees = event.attendees.map { it.toAttendee() },
             photos = event.photoKeys.map { it.toEventPhoto() },
             isUserEventCreator = event.isUserEventCreator,
@@ -99,9 +140,9 @@ fun TaskyItem.toCreateTaskRequest(): CreateTaskRequest {
         id = id,
         title = title,
         description = description,
-        time = time.toString(),
-        remindAt = remindAt.toString(),
-        updatedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString(),
+        time = time.toInstant(TimeZone.UTC).toString(),
+        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        updatedAt = getUpdatedAtTime(),
         isDone = (details as TaskyItemDetails.Task).isDone
     )
 }
@@ -112,40 +153,17 @@ fun TaskyItem.toCreateReminderRequest(): CreateReminderRequest {
         id = id,
         title = title,
         description = description,
-        time = time.toString(),
-        remindAt = remindAt.toString(),
-        updatedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+        time = time.toInstant(TimeZone.UTC).toString(),
+        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        updatedAt = getUpdatedAtTime()
     )
 }
 
-
-/*
-RESPONSE TASK
-{
-    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", (String)
-    "title": "Complete API documentation", (String)
-    "description": "Write comprehensive API docs", (String)
-    "time": "2024-01-15T14:00:00Z", (String)
-    "remindAt": "2024-01-15T13:45:00Z", (String)
-    "isDone": true (Boolean)
+@OptIn(ExperimentalTime::class)
+private fun getUpdatedAtTime(): String {
+    val now = Clock.System.now()
+    val truncatedInstant = Instant.fromEpochSeconds(now.epochSeconds)
+    val isoString = truncatedInstant.toString()
+    return isoString
 }
 
-RESPONSE REMINDER
-{
- "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", (String)
- "title": "Doctor Appointment", (String)
- "description": "Annual checkup", (String)
- "time": "2024-01-15T16:00:00Z", (String)
- "remindAt": "2024-01-15T15:30:00Z" (String)
-}
-
-RESPONSE FULL AGENDA
-{
-"events": [...events], (List<Event>)
-"tasks": [...tasks], (List<Task>)
-"reminders": [...reminders] (List<Reminder>)
-}
-
-
-
-*/

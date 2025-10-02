@@ -85,6 +85,15 @@ fun AgendaDetailScreenRoot(
                 ).show()
                 onCloseAndCancelClick()
             }
+
+            AgendaDetailEvent.TaskyItemDeleted -> {
+                Toast.makeText(
+                    context,
+                    R.string.tasky_item_deleted,
+                    Toast.LENGTH_LONG
+                ).show()
+                onCloseAndCancelClick()
+            }
         }
     }
 
@@ -410,7 +419,7 @@ private fun AgendaDetailScreenPreview() {
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0),
+                    remindAt = LocalDateTime(2023, 1, 1, 11, 30),
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 isEditMode = true,

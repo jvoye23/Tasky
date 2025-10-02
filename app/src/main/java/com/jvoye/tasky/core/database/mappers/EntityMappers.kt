@@ -1,100 +1,99 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package com.jvoye.tasky.core.database.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.convertIsoStringToSystemLocalDateTime
 import com.jvoye.tasky.core.database.entity.EventEntity
 import com.jvoye.tasky.core.database.entity.ReminderEntity
 import com.jvoye.tasky.core.database.entity.TaskEntity
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
-import kotlinx.datetime.LocalDateTime
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlin.time.ExperimentalTime
 
 fun TaskEntity.toTaskyItem(): TaskyItem {
     return TaskyItem(
-        id = id.toString(),
+        id = id,
         title = title,
         description = description,
         type = TaskyType.TASK,
-        time = LocalDateTime.parse(dateTimeUtc),
+        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
         details = TaskyItemDetails.Task(
             isDone = isDone
         ),
-        remindAt = LocalDateTime.parse(remindAt)
+        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc)
     )
 }
 
+@OptIn(ExperimentalTime::class)
 fun TaskyItem.toTaskEntity(): TaskEntity {
     return TaskEntity(
-        id = id.toUuid(),
+        id = id,
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toString(),
+        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
         isDone = (details as TaskyItemDetails.Task).isDone,
-        remindAt = remindAt.toString()
+        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString()
     )
 }
 
 fun ReminderEntity.toTaskyItem(): TaskyItem {
     return TaskyItem(
-        id = id.toString(),
+        id = id,
         title = title,
         description = description,
         type = TaskyType.REMINDER,
-        time = LocalDateTime.parse(dateTimeUtc),
-        remindAt = LocalDateTime.parse(remindAt),
+        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
+        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc),
         details = TaskyItemDetails.Reminder,
     )
 }
 
+@OptIn(ExperimentalTime::class)
 fun TaskyItem.toReminderEntity(): ReminderEntity {
     return ReminderEntity(
-        id = id.toUuid(),
+        id = id,
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toString(),
-        remindAt = remindAt.toString()
+        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
+        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString()
     )
 }
 
 fun EventEntity.toTaskyItem(): TaskyItem {
+    //TODO: parse attendees and photos
     return TaskyItem(
-        id = id.toString(),
+        id = id,
         title = title,
         description = description,
         type = TaskyType.EVENT,
-        time = LocalDateTime.parse(dateTimeUtc),
+        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
         details = TaskyItemDetails.Event(
-            toTime = LocalDateTime.parse(toDateTimeUtc),
-            attendees = attendees,
-            photos = photos,
+            toTime = convertIsoStringToSystemLocalDateTime(toDateTimeUtc),
+            attendees = emptyList(),
+            photos = emptyList(),
             isUserEventCreator = isUserEventCreator,
             host = host
         ),
-        remindAt = LocalDateTime.parse(remindAt)
+        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc)
     )
 }
 
+@OptIn(ExperimentalTime::class)
 fun TaskyItem.toEventEntity(): EventEntity {
     return EventEntity(
-        id = id.toUuid(),
+        id = id,
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toString(),
-        toDateTimeUtc = (details as TaskyItemDetails.Event).toTime.toString(),
-        attendees = details.attendees,
-        photos = details.photos,
-        remindAt = remindAt.toString(),
+        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
+        toDateTimeUtc = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
+        attendees = details.attendees.toString(),
+        photos = details.photos.toString(),
+        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString(),
         isUserEventCreator = details.isUserEventCreator,
         host = details.host
     )
-}
-
-fun String.toUuid(): Uuid {
-    return Uuid.parse(this)
 }

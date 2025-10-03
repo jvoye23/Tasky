@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jvoye.tasky.R
+import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailState
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -28,12 +30,12 @@ import kotlin.time.ExperimentalTime
 fun AgendaItemDetailTimePicker(
     onConfirm: (TimePickerState) -> Unit,
     onDismiss: () -> Unit,
+    initialTime: LocalTime
 ) {
-    val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
 
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.hour,
-        initialMinute = currentTime.minute,
+        initialHour = initialTime.hour,
+        initialMinute = initialTime.minute,
         is24Hour = true,
     )
     TimePickerDialog(
@@ -92,7 +94,8 @@ private fun AgendaItemDetailTimePickerPreview() {
     TaskyTheme {
         AgendaItemDetailTimePicker /**/(
             onConfirm = {},
-            onDismiss = {}
+            onDismiss = {},
+            initialTime = LocalTime(10, 30)
         )
 
     }

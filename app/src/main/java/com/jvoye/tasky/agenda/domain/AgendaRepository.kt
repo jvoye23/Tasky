@@ -13,6 +13,7 @@ interface AgendaRepository {
     suspend fun getTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId) : TaskyItem
 
     suspend fun upsertTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError>
+    suspend fun updateTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError>
 
     suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError>
 

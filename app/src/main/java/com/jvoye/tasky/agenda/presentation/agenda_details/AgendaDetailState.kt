@@ -2,6 +2,8 @@ package com.jvoye.tasky.agenda.presentation.agenda_details
 
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.LocalDateTime
@@ -19,7 +21,7 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
         title = "Title",
         description = "Description",
         time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-        id = randomUUID().toString(),
+        id = "",
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(isDone = false),
         remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -27,10 +29,10 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     ),
     val titleText: String? = null,
     val descriptionText: String? = null,
-    val time: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+    val time: LocalDateTime = getNextHalfMarkLocalTime(),
     val remindAt: LocalDateTime = (time.toInstant(TimeZone.currentSystemDefault()) - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
     val isEditMode: Boolean = false,
-    val selectedDateMillis: Long? = null,
+    val selectedDateMillis: Long = getNextHalfMarkLocalTime().toEpochMilliseconds(),
     val notificationType: NotificationType = NotificationType.THIRTY_MINUTES_BEFORE,
 
     val isDatePickerDialogVisible: Boolean = false,

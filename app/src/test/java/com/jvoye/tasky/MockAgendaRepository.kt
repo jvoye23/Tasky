@@ -1,5 +1,6 @@
-package com.jvoye.tasky.agenda.domain
+package com.jvoye.tasky
 
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.core.domain.TaskyItemId
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.DataError

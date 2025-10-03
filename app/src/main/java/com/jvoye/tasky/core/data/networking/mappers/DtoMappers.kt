@@ -18,6 +18,7 @@ import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import java.util.UUID.randomUUID
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant

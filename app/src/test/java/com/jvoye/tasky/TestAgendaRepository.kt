@@ -1,7 +1,5 @@
-package com.jvoye.tasky.agenda.data
+package com.jvoye.tasky
 
-import com.jvoye.tasky.agenda.domain.AgendaRepository
-import com.jvoye.tasky.agenda.domain.MockAgendaRepository
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.core.data.testTaskyItems
 import com.jvoye.tasky.core.domain.TaskyItemId

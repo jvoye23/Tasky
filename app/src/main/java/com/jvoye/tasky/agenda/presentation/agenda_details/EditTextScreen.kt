@@ -13,11 +13,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,11 +29,12 @@ import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.EditTextTopAppBar
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun EditTextScreenRoot(
     editTextType: EditTextType,
-    editText: String,
+    editText: String?,
     onCancelClick: () -> Unit,
     onSaveClick: (String, EditTextType) -> Unit
 ) {
@@ -44,11 +49,15 @@ fun EditTextScreenRoot(
 @Composable
 private fun EditTextScreen(
     editTextType: EditTextType,
-    editText: String,
+    editText: String?,
     onCancelClick: () -> Unit,
     onSaveClick: (updatedText: String, editTextType: EditTextType) -> Unit
 ) {
-    var currentText by rememberSaveable { mutableStateOf(editText) }
+    var currentText by rememberSaveable { mutableStateOf(
+        editText ?: ""
+    )}
+
+    val focusRequester = remember { FocusRequester() }
 
     Scaffold(
         modifier = Modifier
@@ -57,7 +66,7 @@ private fun EditTextScreen(
         topBar = {
             EditTextTopAppBar(
                 onCancelClick = onCancelClick,
-                onSaveClick = { onSaveClick(currentText, editTextType) },
+                onSaveClick = { onSaveClick(currentText.toString(), editTextType) },
                 title = when(editTextType) {
                     EditTextType.TITLE -> stringResource(R.string.title)
                     EditTextType.DESCRIPTION -> stringResource(R.string.description)
@@ -102,8 +111,21 @@ private fun EditTextScreen(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
                 singleLine = editTextType == EditTextType.TITLE,
-                modifier = if (editTextType == EditTextType.TITLE) Modifier.fillMaxWidth() else Modifier.fillMaxSize(),
+                modifier = if (editTextType == EditTextType.TITLE) {
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                } else Modifier
+                    .fillMaxSize()
+                    .focusRequester(focusRequester)
             )
+        }
+    }
+    LaunchedEffect(Unit) {
+        // A small delay to ensure the UI is fully drawn before the focus is requested
+        delay(100)
+        if (editText == null) {
+            focusRequester.requestFocus()
         }
     }
 }

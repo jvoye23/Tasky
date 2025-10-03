@@ -71,6 +71,11 @@ class OfflineFirstAgendaRepository(
         }
     }
 
+    override suspend fun updateTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError> {
+        //TODO("Not yet implemented") Placeholder
+        return Result.Success(Unit).asEmptyDataResult()
+    }
+
     override suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError> {
         localTaskyItemDataSource.deleteTaskyItem(taskyType, taskyItemId)
         val remoteResult = applicationScope.async {

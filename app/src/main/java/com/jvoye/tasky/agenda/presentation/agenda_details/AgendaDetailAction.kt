@@ -12,7 +12,7 @@ sealed interface AgendaDetailAction {
     data object OnSaveClick : AgendaDetailAction
     data object OnDeleteClick : AgendaDetailAction
     data object OnCloseAndCancelClick : AgendaDetailAction
-    data class OnEditTextClick(val text: String, val editTextType: EditTextType) : AgendaDetailAction
+    data class OnEditTextClick(val text: String?, val editTextType: EditTextType) : AgendaDetailAction
     data object OnSetTimeClick : AgendaDetailAction
     data object OnSetDateClick : AgendaDetailAction
     data object OnDismissDatePickerDialog : AgendaDetailAction

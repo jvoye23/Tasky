@@ -63,7 +63,7 @@ import kotlin.time.ExperimentalTime
 fun AgendaDetailScreenRoot(
     modifier: Modifier = Modifier,
     onCloseAndCancelClick: () -> Unit,
-    onEditTextClick: (String, EditTextType) -> Unit,
+    onEditTextClick: (String?, EditTextType) -> Unit,
     viewModel: AgendaDetailScreenViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -224,7 +224,7 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
-                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.titleText.toString(),
+                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.titleText,
                         editTextType = EditTextType.TITLE)) },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
@@ -264,7 +264,7 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 24.dp)
-                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.descriptionText.toString(),
+                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.descriptionText,
                         editTextType = EditTextType.DESCRIPTION))},
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
@@ -317,7 +317,7 @@ private fun TaskContent(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp)),
                         isEditMode = state.isEditMode,
-                        text = "${state.selectedDateMillis?.toLocalDateTime()?.hour ?: 10}:${((state.selectedDateMillis?.toLocalDateTime()?.minute) ?: 30).toString().padStart(2, '0')}",
+                        text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
                         containerColor = MaterialTheme.colorScheme.surfaceHigher,
                         contentColor = MaterialTheme.colorScheme.primary,
                         onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
@@ -330,7 +330,7 @@ private fun TaskContent(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp)),
                         isEditMode = state.isEditMode,
-                        text = state.selectedDateMillis?.toLocalDateTime()?.toDatePickerString() ?: "" ,
+                        text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
                         containerColor = MaterialTheme.colorScheme.surfaceHigher,
                         contentColor = MaterialTheme.colorScheme.primary,
                         onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
@@ -360,7 +360,8 @@ private fun TaskContent(
             if (state.isTimePickerDialogVisible) {
                 AgendaItemDetailTimePicker(
                     onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
-                    onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) }
+                    onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) },
+                    initialTime = state.time.time
                 )
             }
             if (state.isDatePickerDialogVisible){

@@ -7,6 +7,7 @@ import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -72,4 +73,27 @@ fun convertIsoStringToSystemLocalDateTime(isoString: String): LocalDateTime {
 fun convertIsoStringToUtcDateTime(isoString: String): LocalDateTime {
     val instant = Instant.parse(isoString)
     return instant.toLocalDateTime(TimeZone.UTC)
+}
+
+@OptIn(ExperimentalTime::class)
+fun getNextHalfMarkLocalTime(): LocalDateTime {
+    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val newTime = if (now.minute < 30) {
+        LocalDateTime(
+            year = now.year,
+            month = now.month,
+            day = now.day,
+            hour = now.hour,
+            minute = 30
+        )
+    } else {
+        LocalDateTime(
+            year = now.year,
+            month = now.month,
+            day = now.day,
+            hour = now.hour + 1,
+            minute = 0
+        )
+    }
+    return newTime
 }

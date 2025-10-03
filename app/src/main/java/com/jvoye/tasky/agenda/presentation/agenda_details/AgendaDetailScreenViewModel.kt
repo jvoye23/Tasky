@@ -7,11 +7,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
-import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
-import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.ui.asUiText
@@ -25,11 +26,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
-import kotlin.time.Duration.Companion.minutes
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import java.util.UUID.randomUUID
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlinx.datetime.*
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 
 class AgendaDetailScreenViewModel(
     private val isEdit: Boolean,
@@ -42,7 +44,7 @@ class AgendaDetailScreenViewModel(
         titleText = savedStateHandle["titleText"],
         descriptionText = savedStateHandle["descriptionText"],
         isEditMode = savedStateHandle.get<Boolean>("isEditMode") ?: false,
-        selectedDateMillis = savedStateHandle.get<Long>("selectedDateMillis"),
+        selectedDateMillis = savedStateHandle.get<Long>("selectedDateMillis") ?: getNextHalfMarkLocalTime().toEpochMilliseconds(),
         notificationType = savedStateHandle.get<NotificationType>("notificationType") ?: NotificationType.THIRTY_MINUTES_BEFORE
     ))
 
@@ -69,6 +71,7 @@ class AgendaDetailScreenViewModel(
                 }
 
                 getTypeAndEditMode(isEdit, taskyType)
+                println("STATE: ${_state.value}")
                 hasLoadedInitialData = true
             }
         }
@@ -116,18 +119,27 @@ class AgendaDetailScreenViewModel(
         ) }
 
         viewModelScope.launch {
+            val isTaskyItemIdBlank  = _state.value.taskyItem.id.isBlank()
+            val newTaskyItemId = _state.value.taskyItem.id.ifBlank {
+                randomUUID().toString()
+            }
             val taskyItem = TaskyItem(
                 title = _state.value.titleText ?: "",
                 description = _state.value.descriptionText ?: "",
                 time = _state.value.time,
-                id = _state.value.taskyItem.id,
+                id = if (isTaskyItemIdBlank) newTaskyItemId else _state.value.taskyItem.id,
                 type = _state.value.taskyItem.type,
                 remindAt = _state.value.remindAt,
                 details = _state.value.taskyItem.details,
                 notificationType = _state.value.notificationType,
             )
 
-            when(val result = agendaRepository.upsertTaskyItem(taskyItem)) {
+            when(val result = if (isTaskyItemIdBlank) {
+                agendaRepository.upsertTaskyItem(taskyItem)
+            } else {
+                agendaRepository.updateTaskyItem(taskyItem)
+            }
+            ) {
                 is Result.Error -> {
                     eventChannel.send(AgendaDetailEvent.Error(result.error.asUiText()))
                 }
@@ -217,6 +229,7 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.ConfirmTimeSelection -> {
+                println("MILLIS BEFORE: ${state.value.selectedDateMillis}" )
                 val newHour = action.timePickerState.hour
                 val newMinute = action.timePickerState.minute
                 val newSecond = 0
@@ -234,6 +247,7 @@ class AgendaDetailScreenViewModel(
                     time = newLocalDateTime,
                     isTimePickerDialogVisible = false
                 ) }
+                println("MILLIS AFTER: ${state.value.selectedDateMillis}" )
             }
 
             AgendaDetailAction.OnDismissTimePickerDialog -> {
@@ -259,46 +273,13 @@ class AgendaDetailScreenViewModel(
                     )
                 }
 
-                when (action.notificationType) {
-                    NotificationType.THIRTY_MINUTES_BEFORE -> {
-                        _state.update {
-                            it.copy(
-                                remindAt = (timeInstant - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
-                            )
-                        }
-                    }
+                val remindAt = (timeInstant - action.notificationType.offset)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
 
-                    NotificationType.TEN_MINUTES_BEFORE -> {
-                        _state.update {
-                            it.copy(
-                                remindAt = (timeInstant - 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
-                            )
-                        }
-                    }
-
-                    NotificationType.ONE_HOUR_BEFORE -> {
-                        _state.update {
-                            it.copy(
-                                remindAt = (timeInstant - 1.hours).toLocalDateTime(TimeZone.currentSystemDefault())
-                            )
-                        }
-                    }
-
-                    NotificationType.SIX_HOURS_BEFORE -> {
-                        _state.update {
-                            it.copy(
-                                remindAt = (timeInstant - 6.hours).toLocalDateTime(TimeZone.currentSystemDefault())
-                            )
-                        }
-                    }
-
-                    NotificationType.ONE_DAY_BEFORE -> {
-                        _state.update {
-                            it.copy(
-                                remindAt = (timeInstant - 1.days).toLocalDateTime(TimeZone.currentSystemDefault())
-                            )
-                        }
-                    }
+                _state.update {
+                    it.copy(
+                        remindAt = remindAt
+                    )
                 }
             }
             AgendaDetailAction.OnToggleDeleteBottomSheet -> {

@@ -44,7 +44,7 @@ data class AgendaDetailNavKey(
 
 @Serializable
 data class EditTextNavKey(
-    val editText: String, 
+    val editText: String?,
     val editTextType: EditTextType
 ): NavKey
 

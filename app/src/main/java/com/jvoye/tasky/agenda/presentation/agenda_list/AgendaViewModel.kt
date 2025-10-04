@@ -5,12 +5,17 @@ package com.jvoye.tasky.agenda.presentation.agenda_list
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaRepository
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailEvent
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
+import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.util.Result
+import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import com.jvoye.tasky.core.presentation.mappers.toUserUi
 import com.jvoye.tasky.core.presentation.ui.asUiText
 import kotlinx.coroutines.channels.Channel
@@ -112,7 +117,48 @@ class AgendaViewModel(
                 ) }
             }
             is AgendaAction.OnAgendaTaskFinishedClick -> {
+                val taskyItem = action.taskyItem
+                val isDone = (taskyItem.details as TaskyItemDetails.Task).isDone
 
+                val updatedTaskyItem = TaskyItem(
+                    id = taskyItem.id,
+                    type = taskyItem.type,
+                    title = taskyItem.title,
+                    description = taskyItem.description,
+                    time = taskyItem.time,
+                    remindAt = taskyItem.remindAt,
+                    details = TaskyItemDetails.Task(isDone = !isDone),
+                    notificationType = taskyItem.notificationType
+                )
+                viewModelScope.launch {
+                    agendaRepository.updateTaskyItem(updatedTaskyItem)
+                }
+            }
+            is AgendaAction.OnDeleteClick -> {
+
+                val taskyItem = state.value.taskyItemToBeDeleted
+
+                viewModelScope.launch {
+                    if (taskyItem != null) {
+                        when(val result = agendaRepository.deleteTaskyItem(
+                            taskyItemId = taskyItem.id,
+                            taskyType = taskyItem.type
+                        )) {
+                            is Result.Error -> {
+                                eventChannel.send(AgendaEvent.Error(result.error.asUiText()))
+                            }
+
+                            is Result.Success -> {
+                                eventChannel.send(AgendaEvent.TaskyItemDeleted)
+                            }
+                        }
+                    } else {
+                        eventChannel.send(AgendaEvent.Error(UiText.StringResource(R.string.item_not_found)))
+                    }
+                    _state.update { it.copy(
+                        isDeleteBottomSheetVisible = false
+                    )}
+                }
             }
 
             AgendaAction.OnToggleAgendaFabMenu -> {
@@ -121,6 +167,18 @@ class AgendaViewModel(
                         isFabMenuExpanded = it.isFabMenuExpanded.not()
                     )
                 }
+            }
+            is AgendaAction.OnToggleDeleteBottomSheet -> {
+                _state.update { it.copy(
+                    isDeleteBottomSheetVisible = !it.isDeleteBottomSheetVisible,
+                    taskyItemToBeDeleted = null
+                ) }
+            }
+            is AgendaAction.OnDeleteMenuItemClick -> {
+                _state.update { it.copy(
+                    isDeleteBottomSheetVisible = true,
+                    taskyItemToBeDeleted = action.taskyItem
+                ) }
             }
             else -> Unit
         }

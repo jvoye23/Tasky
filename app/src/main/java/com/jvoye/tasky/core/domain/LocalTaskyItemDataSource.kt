@@ -13,7 +13,6 @@ interface LocalTaskyItemDataSource {
     fun getTaskyItems(): Flow<List<TaskyItem>>
     suspend fun getTaskyItem(taskyType: TaskyType, taskyItemId: String): TaskyItem
     suspend fun upsertTaskyItem(taskyItem: TaskyItem): Result<TaskyItemId, DataError.Local>
-    //suspend fun upsertTaskyItems(taskyItems: List<TaskyItem>): Result<List<TaskyItemId>, DataError.Local>
     suspend fun upsertFullAgenda(fullAgenda: FullAgenda): Result<List<TaskyItemId>, DataError.Local>
     suspend fun deleteTaskyItem(type: TaskyType, taskyItemId: String)
     suspend fun deleteAllTaskyItems()

@@ -68,6 +68,7 @@ fun AgendaDetailScreenRoot(
 ) {
     val context = LocalContext.current
 
+
     ObserveAsEvents(viewModel.events) { event ->
         when(event) {
             is AgendaDetailEvent.Error -> {
@@ -397,8 +398,9 @@ private fun TaskContent(
         }
         if (state.isDeleteBottomSheetVisible) {
             AgendaItemDeleteBottomSheet(
-                onAction = onAction,
-                state = state
+                onDelete = {onAction(AgendaDetailAction.OnDeleteClick)},
+                onToggleDeleteBottomSheet = {onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)},
+                isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }
     }

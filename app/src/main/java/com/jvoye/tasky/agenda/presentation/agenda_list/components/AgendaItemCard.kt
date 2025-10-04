@@ -90,7 +90,7 @@ fun AgendaItemCard(
                 verticalArrangement = Arrangement.Top
             ) {
                 IconButton(
-                    onClick = { action(AgendaAction.OnAgendaTaskFinishedClick(taskyItem.id)) },
+                    onClick = { action(AgendaAction.OnAgendaTaskFinishedClick(taskyItem)) },
                     modifier = Modifier
                         .size(40.dp)
                 ) {
@@ -157,15 +157,17 @@ fun AgendaItemCard(
                                 },
                                 onClick = {
                                     isMenuExpanded = false
-                                    action(
-                                        AgendaAction.OnAgendaItemMenuClick(
-                                        when(menuItems.indexOf(item)) {
-                                            1 -> true
-                                            else -> false
-                                        },
-                                        taskyItem.type,
-                                        taskyItem.id
-                                    ))
+                                    when(menuItems.indexOf(item)){
+                                        0 -> action(AgendaAction.OnAgendaItemMenuClick(
+                                            false, taskyItem.type, taskyItem.id
+                                        ))
+                                        1 -> action(AgendaAction.OnAgendaItemMenuClick(
+                                            true, taskyItem.type, taskyItem.id
+                                        ))
+                                        2 -> {
+                                            action(AgendaAction.OnDeleteMenuItemClick(taskyItem))
+                                        }
+                                    }
                                 },
                                 contentPadding = PaddingValues(start = 12.dp, end = 40.dp)
                             )

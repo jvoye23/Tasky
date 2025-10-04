@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteBottomSheet
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaDatePicker
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaFab
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaItemCard
@@ -76,6 +77,14 @@ fun AgendaScreenRoot(
                     Toast.LENGTH_LONG
                 ).show()
                 onSuccessfulLogout()
+            }
+
+            AgendaEvent.TaskyItemDeleted -> {
+                Toast.makeText(
+                    context,
+                    R.string.tasky_item_deleted,
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -139,7 +148,7 @@ private fun AgendaScreen(
                 .padding(innerPadding)
                 .alpha(1f),
             state = state,
-            action = onAction,
+            onAction = onAction,
             datePickerState = datePickerState
         )
     }
@@ -151,7 +160,7 @@ private fun AgendaScreen(
 private fun AgendaScreenContent(
     modifier: Modifier = Modifier,
     state: AgendaState,
-    action: (AgendaAction) -> Unit,
+    onAction: (AgendaAction) -> Unit,
     datePickerState: DatePickerState
 ) {
     Column(
@@ -172,7 +181,7 @@ private fun AgendaScreenContent(
         ScrollableDateRow(
             currentDate = state.currentDate,
             entries = state.dateRowEntries,
-            action = action
+            action = onAction
         )
         Text(
             modifier = Modifier
@@ -197,15 +206,22 @@ private fun AgendaScreenContent(
                 Row(modifier = Modifier.animateItem()) {
                     AgendaItemCard(
                         taskyItem = taskyItem,
-                        action = action
+                        action = onAction
                     )
                 }
             }
         }
         if (state.isDatePickerDialogVisible){
             AgendaDatePicker(
-                action = action,
+                action = onAction,
                 datePickerState = datePickerState
+            )
+        }
+        if (state.isDeleteBottomSheetVisible) {
+            AgendaItemDeleteBottomSheet(
+                onDelete = {onAction(AgendaAction.OnDeleteClick)},
+                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }
     }

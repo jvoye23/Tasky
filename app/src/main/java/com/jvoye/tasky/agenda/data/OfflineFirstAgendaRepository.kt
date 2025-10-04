@@ -72,8 +72,18 @@ class OfflineFirstAgendaRepository(
     }
 
     override suspend fun updateTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError> {
-        //TODO("Not yet implemented") Placeholder
-        return Result.Success(Unit).asEmptyDataResult()
+        val remoteResult = remoteTaskyItemDataSource.updateTaskyItem(taskyItem)
+        return when (remoteResult) {
+            is Result.Error -> {
+                // TODO: handle error case later
+                Result.Success(Unit)
+            }
+            is Result.Success -> {
+                applicationScope.async {
+                    localTaskyItemDataSource.upsertTaskyItem(remoteResult.data).asEmptyDataResult()
+                }.await()
+            }
+        }
     }
 
     override suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError> {

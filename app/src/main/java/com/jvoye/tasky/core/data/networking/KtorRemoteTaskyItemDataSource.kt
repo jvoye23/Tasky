@@ -13,6 +13,7 @@ import com.jvoye.tasky.core.domain.util.EmptyResult
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.domain.util.map
 import io.ktor.client.HttpClient
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
 
 
@@ -52,7 +53,26 @@ class KtorRemoteTaskyItemDataSource(
     }
 
     override suspend fun updateTaskyItem(taskyItem: TaskyItem): Result<TaskyItem, DataError.Network> {
-        TODO("Not yet implemented")
+        when(taskyItem.type) {
+            TaskyType.TASK -> {
+                return httpClient.put<CreateTaskRequest, TaskDto>(
+                    route = "/task",
+                    body = taskyItem.toCreateTaskRequest()
+                ).map {
+                    it.toTaskyItem()
+                }
+            }
+            TaskyType.REMINDER -> {
+                return httpClient.put<CreateReminderRequest, ReminderDto>(
+                    route = "/reminder",
+                    body = taskyItem.toCreateReminderRequest()
+                ).map {
+                    it.toTaskyItem()
+                }
+
+            }
+            TaskyType.EVENT -> TODO()
+        }
     }
 
     override suspend fun deleteTaskyItem(taskyItemId: String, taskyType: TaskyType): EmptyResult<DataError.Network> {

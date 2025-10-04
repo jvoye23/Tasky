@@ -63,4 +63,6 @@
     <string name="this_action_cannot_be_reversed">This action cannot be reversed</string>
     <string name="tasky_item_saved">Successfully saved.</string>
     <string name="tasky_item_deleted">Successfully deleted.</string>
+    <string name="item_not_found">Item to be deleted not found.</string>
+    <string name="delete_question">Delete?</string>
 </resources>

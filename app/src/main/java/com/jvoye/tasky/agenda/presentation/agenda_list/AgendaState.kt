@@ -28,4 +28,7 @@ data class AgendaState(
     val agendaList: List<TaskyItem> = emptyList(),
     val isFabMenuExpanded: Boolean = false,
     val isAgendaItemMenuExpanded: Boolean = false,
-    )
+    val isDeleteBottomSheetVisible: Boolean = false,
+    val isDeleteButtonLoading: Boolean = false,
+    val taskyItemToBeDeleted: TaskyItem? = null
+)

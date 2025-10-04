@@ -61,13 +61,12 @@ class HttpClientFactory(
                             route = "/auth/refresh",
                             body = AccessTokenRequest(
                                 refreshToken = info?.refreshToken ?: "",
-                                userId = info?.userId ?: ""
                             )
                         )
                         if (response is Result.Success) {
                             val newAuthInfo = AuthInfo(
                                 accessToken = response.data.accessToken,
-                                refreshToken = info?.refreshToken ?: "",
+                                refreshToken = response.data.refreshToken,
                                 userId = info?.userId ?: "",
                                 username = info?.username ?: ""
                             )

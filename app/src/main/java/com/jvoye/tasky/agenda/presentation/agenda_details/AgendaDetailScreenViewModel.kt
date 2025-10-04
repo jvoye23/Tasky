@@ -71,7 +71,7 @@ class AgendaDetailScreenViewModel(
                 }
 
                 getTypeAndEditMode(isEdit, taskyType)
-                println("STATE: ${_state.value}")
+
                 hasLoadedInitialData = true
             }
         }
@@ -229,7 +229,6 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.ConfirmTimeSelection -> {
-                println("MILLIS BEFORE: ${state.value.selectedDateMillis}" )
                 val newHour = action.timePickerState.hour
                 val newMinute = action.timePickerState.minute
                 val newSecond = 0
@@ -247,7 +246,6 @@ class AgendaDetailScreenViewModel(
                     time = newLocalDateTime,
                     isTimePickerDialogVisible = false
                 ) }
-                println("MILLIS AFTER: ${state.value.selectedDateMillis}" )
             }
 
             AgendaDetailAction.OnDismissTimePickerDialog -> {

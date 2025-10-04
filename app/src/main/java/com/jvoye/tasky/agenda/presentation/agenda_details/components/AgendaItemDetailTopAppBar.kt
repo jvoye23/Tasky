@@ -57,7 +57,7 @@ fun AgendaItemDetailTopAppBar(
                         stringResource(R.string.edit_uppercase) + " " + taskyItem?.type.toString().uppercase()
                     } else getItemDetailDateString(taskyItem?.time).uppercase(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         },
@@ -71,7 +71,7 @@ fun AgendaItemDetailTopAppBar(
                     Text(
                         text = stringResource(R.string.cancel),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             } else {

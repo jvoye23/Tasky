@@ -28,20 +28,22 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 @Composable
 fun AgendaItemDeleteBottomSheet(
     modifier: Modifier = Modifier,
-    onAction: (AgendaDetailAction) -> Unit,
-    state: AgendaDetailState
+    onDelete: () -> Unit,
+    onToggleDeleteBottomSheet:() -> Unit,
+    isDeleteButtonLoading: Boolean,
 ) {
     val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
-        onDismissRequest = { onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)  },
+        onDismissRequest = { onToggleDeleteBottomSheet() },
         modifier = Modifier.fillMaxWidth(),
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
         SheetContent(
-            onAction = onAction,
-            state = state
+            onToggleDeleteBottomSheet = onToggleDeleteBottomSheet,
+            onDelete = onDelete,
+            isDeleteButtonLoading = isDeleteButtonLoading
         )
     }
 }
@@ -49,8 +51,9 @@ fun AgendaItemDeleteBottomSheet(
 @Composable
 private fun SheetContent(
     modifier: Modifier = Modifier,
-    onAction: (AgendaDetailAction) -> Unit,
-    state: AgendaDetailState
+    onToggleDeleteBottomSheet: () -> Unit,
+    onDelete: () -> Unit,
+    isDeleteButtonLoading: Boolean,
 ) {
     Column(
         modifier = modifier
@@ -64,7 +67,7 @@ private fun SheetContent(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(R.string.delete_task_question),
+                text = stringResource(R.string.delete_question),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -88,15 +91,15 @@ private fun SheetContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TaskyOutlinedButton(
-                onClick = { onAction(AgendaDetailAction.OnToggleDeleteBottomSheet) },
+                onClick = { onToggleDeleteBottomSheet() },
                 modifier = Modifier
                     .weight(.5f),
                 text = stringResource(R.string.cancel).uppercase(),
             )
             TaskyDeleteButton(
-              onClick = { onAction(AgendaDetailAction.OnDeleteClick) },
+              onClick = { onDelete() },
                 text = stringResource(R.string.delete).uppercase(),
-                isLoading = state.isDeleteButtonLoading,
+                isLoading = isDeleteButtonLoading,
                 modifier = Modifier
                     .weight(.5f)
             )
@@ -109,8 +112,10 @@ private fun SheetContent(
 private fun SheetContentPreview() {
     TaskyTheme {
         SheetContent(
-            onAction = {},
-            state = AgendaDetailState()
+            modifier = Modifier,
+            onToggleDeleteBottomSheet = {},
+            onDelete = {},
+            isDeleteButtonLoading = false
         )
     }
 }

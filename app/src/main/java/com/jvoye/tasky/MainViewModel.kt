@@ -2,16 +2,18 @@ package com.jvoye.tasky
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.core.domain.SessionStorage
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class MainViewModel(
-    private val sessionStorage: SessionStorage
+class
+MainViewModel(
+    private val sessionStorage: SessionStorage,
+    private val agendaRepository: AgendaRepository
 ): ViewModel() {
     private val _state = MutableStateFlow(MainState())
     private var hasLoadedInitialData = false
@@ -23,6 +25,8 @@ class MainViewModel(
                 _state.update { it.copy(
                     isLoggedIn = sessionStorage.get() != null
                 ) }
+
+                //agendaRepository.fetchFullAgenda()
 
                 _state.update { it.copy(
                     isCheckingAuth = false
@@ -36,4 +40,6 @@ class MainViewModel(
             SharingStarted.WhileSubscribed(5_000L),
             _state.value
         )
+
+
 }

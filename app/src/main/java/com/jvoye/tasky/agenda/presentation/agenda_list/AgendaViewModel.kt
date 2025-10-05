@@ -120,15 +120,10 @@ class AgendaViewModel(
                 val taskyItem = action.taskyItem
                 val isDone = (taskyItem.details as TaskyItemDetails.Task).isDone
 
-                val updatedTaskyItem = TaskyItem(
-                    id = taskyItem.id,
-                    type = taskyItem.type,
-                    title = taskyItem.title,
-                    description = taskyItem.description,
-                    time = taskyItem.time,
-                    remindAt = taskyItem.remindAt,
-                    details = TaskyItemDetails.Task(isDone = !isDone),
-                    notificationType = taskyItem.notificationType
+                val updatedTaskyItem = taskyItem.copy(
+                    details = (taskyItem.details as TaskyItemDetails.Task).copy(
+                        isDone = !isDone
+                    )
                 )
                 viewModelScope.launch {
                     agendaRepository.updateTaskyItem(updatedTaskyItem)

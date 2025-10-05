@@ -1,5 +1,6 @@
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
+import android.net.Uri
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
@@ -42,5 +43,6 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isDeleteButtonLoading: Boolean = false,
 
     val isSavingTaskyItem: Boolean = false,
-    val isDeletingTaskyItem: Boolean = false
+    val isDeletingTaskyItem: Boolean = false,
+    val photos: MutableList<Uri> = mutableListOf()
 )

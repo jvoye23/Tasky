@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
@@ -159,13 +160,13 @@ fun AgendaItemCard(
                                     isMenuExpanded = false
                                     when(menuItems.indexOf(item)){
                                         0 -> action(AgendaAction.OnAgendaItemMenuClick(
-                                            false, taskyItem.type, taskyItem.id
+                                            isEditMode = false,taskyType = taskyItem.type, taskyItemId = taskyItem.id
                                         ))
                                         1 -> action(AgendaAction.OnAgendaItemMenuClick(
-                                            true, taskyItem.type, taskyItem.id
+                                            isEditMode = true, taskyType = taskyItem.type, taskyItemId = taskyItem.id
                                         ))
                                         2 -> {
-                                            action(AgendaAction.OnDeleteMenuItemClick(taskyItem))
+                                            action(AgendaAction.OnDeleteMenuItemClick(taskyItem = taskyItem))
                                         }
                                     }
                                 },
@@ -185,7 +186,9 @@ fun AgendaItemCard(
                 Text(
                     text = taskyItem.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = agendaItemTextColor
+                    color = agendaItemTextColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Row(

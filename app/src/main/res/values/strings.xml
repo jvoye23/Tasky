@@ -65,4 +65,12 @@
     <string name="tasky_item_deleted">Successfully deleted.</string>
     <string name="item_not_found">Item to be deleted not found.</string>
     <string name="delete_question">Delete?</string>
+    <string name="delete_event">DELETE EVENT</string>
+    <string name="delete_reminder">DELETE REMINDER</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="photos">Photos</string>
+    <string name="add_photos">ADD PHOTOS</string>
+    <string name="offline_indicator">Device is currently offline.</string>
+    <string name="add_photo">Add photo</string>
 </resources>

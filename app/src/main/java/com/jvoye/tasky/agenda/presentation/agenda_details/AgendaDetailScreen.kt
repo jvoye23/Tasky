@@ -3,6 +3,9 @@
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +50,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toDatePickerSt
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPhotoPicker
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDateTimePicker
@@ -57,6 +61,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import kotlinx.datetime.LocalDateTime
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -152,81 +157,63 @@ private fun AgendaDetailScreenContent(
     onAction: (AgendaDetailAction) -> Unit,
     datePickerState: DatePickerState
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .clip(
-                RoundedCornerShape(
-                    topStart = 24.dp,
-                    topEnd = 24.dp
-                )
-            )
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(top = 24.dp)
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Top
-    ) {
-
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically
-
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(
-                        color = when(state.taskyItem.type) {
-                            TaskyType.EVENT -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
-                            TaskyType.TASK -> MaterialTheme.colorScheme.secondary
-                            TaskyType.REMINDER -> MaterialTheme.colorScheme.surfaceHigher.copy(alpha = 0.8f)
-                        },
-                        shape = RoundedCornerShape(4.dp)
-                    )
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(
-                text = state.taskyItem.type.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-        }
-        Spacer(modifier = Modifier.height(28.dp))
-        TaskContent(
-            isEditMode = state.isEditMode,
-            onAction = onAction,
-            state = state,
-            datePickerState = datePickerState
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TaskContent(
-    modifier: Modifier = Modifier,
-    isEditMode: Boolean,
-    onAction: (AgendaDetailAction) -> Unit,
-    state: AgendaDetailState,
-    datePickerState: DatePickerState
-) {
     Box(
         modifier = modifier
             .fillMaxSize()
+            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 24.dp)
+
     ) {
         Column(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(
+                            color = when (state.taskyItem.type) {
+                                TaskyType.EVENT -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
+                                TaskyType.TASK -> MaterialTheme.colorScheme.secondary
+                                TaskyType.REMINDER -> MaterialTheme.colorScheme.surfaceHigher.copy(
+                                    alpha = 0.8f
+                                )
+                            },
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = state.taskyItem.type.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+            }
+            Spacer(modifier = Modifier.height(28.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
-                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.titleText,
-                        editTextType = EditTextType.TITLE)) },
+                    .padding(horizontal = 16.dp)
+                    .clickable {
+                        if (state.isEditMode) onAction(
+                            AgendaDetailAction.OnEditTextClick(
+                                text = state.titleText,
+                                editTextType = EditTextType.TITLE
+                            )
+                        )
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
@@ -250,7 +237,7 @@ private fun TaskContent(
                         .size(20.dp),
                     imageVector = Icon_Chevron_Right,
                     contentDescription = null,
-                    tint = if (isEditMode) MaterialTheme.colorScheme.primary
+                    tint = if (state.isEditMode) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.primary.copy(alpha = 0f),
                 )
             }
@@ -265,8 +252,15 @@ private fun TaskContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 24.dp)
-                    .clickable {if(isEditMode) onAction(AgendaDetailAction.OnEditTextClick(text = state.descriptionText,
-                        editTextType = EditTextType.DESCRIPTION))},
+                    .padding(horizontal = 16.dp)
+                    .clickable {
+                        if (state.isEditMode) onAction(
+                            AgendaDetailAction.OnEditTextClick(
+                                text = state.descriptionText,
+                                editTextType = EditTextType.DESCRIPTION
+                            )
+                        )
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
@@ -282,7 +276,7 @@ private fun TaskContent(
                         .size(20.dp),
                     imageVector = Icon_Chevron_Right,
                     contentDescription = null,
-                    tint = if (isEditMode) MaterialTheme.colorScheme.primary
+                    tint = if (state.isEditMode) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.primary.copy(alpha = 0f),
                 )
             }
@@ -293,84 +287,21 @@ private fun TaskContent(
                     .background(MaterialTheme.colorScheme.surfaceHigher)
 
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    text = stringResource(R.string.at),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-
-                ) {
-                    TaskyDateTimePicker(
-                        textModifier = Modifier
-                            .padding(start = 20.dp, end = 20.dp),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp)),
-                        isEditMode = state.isEditMode,
-                        text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
-                        containerColor = MaterialTheme.colorScheme.surfaceHigher,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
-                        textStyle = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TaskyDateTimePicker(
-                        textModifier = Modifier
-                            .padding(start = 20.dp, end = 20.dp),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp)),
-                        isEditMode = state.isEditMode,
-                        text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
-                        containerColor = MaterialTheme.colorScheme.surfaceHigher,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
-                        textStyle = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MaterialTheme.colorScheme.surfaceHigher)
-            )
-            // Notification Timer
-            AgendaItemDetailNotificationDropdown(
-                onAction = onAction,
-                state = state,
-                isEditMode = isEditMode
-            )
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MaterialTheme.colorScheme.surfaceHigher)
-            )
-
-            if (state.isTimePickerDialogVisible) {
-                AgendaItemDetailTimePicker(
-                    onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
-                    onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) },
-                    initialTime = state.time.time
-                )
-            }
-            if (state.isDatePickerDialogVisible){
-                AgendaDetailDatePicker(
+            when(state.taskyItem.type) {
+                TaskyType.TASK, TaskyType.REMINDER -> TaskReminderDetailsContent(
+                    isEditMode = state.isEditMode,
                     onAction = onAction,
+                    state = state,
+                    datePickerState = datePickerState
+                )
+                TaskyType.EVENT -> EventDetailsContent(
+                    isEditMode = state.isEditMode,
+                    onAction = onAction,
+                    state = state,
                     datePickerState = datePickerState
                 )
             }
+            
 
         }
         Column(
@@ -381,7 +312,7 @@ private fun TaskContent(
                 .align(Alignment.BottomCenter),
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+            ) {
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -391,7 +322,11 @@ private fun TaskContent(
             Text(
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 24.dp),
-                text = stringResource(R.string.delete_task),
+                text = when(state.taskyItem.type){
+                    TaskyType.EVENT -> stringResource(R.string.delete_event)
+                    TaskyType.TASK -> stringResource(R.string.delete_task)
+                    TaskyType.REMINDER -> stringResource(R.string.delete_reminder)
+                },
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error
             )
@@ -403,6 +338,286 @@ private fun TaskContent(
                 isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TaskReminderDetailsContent(
+    modifier: Modifier = Modifier,
+    isEditMode: Boolean,
+    onAction: (AgendaDetailAction) -> Unit,
+    state: AgendaDetailState,
+    datePickerState: DatePickerState
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                text = stringResource(R.string.at),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+
+            ) {
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+        // Notification Timer
+        AgendaItemDetailNotificationDropdown(
+            modifier = Modifier
+                .padding(horizontal = 16.dp),
+            onAction = onAction,
+            state = state,
+            isEditMode = isEditMode
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+
+        if (state.isTimePickerDialogVisible) {
+            AgendaItemDetailTimePicker(
+                onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
+                onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) },
+                initialTime = state.time.time
+            )
+        }
+        if (state.isDatePickerDialogVisible){
+            AgendaDetailDatePicker(
+                onAction = onAction,
+                datePickerState = datePickerState
+            )
+        }
+
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EventDetailsContent(
+    modifier: Modifier = Modifier,
+    isEditMode: Boolean,
+    onAction: (AgendaDetailAction) -> Unit,
+    state: AgendaDetailState,
+    datePickerState: DatePickerState
+) {
+    // Registers a photo picker activity launcher in multi-select mode.
+    // In this example, the app lets the user select up to 5 media files.
+    val pickMultipleMedia =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(5)) { uris ->
+            // Callback is invoked after the user selects media items or closes the
+            // photo picker.
+            if (uris.isNotEmpty()) {
+                uris.forEach { uri ->
+                    onAction(AgendaDetailAction.OnAddPhoto(uri))
+                }
+
+                Timber.tag("PhotoPicker").d("Number of items selected: ${uris.size}")
+            } else {
+                Timber.tag("PhotoPicker").d("No media selected")
+            }
+        }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+    ) {
+        AgendaItemDetailPhotoPicker(
+            photos = emptyList(),
+            singlePhotoRow = false,
+            slotsPerRow = 5,
+            onAddPhotosClick = {
+                pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+            },
+            isOnline = true,
+            isEditMode = isEditMode
+        )
+
+        // From DateTime Selector Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                text = stringResource(R.string.from),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+
+            ) {
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+        // TO DateTime Selector Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                text = stringResource(R.string.to),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+
+            ) {
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                TaskyDateTimePicker(
+                    textModifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    isEditMode = state.isEditMode,
+                    text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
+                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+        // Notification Timer
+        AgendaItemDetailNotificationDropdown(
+            modifier = Modifier
+                .padding(horizontal = 16.dp),
+            onAction = onAction,
+            state = state,
+            isEditMode = isEditMode
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+
+        if (state.isTimePickerDialogVisible) {
+            AgendaItemDetailTimePicker(
+                onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
+                onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) },
+                initialTime = state.time.time
+            )
+        }
+        if (state.isDatePickerDialogVisible){
+            AgendaDetailDatePicker(
+                onAction = onAction,
+                datePickerState = datePickerState
+            )
+        }
+
     }
 }
 
@@ -418,7 +633,7 @@ private fun AgendaDetailScreenPreview() {
                     title = "Task 1 Title",
                     description = "Weekly plan\nRole distribution",
                     time = LocalDateTime(2023, 1, 1, 12, 0),
-                    type = TaskyType.TASK,
+                    type = TaskyType.EVENT,
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),

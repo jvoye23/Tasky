@@ -2,6 +2,7 @@
 
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
+import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import com.jvoye.tasky.agenda.domain.EditTextType
@@ -23,4 +24,5 @@ sealed interface AgendaDetailAction {
     data class OnNotificationItemClick(val notificationType: NotificationType) : AgendaDetailAction
     data object OnToggleDeleteBottomSheet : AgendaDetailAction
     data class OnEditTextChanged(val editTextType: EditTextType, val value: String): AgendaDetailAction
+    data class OnAddPhoto(val photoUri: Uri): AgendaDetailAction
 }

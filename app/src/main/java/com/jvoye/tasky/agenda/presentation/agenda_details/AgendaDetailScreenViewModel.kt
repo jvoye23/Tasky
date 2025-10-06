@@ -30,7 +30,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID.randomUUID
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class AgendaDetailScreenViewModel(
@@ -299,6 +298,16 @@ class AgendaDetailScreenViewModel(
                         ) }
                     }
                 }
+            }
+            is AgendaDetailAction.OnAddPhoto -> {
+                val photos = state.value.photos
+                photos.add(action.photoUri)
+
+                _state.update { it.copy(
+                    photos = photos
+                ) }
+                println("PHOTOS State: ${state.value.photos}")
+
             }
 
             else -> Unit

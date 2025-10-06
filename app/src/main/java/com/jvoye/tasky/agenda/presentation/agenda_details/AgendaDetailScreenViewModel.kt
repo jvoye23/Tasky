@@ -299,28 +299,13 @@ class AgendaDetailScreenViewModel(
                     }
                 }
             }
-            is AgendaDetailAction.OnAddPhoto -> {
-                val photos = state.value.photos
-                photos.add(action.photoUri)
-
+            is AgendaDetailAction.OnAddLocalPhoto -> {
                 _state.update { it.copy(
-                    photos = photos
+                    localPhotos = it.localPhotos + action.photo
                 ) }
-                println("PHOTOS State: ${state.value.photos}")
-
             }
 
             else -> Unit
         }
     }
 }
-
-/*
-// Updating a shared property
-state = state.copy(title = "new title")
-
-// Updating an individual property
-state = state.copy(
-details = detailsAsEvent()?.copy(attendees = newAttendees)
-)
-*/

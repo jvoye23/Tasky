@@ -44,5 +44,6 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
 
     val isSavingTaskyItem: Boolean = false,
     val isDeletingTaskyItem: Boolean = false,
-    val photos: MutableList<Uri> = mutableListOf()
+    val localPhotos: List<String> = emptyList<String>(),
+    val remotePhotos: List<String> = emptyList<String>()
 )

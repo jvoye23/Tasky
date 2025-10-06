@@ -27,6 +27,7 @@ datastorePreferences ="1.1.7"
 material3 = "1.4.0"
 datastoreCore = "1.1.7"
 kotlinx-datetime = "0.7.1"
+coilCompose = "2.6.0"
 
 
 [libraries]
@@ -80,6 +81,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCore" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 
 [bundles]

@@ -126,4 +126,7 @@ dependencies {
 
     // Kotlin DateTime
     implementation(libs.kotlinx.datetime)
+
+    // Image Loading
+    implementation(libs.coil.compose)
 }

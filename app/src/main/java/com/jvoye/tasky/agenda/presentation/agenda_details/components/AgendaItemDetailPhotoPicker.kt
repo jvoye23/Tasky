@@ -6,9 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,29 +18,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
 import com.jvoye.tasky.R
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Offline
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 
-
 @Composable
 fun AgendaItemDetailPhotoPicker(
     modifier: Modifier = Modifier,
     photos: List<String> = emptyList(),
-    singlePhotoRow: Boolean,
-    slotsPerRow: Int,
     onAddPhotosClick: () -> Unit,
     isOnline: Boolean,
     isEditMode: Boolean
@@ -48,7 +51,7 @@ fun AgendaItemDetailPhotoPicker(
             .fillMaxWidth()
             .wrapContentHeight()
             .background(MaterialTheme.colorScheme.surfaceHigher)
-            .padding(horizontal = 16.dp, vertical = 20.dp) // Combined padding
+            .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
         if (photos.isEmpty()) {
             EmptyPhotoGrid(
@@ -60,60 +63,44 @@ fun AgendaItemDetailPhotoPicker(
                 PhotoSectionHeader(isOnline = isOnline)
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Determine which photos to display based on the singlePhotoRow flag.
-                val itemsToShow = if (singlePhotoRow) photos.take(slotsPerRow) else photos
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Display a box for each photo.
+                    photos.forEach { photoUri ->
+                        PhotoBox(
+                            // weight(1f) makes each item in a row take up equal space.
+                            //modifier = Modifier.size(65.dp),
+                            modifier = Modifier.weight(1f),
+                            onAddPhotosClick = onAddPhotosClick,
+                            localPhotoPath = photoUri
 
-                // Use chunked() to automatically create rows for a grid layout.
-                itemsToShow.chunked(slotsPerRow).forEach { photoRow ->
-                    PhotoGridRow(
-                        photosInRow = photoRow,
-                        slotsPerRow = slotsPerRow,
-                        isEditMode = isEditMode,
-                        isOnline = isOnline
-                    )
-                    Spacer(modifier = Modifier.height(6.dp)) // Space between rows
-                }
-            }
-        }
-    }
-}
+                        )
+                    }
 
-
-@Composable
-private fun PhotoGridRow(
-    photosInRow: List<String>,
-    slotsPerRow: Int,
-    isEditMode: Boolean,
-    isOnline: Boolean
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        // Display the photos for the current row
-        photosInRow.forEach { photoUri ->
-            PhotoBox(
-                modifier = Modifier.weight(1f),
-                photoUri = photoUri
-            )
-        }
-
-        val remainingSlots = slotsPerRow - photosInRow.size
-        if (remainingSlots > 0) {
-            // If in edit mode, the first empty slot becomes an "add" button.
-            if (isEditMode && isOnline) {
-                PhotoBox(
-                    modifier = Modifier.weight(1f),
-                    photoUri = "" // Empty URI signifies the "add" button
-                )
-                // Fills the rest with invisible spacers to maintain alignment.
-                repeat(remainingSlots - 1) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            } else {
-                // Otherwise, fill all remaining slots with spacers.
-                repeat(remainingSlots) {
-                    Spacer(modifier = Modifier.weight(1f))
+                    val remainingSlots = if (photos.size < 5) 5 - photos.size else
+                        10 - photos.size
+                    if (remainingSlots > 0) {
+                        // If in edit mode, the first empty slot becomes an "add" button.
+                        if (isEditMode && isOnline) {
+                            PhotoBox(
+                                modifier = Modifier.weight(1f),
+                                onAddPhotosClick = onAddPhotosClick,
+                                localPhotoPath = "" // Empty URI signifies the "add" button
+                            )
+                            // Fills the rest with invisible spacers to maintain alignment.
+                            repeat(remainingSlots - 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        } else {
+                            // Otherwise, fill all remaining slots with spacers.
+                            repeat(remainingSlots) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -123,21 +110,57 @@ private fun PhotoGridRow(
 @Composable
 private fun PhotoBox(
     modifier: Modifier = Modifier,
-    photoUri: String
+    onAddPhotosClick: () -> Unit,
+    localPhotoPath: String
 ) {
     Box(
         modifier = modifier
             .aspectRatio(1f)
+            .clickable { onAddPhotosClick() }
             .border(
                 width = 2.dp,
                 brush = SolidColor(MaterialTheme.colorScheme.outline),
                 shape = RoundedCornerShape(5.dp)
-            ),
+            )
+            .size(65.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (photoUri.isNotBlank()) {
-            // TODO() Placeholder Text for displaying photo using Coil later
-            Text(photoUri)
+        if (localPhotoPath.isNotBlank()) {
+            SubcomposeAsyncImage(
+                model = localPhotoPath,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(5.dp))
+                    .padding(2.dp),
+                loading = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.errorContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.error_couldnt_load_image),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            )
         } else {
             // This is the "add photo" slot.
             Icon(
@@ -201,12 +224,10 @@ private fun PhotoSectionHeader(
 private fun AgendaItemDetailPhotoPickerPreview() {
     TaskyTheme {
         AgendaItemDetailPhotoPicker(
-            singlePhotoRow = false,
-            slotsPerRow = 5,
             photos = listOf(
                 //"1", "2", "3", "4", "5", "6", "7", "8", "9"
                 "1", "2", "3", "4", "5", "6"
-                //"1", "2", "3", "4", "5"
+                //"1", "2", "3", "4"
                 //"1"
             ),
             onAddPhotosClick = {},

@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +51,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTim
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPhotoPicker
-import com.jvoye.tasky.core.util.compressImageFromUriAndCopyToAppFiles
+import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoAction
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDateTimePicker
@@ -61,11 +60,6 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Chevron_Right
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import org.koin.androidx.compose.koinViewModel
 import kotlin.time.ExperimentalTime
@@ -75,6 +69,7 @@ fun AgendaDetailScreenRoot(
     modifier: Modifier = Modifier,
     onCloseAndCancelClick: () -> Unit,
     onEditTextClick: (String?, EditTextType) -> Unit,
+    onEditPhotoClick: (localPhotoPath: String?, photoUrl: String?) -> Unit,
     viewModel: AgendaDetailScreenViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -117,6 +112,7 @@ fun AgendaDetailScreenRoot(
             when(action) {
                 is AgendaDetailAction.OnCloseAndCancelClick -> onCloseAndCancelClick()
                 is AgendaDetailAction.OnEditTextClick -> onEditTextClick(action.text, action.editTextType)
+                is AgendaDetailAction.OnPhotoClick -> onEditPhotoClick(action.localPhotoPath, action.photoUrl)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -455,52 +451,24 @@ private fun EventDetailsContent(
     state: AgendaDetailState,
     datePickerState: DatePickerState
 ) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val numberOfPhotosAlreadySelected = state.localPhotos.size
-    println("PHOTOS available: $numberOfPhotosAlreadySelected")
 
-
-    // Registers a photo picker activity launcher in multi-select mode.
-    // In this example, the app lets the user select up to 5 media files.
+    // MaxItems must always be bigger than 1 or the app crashes when the screen is recomposes after
+    // the PhotoPicker is closed
     val pickMultipleMedia =
         rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(
-            maxItems = 10)
+            maxItems = if(10 - numberOfPhotosAlreadySelected < 2) 2 else 10 - numberOfPhotosAlreadySelected
+        )
         ) { uris ->
-            // Callback is invoked after the user selects media items or closes the
-            // photo picker.
-            if (uris.isNotEmpty()) {
-                coroutineScope.launch {
-                    // Use async to start all compression jobs in parallel and get a list of Deferred results
-                    val deferredImageFiles = uris.map { uri ->
-                        async(Dispatchers.IO) {
-                            compressImageFromUriAndCopyToAppFiles(context, uri)
-                        }
-                    }
-                    // Wait here until all the async jobs are finished
-                    val imageFiles = deferredImageFiles.awaitAll()
-
-                    withContext(Dispatchers.Main) {
-                        imageFiles.filterNotNull().forEach { image ->
-                            onAction(AgendaDetailAction.OnAddLocalPhoto(image.absolutePath))
-                        }
-                    }
-                }
+            if(uris.isNotEmpty()) {
+                onAction(AgendaDetailAction.OnAddLocalPhotos(uris))
             }
         }
     val pickMedia =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
-                coroutineScope.launch {
-                    val deferredImageFile = async(Dispatchers.IO) {
-                        compressImageFromUriAndCopyToAppFiles(context, uri)
-                    }
-                    val imageFile = deferredImageFile.await()
-
-                    withContext(Dispatchers.Main) {
-                        imageFile?.let { onAction(AgendaDetailAction.OnAddLocalPhoto(it.absolutePath)) }
-                    }
-                }
+                val uriList = listOf(uri)
+                onAction(AgendaDetailAction.OnAddLocalPhotos(uriList))
             }
         }
 
@@ -511,14 +479,16 @@ private fun EventDetailsContent(
         AgendaItemDetailPhotoPicker(
             photos = state.localPhotos.takeLast(10),
             onAddPhotosClick = {
+                pickMultipleMedia
                 if (numberOfPhotosAlreadySelected < 9) {
                     pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 } else {
                     pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             },
+            onAction = onAction,
             isOnline = true,
-            isEditMode = isEditMode
+            canAddPhotos = isEditMode
         )
 
         // From DateTime Selector Row

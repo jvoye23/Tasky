@@ -74,4 +74,5 @@
     <string name="offline_indicator">Device is currently offline.</string>
     <string name="add_photo">Add photo</string>
     <string name="error_couldnt_load_image">Error loading image</string>
+    <string name="photo_deleted">Photo successfully deleted</string>
 </resources>

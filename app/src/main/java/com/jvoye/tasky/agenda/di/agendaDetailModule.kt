@@ -1,9 +1,12 @@
 package com.jvoye.tasky.agenda.di
 
+import com.jvoye.tasky.agenda.data.AndroidImageManager
 import com.jvoye.tasky.agenda.data.OfflineFirstAgendaRepository
 import com.jvoye.tasky.agenda.domain.AgendaRepository
+import com.jvoye.tasky.agenda.domain.ImageManager
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailScreenViewModel
+import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoScreenViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.bind
@@ -11,6 +14,7 @@ import org.koin.dsl.module
 
 val agendaDetailModule = module {
     singleOf(::OfflineFirstAgendaRepository).bind<AgendaRepository>()
+    singleOf(::AndroidImageManager).bind<ImageManager>()
 
     viewModel { (isEdit: Boolean, taskyType: TaskyType, taskyItemId: String? ) ->
         AgendaDetailScreenViewModel(
@@ -18,7 +22,16 @@ val agendaDetailModule = module {
             taskyType = taskyType,
             taskyItemId = taskyItemId,
             agendaRepository = get(),
-            savedStateHandle = get()
+            savedStateHandle = get(),
+            imageManager = get()
+        )
+    }
+
+    viewModel { (localPhotoPath: String?, photoUrl: String?) ->
+        EditPhotoScreenViewModel(
+            localPhotoPath = localPhotoPath,
+            photoUrl = photoUrl,
+            agendaRepository = get()
         )
     }
 }

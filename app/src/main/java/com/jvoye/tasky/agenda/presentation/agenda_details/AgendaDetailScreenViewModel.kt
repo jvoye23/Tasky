@@ -2,12 +2,14 @@
 
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
+import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.domain.EditTextType
+import com.jvoye.tasky.agenda.domain.ImageManager
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
@@ -16,6 +18,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTim
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.ui.asUiText
+import com.jvoye.tasky.core.util.ImageCompressor
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,7 +40,9 @@ class AgendaDetailScreenViewModel(
     private val taskyType: TaskyType,
     private val taskyItemId: String?,
     private val agendaRepository: AgendaRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val imageManager: ImageManager
+
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
         titleText = savedStateHandle["titleText"],
@@ -175,7 +180,22 @@ class AgendaDetailScreenViewModel(
         ) }
     }
 
-
+    private fun onImagesSelected(uris: List<Uri>) {
+        viewModelScope.launch {
+            when (val result = imageManager.compressImages(uris)) {
+                is Result.Success -> {
+                    _state.update {
+                        it.copy(
+                            localPhotos = it.localPhotos + result.data
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    eventChannel.send(AgendaDetailEvent.Error(result.error.asUiText()))
+                }
+            }
+        }
+    }
 
     fun onAction(action: AgendaDetailAction) {
         when (action) {
@@ -299,10 +319,8 @@ class AgendaDetailScreenViewModel(
                     }
                 }
             }
-            is AgendaDetailAction.OnAddLocalPhoto -> {
-                _state.update { it.copy(
-                    localPhotos = it.localPhotos + action.photo
-                ) }
+            is AgendaDetailAction.OnAddLocalPhotos -> {
+                onImagesSelected(action.photos)
             }
 
             else -> Unit

@@ -12,10 +12,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jvoye.tasky.core.util.deleteAllCompressedFiles
+import androidx.lifecycle.lifecycleScope
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.navigation.NavigationRoot
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -48,13 +49,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        GlobalScope.launch {
-            deleteAllCompressedFiles(application)
         }
     }
 }

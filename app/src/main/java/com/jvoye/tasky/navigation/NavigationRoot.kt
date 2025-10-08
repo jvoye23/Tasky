@@ -18,6 +18,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailScreenRoot
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailScreenViewModel
 import com.jvoye.tasky.agenda.presentation.agenda_details.EditTextScreenRoot
+import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoScreenRoot
 import com.jvoye.tasky.auth.presentation.login.LoginScreenRoot
 import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
 import kotlinx.serialization.Serializable
@@ -46,6 +47,12 @@ data class AgendaDetailNavKey(
 data class EditTextNavKey(
     val editText: String?,
     val editTextType: EditTextType
+): NavKey
+
+@Serializable
+data class EditPhotoNavKey(
+    val localPhotoPath: String,
+    val photoUrl: String?
 ): NavKey
 
 @Composable
@@ -154,6 +161,12 @@ fun NavigationRoot(
                                     editText = text,
                                     editTextType = editTextType
                                     ))
+                            },
+                            onEditPhotoClick = { localPhotoPath, photoUrl ->
+                                backStack.add(EditPhotoNavKey(
+                                    localPhotoPath = localPhotoPath ?: "",
+                                    photoUrl = photoUrl
+                                ))
                             }
                         )
                     }
@@ -170,6 +183,18 @@ fun NavigationRoot(
                                 backStack.remove(key)
                             },
                             editTextType = key.editTextType,
+                        )
+                    }
+                }
+                is EditPhotoNavKey -> {
+                    NavEntry(
+                        key = key
+                    ) {
+                        EditPhotoScreenRoot(
+                            onCloseAndCancelClick = { backStack.remove(key) },
+                            viewModel = koinViewModel {
+                                parametersOf(key.localPhotoPath, key.photoUrl)
+                            }
                         )
                     }
                 }

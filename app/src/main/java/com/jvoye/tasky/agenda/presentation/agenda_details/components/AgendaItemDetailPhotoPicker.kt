@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.jvoye.tasky.R
+import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Offline
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
@@ -43,8 +45,9 @@ fun AgendaItemDetailPhotoPicker(
     modifier: Modifier = Modifier,
     photos: List<String> = emptyList(),
     onAddPhotosClick: () -> Unit,
+    onAction: (AgendaDetailAction) -> Unit,
     isOnline: Boolean,
-    isEditMode: Boolean
+    canAddPhotos: Boolean
 ) {
     Box(
         modifier = modifier
@@ -53,7 +56,7 @@ fun AgendaItemDetailPhotoPicker(
             .background(MaterialTheme.colorScheme.surfaceHigher)
             .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
-        if (photos.isEmpty()) {
+        if (photos.isEmpty() && canAddPhotos && isOnline) {
             EmptyPhotoGrid(
                 modifier = Modifier.align(Alignment.Center),
                 onClick = onAddPhotosClick
@@ -66,15 +69,16 @@ fun AgendaItemDetailPhotoPicker(
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    maxLines = 2
                 ) {
                     // Display a box for each photo.
                     photos.forEach { photoUri ->
                         PhotoBox(
                             // weight(1f) makes each item in a row take up equal space.
-                            //modifier = Modifier.size(65.dp),
                             modifier = Modifier.weight(1f),
                             onAddPhotosClick = onAddPhotosClick,
+                            onAction = onAction,
                             localPhotoPath = photoUri
 
                         )
@@ -84,10 +88,11 @@ fun AgendaItemDetailPhotoPicker(
                         10 - photos.size
                     if (remainingSlots > 0) {
                         // If in edit mode, the first empty slot becomes an "add" button.
-                        if (isEditMode && isOnline) {
+                        if (canAddPhotos && isOnline) {
                             PhotoBox(
                                 modifier = Modifier.weight(1f),
                                 onAddPhotosClick = onAddPhotosClick,
+                                onAction = onAction,
                                 localPhotoPath = "" // Empty URI signifies the "add" button
                             )
                             // Fills the rest with invisible spacers to maintain alignment.
@@ -111,12 +116,12 @@ fun AgendaItemDetailPhotoPicker(
 private fun PhotoBox(
     modifier: Modifier = Modifier,
     onAddPhotosClick: () -> Unit,
+    onAction: (AgendaDetailAction) -> Unit,
     localPhotoPath: String
 ) {
     Box(
         modifier = modifier
             .aspectRatio(1f)
-            .clickable { onAddPhotosClick() }
             .border(
                 width = 2.dp,
                 brush = SolidColor(MaterialTheme.colorScheme.outline),
@@ -133,7 +138,8 @@ private fun PhotoBox(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(5.dp))
-                    .padding(2.dp),
+                    .padding(2.dp)
+                    .clickable { onAction(AgendaDetailAction.OnPhotoClick(localPhotoPath = localPhotoPath, photoUrl = null /*"https://assets.dunked.com/assets/prod/22884/p17s2tfgc31jte13d51pea1l2oblr3.png))"*/)) },
                 loading = {
                     Box(
                         modifier = Modifier
@@ -163,11 +169,17 @@ private fun PhotoBox(
             )
         } else {
             // This is the "add photo" slot.
-            Icon(
-                imageVector = Icon_plus,
-                contentDescription = stringResource(R.string.add_photo),
-                tint = MaterialTheme.colorScheme.outline
-            )
+            IconButton(
+                modifier = Modifier.fillMaxSize(),
+                onClick = onAddPhotosClick
+            ) {
+                Icon(
+                    imageVector = Icon_plus,
+                    contentDescription = stringResource(R.string.add_photo),
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+
         }
     }
 }
@@ -231,8 +243,9 @@ private fun AgendaItemDetailPhotoPickerPreview() {
                 //"1"
             ),
             onAddPhotosClick = {},
+            onAction = {},
             isOnline = true,
-            isEditMode = true
+            canAddPhotos = true
         )
     }
 }

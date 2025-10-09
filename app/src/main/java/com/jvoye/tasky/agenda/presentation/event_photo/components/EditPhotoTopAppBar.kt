@@ -1,4 +1,4 @@
-package com.jvoye.tasky.agenda.presentation.agenda_details.components
+package com.jvoye.tasky.agenda.presentation.event_photo.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoAction
@@ -72,13 +73,11 @@ fun EditPhotoTopAppBar(
                 modifier = Modifier
                     .size(40.dp),
                 onClick = {
-                    onAction(EditPhotoAction.OnCloseAndCancelClick)
+                    onAction(editPhotoAction(state))
                 },
                 content = {
                     Icon(
-                        imageVector = if (!state.isEditMode) {
-                            Icon_Edit
-                        } else if (state.isOnline) Icon_Bin else Icon_Offline,
+                        imageVector = editPhotoActionIcon(state),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onBackground
                     )
@@ -95,6 +94,20 @@ fun EditPhotoTopAppBar(
         )
     )
 }
+
+@Composable
+private fun editPhotoActionIcon(state: EditPhotoState): ImageVector = when {
+    !state.isEditMode -> Icon_Edit
+    state.isOnline -> Icon_Bin
+    else -> Icon_Offline
+}
+
+private fun editPhotoAction(state: EditPhotoState): EditPhotoAction = when {
+    !state.isEditMode -> EditPhotoAction.OnToggleEditMode
+    state.isOnline -> EditPhotoAction.OnDeleteClick
+    else -> EditPhotoAction.OnToggleEditMode
+}
+
 
 
 @OptIn(ExperimentalTime::class)

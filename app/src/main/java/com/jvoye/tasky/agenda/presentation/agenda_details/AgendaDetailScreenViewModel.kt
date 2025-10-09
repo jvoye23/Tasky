@@ -182,7 +182,7 @@ class AgendaDetailScreenViewModel(
 
     private fun onImagesSelected(uris: List<Uri>) {
         viewModelScope.launch {
-            when (val result = imageManager.compressImages(uris)) {
+            when (val result = imageManager.compressImages(uris.map { it.toString() })) {
                 is Result.Success -> {
                     _state.update {
                         it.copy(
@@ -322,6 +322,10 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.OnAddLocalPhotos -> {
                 onImagesSelected(action.photos)
             }
+            is AgendaDetailAction.OnDeleteAttendee -> {
+
+            }
+
 
             else -> Unit
         }

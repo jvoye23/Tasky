@@ -26,17 +26,22 @@ fun TaskyFilledButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isLoading: Boolean
+    isLoading: Boolean,
+    enabled: Boolean = true
 
 ) {
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary
+
         ),
         shape = RoundedCornerShape(38.dp),
-        modifier = modifier
+        modifier = modifier,
+        enabled = enabled
     ) {
         Box(
             modifier = Modifier
@@ -75,7 +80,8 @@ private fun TaskyFilledButtonPreview(
             TaskyFilledButton(
                 text = "GET STARTED",
                 onClick = {},
-                isLoading = false
+                isLoading = false,
+                enabled = false
             )
         }
     }

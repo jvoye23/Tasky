@@ -18,8 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
-import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailState
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDeleteButton
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyOutlinedButton
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme

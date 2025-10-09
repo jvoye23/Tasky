@@ -10,15 +10,16 @@ import com.jvoye.tasky.core.data.networking.FullAgendaDto
 import com.jvoye.tasky.core.data.networking.PhotoDto
 import com.jvoye.tasky.core.data.networking.ReminderDto
 import com.jvoye.tasky.core.data.networking.TaskDto
+import com.jvoye.tasky.core.data.networking.UserDto
 import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.FullAgenda
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.model.User
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import java.util.UUID.randomUUID
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -168,3 +169,10 @@ private fun getUpdatedAtTime(): String {
     return isoString
 }
 
+fun UserDto.toUser(): User {
+    return User(
+        email = email,
+        fullName = fullName,
+        userId = userId
+    )
+}

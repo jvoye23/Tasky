@@ -7,21 +7,27 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaRepository
+import com.jvoye.tasky.agenda.domain.AttendeeManager
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.ImageManager
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toAttendee
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
+import com.jvoye.tasky.core.presentation.designsystem.util.UiText
+import com.jvoye.tasky.core.presentation.designsystem.util.textAsFlow
 import com.jvoye.tasky.core.presentation.ui.asUiText
-import com.jvoye.tasky.core.util.ImageCompressor
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -41,8 +47,8 @@ class AgendaDetailScreenViewModel(
     private val taskyItemId: String?,
     private val agendaRepository: AgendaRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val imageManager: ImageManager
-
+    private val imageManager: ImageManager,
+    private val attendeeManager: AttendeeManager
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
         titleText = savedStateHandle["titleText"],
@@ -75,6 +81,7 @@ class AgendaDetailScreenViewModel(
                 }
 
                 getTypeAndEditMode(isEdit, taskyType)
+                validateAttendeeEmailInput()
 
                 hasLoadedInitialData = true
             }
@@ -195,6 +202,45 @@ class AgendaDetailScreenViewModel(
                 }
             }
         }
+    }
+
+    private fun validateAttendeeEmailInput() {
+        _state.value.emailInput.textAsFlow()
+            .onEach { email ->
+                if (email.length > 8){
+                    val result = attendeeManager.fetchUser(email.toString())
+                    when(result) {
+                        is Result.Error -> {
+                            val errorMessage = when(result.error) {
+                                DataError.Network.USER_NOT_FOUND -> UiText.StringResource(R.string.error_user_not_found)
+                                DataError.Network.CONFLICT -> UiText.StringResource(R.string.same_user_not_allowed)
+                                DataError.Network.BAD_REQUEST -> UiText.StringResource(R.string.invalid_email_format)
+                                else -> Unit
+                            } as UiText.StringResource
+
+                            _state.update { it.copy(
+                                emailErrorText = errorMessage,
+                                doesEmailExist = false,
+                                validEmail = ""
+
+                            ) }
+                        }
+
+                        is Result.Success -> {
+                            _state.update {
+                                it.copy(
+                                    doesEmailExist = true,
+                                    validEmail = result.data.email,
+                                    invitedUser = result.data,
+                                    emailErrorText = null
+
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onAction(action: AgendaDetailAction) {
@@ -325,7 +371,28 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.OnDeleteAttendee -> {
 
             }
+            AgendaDetailAction.OnToggleAddAttendeeBottomSheet -> {
+                _state.update { it.copy(
+                    isAddAttendeeBottomSheetVisible = !it.isAddAttendeeBottomSheetVisible
+                ) }
+            }
 
+            is AgendaDetailAction.OnAddAttendee -> {
+                val invitedUser = _state.value.invitedUser ?: return
+                _state.update {
+                    it.copy(
+                        attendees = it.attendees + invitedUser.toAttendee(),
+                        isAddAttendeeBottomSheetVisible = false,
+                        invitedUser = null,
+                    )
+                }
+            }
+
+            is AgendaDetailAction.OnChangeAttendeeFilter -> {
+                _state.update { it.copy(
+                    attendeeFilter = action.attendeeFilter
+                ) }
+            }
 
             else -> Unit
         }

@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
 import com.jvoye.tasky.core.domain.model.Attendee
 
 sealed interface AgendaDetailAction {
@@ -28,4 +29,7 @@ sealed interface AgendaDetailAction {
     data class OnAddLocalPhotos(val photos: List<Uri>): AgendaDetailAction
     data class OnPhotoClick(val localPhotoPath: String?, val photoUrl: String?): AgendaDetailAction
     data class OnDeleteAttendee(val attendee: Attendee): AgendaDetailAction
+    data class OnAddAttendee(val email: String): AgendaDetailAction
+    data object OnToggleAddAttendeeBottomSheet : AgendaDetailAction
+    data class OnChangeAttendeeFilter(val attendeeFilter: AttendeeFilterType): AgendaDetailAction
 }

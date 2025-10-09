@@ -80,4 +80,8 @@
     <string name="going">Going</string>
     <string name="not_going">Not going</string>
     <string name="creator">CREATOR</string>
+    <string name="add_visitor">Add visitor</string>
+    <string name="error_user_not_found">User with that email does not exist</string>
+    <string name="same_user_not_allowed">You can\'t add yourself as an attendee</string>
+    <string name="invalid_email_format">Invalid email format</string>
 </resources>

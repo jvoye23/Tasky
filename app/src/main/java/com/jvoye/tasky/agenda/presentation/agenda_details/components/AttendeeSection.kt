@@ -22,10 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,9 +53,9 @@ fun AttendeeSection(
     onAction: (AgendaDetailAction) -> Unit,
     state: AgendaDetailState
 ) {
-    var activeFilter by remember { mutableStateOf(AttendeeFilterType.ALL) }
-
-    val groupedAttendees = attendees.groupBy { it.isGoing }
+    val groupedAttendees = remember(attendees) {
+        attendees.groupBy { it.isGoing }
+    }
 
     Column(
         modifier = modifier
@@ -89,7 +86,7 @@ fun AttendeeSection(
                         .size(32.dp),
 
                     onClick = {
-
+                        onAction(AgendaDetailAction.OnToggleAddAttendeeBottomSheet)
                     }
                 ) {
                     Icon(
@@ -110,8 +107,8 @@ fun AttendeeSection(
         ) {
             FilterChip(
                 modifier = Modifier.weight(1f),
-                selected = activeFilter == AttendeeFilterType.ALL,
-                onClick = { activeFilter = AttendeeFilterType.ALL },
+                selected = state.attendeeFilter == AttendeeFilterType.ALL,
+                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.ALL)) },
                 label = {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -132,8 +129,8 @@ fun AttendeeSection(
             )
             FilterChip(
                 modifier = Modifier.weight(1f),
-                selected = activeFilter == AttendeeFilterType.GOING,
-                onClick = { activeFilter = AttendeeFilterType.GOING },
+                selected = state.attendeeFilter == AttendeeFilterType.GOING,
+                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.GOING))  },
                 label = {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -154,8 +151,8 @@ fun AttendeeSection(
             )
             FilterChip(
                 modifier = Modifier.weight(1f),
-                selected = activeFilter == AttendeeFilterType.NOT_GOING,
-                onClick = { activeFilter = AttendeeFilterType.NOT_GOING },
+                selected = state.attendeeFilter == AttendeeFilterType.NOT_GOING,
+                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.NOT_GOING))  },
                 label = {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -181,7 +178,7 @@ fun AttendeeSection(
             verticalArrangement = Arrangement.spacedBy(4.dp)
 
         ) {
-            when (activeFilter) {
+            when (state.attendeeFilter) {
                 AttendeeFilterType.ALL -> {
                     groupedAttendees.forEach { (isGoing, attendees) ->
                         stickyHeader {

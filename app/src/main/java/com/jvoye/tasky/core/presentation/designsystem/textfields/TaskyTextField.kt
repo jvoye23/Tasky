@@ -44,11 +44,12 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 
 @Composable
 fun TaskyTextField(
+    modifier: Modifier = Modifier,
     state: TextFieldState,
     endIcon: ImageVector?,
     borderColor: Color,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceHigher,
     hint: String,
-    modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     errorLabel: String?
@@ -75,7 +76,7 @@ fun TaskyTextField(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
                 .background(
-                    MaterialTheme.colorScheme.surfaceHigher
+                    containerColor
                 )
                 .border(
                     width = 1.dp,

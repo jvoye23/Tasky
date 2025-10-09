@@ -50,9 +50,9 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toDatePickerSt
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AddAttendeeBottomSheet
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPhotoPicker
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeSection
-import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoAction
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDateTimePicker
@@ -342,7 +342,6 @@ private fun AgendaDetailScreenContent(
             )
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -635,7 +634,12 @@ private fun EventDetailsContent(
                 datePickerState = datePickerState
             )
         }
-
+        if (state.isAddAttendeeBottomSheetVisible) {
+            AddAttendeeBottomSheet(
+                state = state,
+                onAction = onAction
+            )
+        }
     }
 }
 

@@ -19,6 +19,7 @@ import kotlinx.coroutines.CancellationException
 class AndroidImageManager(
     private val context: Context,
     private val imageCompressor: ImageCompressor,
+    private val dispatcherProvider: DispatcherProvider
 ): ImageManager {
 
     override suspend fun compressImages(uriStrings: List<String>): Result<List<String>, DataError.Local> {
@@ -27,7 +28,7 @@ class AndroidImageManager(
 
     override suspend fun deleteAllCompressedImages(): EmptyResult<DataError.Local> {
         return try {
-            withContext(StandardDispatcherProvider.io) {
+            withContext(dispatcherProvider.io) {
                 val directory: File = context.filesDir
                 val filesToDelete = directory.listFiles { file ->
                     file.isFile && file.name.startsWith("compressed_")

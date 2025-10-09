@@ -1,18 +1,20 @@
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
-import android.net.Uri
+import androidx.compose.foundation.text.input.TextFieldState
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.model.User
+import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import java.util.UUID.randomUUID
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
@@ -54,5 +56,15 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val fromTime: LocalDateTime = getNextHalfMarkLocalTime(),
     val toTime: LocalDateTime = getNextHalfMarkLocalTime(),
     val attendees: List<Attendee> = emptyList<Attendee>(),
-    val photoKeys: List<String> = emptyList<String>()
+    val photoKeys: List<String> = emptyList<String>(),
+
+    val isAddAttendeeBottomSheetVisible: Boolean = false,
+    val attendeeFilter: AttendeeFilterType = AttendeeFilterType.ALL,
+    val isAddAttendeeButtonLoading: Boolean = false,
+    val emailInput: TextFieldState = TextFieldState(),
+    val emailErrorText: UiText.StringResource? = null,
+    val doesEmailExist: Boolean = false,
+    val validEmail: String = "",
+    val invitedUser: User? = null
+
 )

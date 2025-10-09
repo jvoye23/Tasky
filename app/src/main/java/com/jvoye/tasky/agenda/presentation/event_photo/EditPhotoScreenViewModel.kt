@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class EditPhotoScreenViewModel (
     private val localPhotoPath: String?,
@@ -40,6 +41,11 @@ class EditPhotoScreenViewModel (
         when(action) {
             is EditPhotoAction.OnDeleteClick -> {
 
+            }
+            EditPhotoAction.OnToggleEditMode -> {
+                _state.update { it.copy(
+                    isEditMode = !it.isEditMode
+                )}
             }
 
             else -> Unit

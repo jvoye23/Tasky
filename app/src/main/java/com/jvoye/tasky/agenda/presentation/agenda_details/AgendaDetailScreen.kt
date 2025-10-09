@@ -51,6 +51,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTim
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPhotoPicker
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeSection
 import com.jvoye.tasky.agenda.presentation.event_photo.EditPhotoAction
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
@@ -479,7 +480,6 @@ private fun EventDetailsContent(
         AgendaItemDetailPhotoPicker(
             photos = state.localPhotos.takeLast(10),
             onAddPhotosClick = {
-                pickMultipleMedia
                 if (numberOfPhotosAlreadySelected < 9) {
                     pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 } else {
@@ -612,6 +612,14 @@ private fun EventDetailsContent(
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(MaterialTheme.colorScheme.surfaceHigher)
+        )
+        AttendeeSection(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 24.dp),
+            onAction = onAction,
+            state = state,
+            attendees = state.attendees,
         )
 
         if (state.isTimePickerDialogVisible) {

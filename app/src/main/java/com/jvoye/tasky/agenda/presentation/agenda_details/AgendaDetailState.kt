@@ -5,6 +5,7 @@ import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
+import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.LocalDateTime
@@ -45,5 +46,13 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isSavingTaskyItem: Boolean = false,
     val isDeletingTaskyItem: Boolean = false,
     val localPhotos: List<String> = emptyList<String>(),
-    val remotePhotos: List<String> = emptyList<String>()
+    val remotePhotos: List<String> = emptyList<String>(),
+    val isOnline: Boolean = true,
+
+    val host: String? = null,
+    val isUserEventCreator: Boolean = false,
+    val fromTime: LocalDateTime = getNextHalfMarkLocalTime(),
+    val toTime: LocalDateTime = getNextHalfMarkLocalTime(),
+    val attendees: List<Attendee> = emptyList<Attendee>(),
+    val photoKeys: List<String> = emptyList<String>()
 )

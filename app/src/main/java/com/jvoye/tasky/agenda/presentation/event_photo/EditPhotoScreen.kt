@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.presentation.agenda_details.components.EditPhotoTopAppBar
+import com.jvoye.tasky.agenda.presentation.event_photo.components.EditPhotoTopAppBar
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel

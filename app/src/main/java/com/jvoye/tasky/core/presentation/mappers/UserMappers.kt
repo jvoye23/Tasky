@@ -13,7 +13,7 @@ fun AuthInfo.toUserUi(): UserUi {
     )
 }
 
-private fun getInitials(fullName: String): String {
+fun getInitials(fullName: String): String {
     val names = fullName.split(" ").filter { it.isNotEmpty() }
     val initials: String
 

@@ -41,14 +41,12 @@ fun AgendaItemDetailNotificationDropdown(
     modifier: Modifier = Modifier,
     onAction: (AgendaDetailAction) -> Unit,
     state: AgendaDetailState,
-    isEditMode: Boolean,
     dropdownItems: List<NotificationType> = NotificationType.entries
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp)
-            .clickable { if (isEditMode) onAction(AgendaDetailAction.OnToggleNotificationDropdown) },
+            .clickable { if (state.isEditMode) onAction(AgendaDetailAction.OnToggleNotificationDropdown) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -85,7 +83,7 @@ fun AgendaItemDetailNotificationDropdown(
                 contentDescription = null,
                 modifier = Modifier
                     .size(20.dp),
-                tint = if (isEditMode) MaterialTheme.colorScheme.primary
+                tint = if (state.isEditMode) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.primary.copy(alpha = 0f)
             )
 
@@ -144,10 +142,9 @@ private fun AgendaItemDetailNotificationDropdownPreview() {
         AgendaItemDetailNotificationDropdown(
             onAction = {},
             state = AgendaDetailState(
-
+                isEditMode = true,
                 isNotificationDropdownExpanded = true
-            ),
-            isEditMode = true
+            )
         )
     }
 }

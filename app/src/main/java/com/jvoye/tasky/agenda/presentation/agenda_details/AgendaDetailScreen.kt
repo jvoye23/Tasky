@@ -62,7 +62,8 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFil
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeListItem
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toDatePickerString
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
-import com.jvoye.tasky.core.domain.model.Attendee
+import com.jvoye.tasky.core.domain.model.AttendeeBase
+import com.jvoye.tasky.core.domain.model.EventAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDateTimePicker
@@ -172,9 +173,10 @@ private fun AgendaDetailScreenContent(
     onAction: (AgendaDetailAction) -> Unit,
     datePickerState: DatePickerState
 ) {
-    val groupedAttendees = remember(state.attendees) {
+    val groupedAttendees: Map<Boolean, List<AttendeeBase>>  = remember(state.attendees) {
         state.attendees.groupBy { it.isGoing }
     }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -749,72 +751,29 @@ private fun AttendeeSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterChip(
-                modifier = Modifier.weight(1f),
-                selected = state.attendeeFilter == AttendeeFilterType.ALL,
-                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.ALL)) },
-                label = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.all),
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center
-
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    labelColor = MaterialTheme.colorScheme.onSurface,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                border = null,
-                shape = RoundedCornerShape(100.dp)
-            )
-            FilterChip(
-                modifier = Modifier.weight(1f),
-                selected = state.attendeeFilter == AttendeeFilterType.GOING,
-                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.GOING))  },
-                label = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.going),
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center
-
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    labelColor = MaterialTheme.colorScheme.onSurface,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                border = null,
-                shape = RoundedCornerShape(100.dp)
-            )
-            FilterChip(
-                modifier = Modifier.weight(1f),
-                selected = state.attendeeFilter == AttendeeFilterType.NOT_GOING,
-                onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(AttendeeFilterType.NOT_GOING))  },
-                label = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.not_going),
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceHigher,
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    labelColor = MaterialTheme.colorScheme.onSurface,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                border = null,
-                shape = RoundedCornerShape(100.dp)
-            )
-
+            AttendeeFilterType.entries.forEach { filterType ->
+                FilterChip(
+                    modifier = Modifier.weight(1f),
+                    selected = state.attendeeFilter == filterType,
+                    onClick = { onAction(AgendaDetailAction.OnChangeAttendeeFilter(filterType)) },
+                    label = {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = filterType.label.asString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceHigher,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        labelColor = MaterialTheme.colorScheme.onSurface,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    border = null,
+                    shape = RoundedCornerShape(100.dp)
+                )
+            }
         }
     }
     
@@ -823,7 +782,7 @@ private fun AttendeeSection(
 private fun LazyListScope.attendeeList(
     state: AgendaDetailState,
     onAction: (AgendaDetailAction) -> Unit,
-    groupedAttendees: Map<Boolean, List<Attendee>>
+    groupedAttendees: Map<Boolean, List<AttendeeBase>>
 ) {
     if(state.taskyItem.type != TaskyType.EVENT) return
 
@@ -841,7 +800,7 @@ private fun LazyListScope.attendeeList(
                             .padding(vertical = 4.dp),
                         onAction = onAction,
                         state = state,
-                        attendee = attendee
+                        attendeeBase = attendee
                     )
                 }
             }
@@ -860,7 +819,7 @@ private fun LazyListScope.attendeeList(
                             .padding(vertical = 4.dp),
                         onAction = onAction,
                         state = state,
-                        attendee = attendee
+                        attendeeBase = attendee
                     )
                 }
             }
@@ -879,7 +838,7 @@ private fun LazyListScope.attendeeList(
                             .padding(vertical = 4.dp),
                         onAction = onAction,
                         state = state,
-                        attendee = attendee
+                        attendeeBase = attendee
                     )
                 }
             }
@@ -925,44 +884,20 @@ private fun AgendaDetailScreenPreview() {
 }
 
 private val attendeeListPreview = listOf(
-    Attendee(
-        username = "Visitor One",
+    EventAttendee(
+        name = "Visitor One",
         email = "visitorOne@testmail.com",
         userId = "12345",
         eventId = "1234abc",
         isGoing = true,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0)
+        remindAt = LocalDateTime(2023, 1, 1, 12, 0),
     ),
-    Attendee(
-        username = "Visitor Two",
+    EventAttendee(
+        name = "Visitor Two",
         email = "visitorTwo@testmail.com",
         userId = "12345",
         eventId = "1234abc",
-        isGoing = true,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0)
-    ),
-    Attendee(
-        username = "Visitor Three",
-        email = "visitorThree@testmail.com",
-        userId = "12345",
-        eventId = "1234abc",
         isGoing = false,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0)
-    ),
-    Attendee(
-        username = "Visitor Four",
-        email = "visitorFour@testmail.com",
-        userId = "12345",
-        eventId = "1234abc",
-        isGoing = false,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0)
-    ),
-    Attendee(
-        username = "Visitor Five",
-        email = "visitorFive@testmail.com",
-        userId = "12345",
-        eventId = "1234abc",
-        isGoing = true,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0)
+        remindAt = LocalDateTime(2023, 1, 1, 12, 0),
     ),
 )

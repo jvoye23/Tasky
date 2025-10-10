@@ -92,7 +92,7 @@ suspend inline fun <reified T> responseToResult(response: HttpResponse): Result<
         in 200..299 -> Result.Success(response.body<T>())
         400 -> Result.Error(DataError.Network.BAD_REQUEST)
         401 -> Result.Error(DataError.Network.UNAUTHORIZED)
-        404 -> Result.Error(DataError.Network.USER_NOT_FOUND)
+        404 -> Result.Error(DataError.Network.NOT_FOUND)
         408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
         409 -> Result.Error(DataError.Network.CONFLICT)
         413 -> Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)

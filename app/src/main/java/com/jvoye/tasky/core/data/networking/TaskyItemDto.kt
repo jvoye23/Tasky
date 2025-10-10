@@ -43,7 +43,7 @@ data class EventInfoDto(
     val remindAt: String,
     val host: String,
     val isUserEventCreator: Boolean,
-    val attendees: List<AttendeeDto>,
+    val attendees: List<EventAttendeeDto>,
     val photoKeys: List<PhotoDto>
 )
 
@@ -55,10 +55,10 @@ data class UploadUrlDto(
 )
 
 @Serializable
-data class AttendeeDto(
-    val email: String,
-    val username: String,
+data class EventAttendeeDto(
     val userId: String,
+    val email: String,
+    val name: String,
     val eventId: String,
     val isGoing: Boolean,
     val remindAt: String

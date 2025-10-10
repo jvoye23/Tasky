@@ -15,9 +15,9 @@ import com.jvoye.tasky.agenda.domain.ImageManager
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
-import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toAttendee
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
+import com.jvoye.tasky.auth.domain.UserDataValidator
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
@@ -48,7 +48,8 @@ class AgendaDetailScreenViewModel(
     private val agendaRepository: AgendaRepository,
     private val savedStateHandle: SavedStateHandle,
     private val imageManager: ImageManager,
-    private val attendeeManager: AttendeeManager
+    private val attendeeManager: AttendeeManager,
+    private val userValidator: UserDataValidator
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
         titleText = savedStateHandle["titleText"],
@@ -207,16 +208,18 @@ class AgendaDetailScreenViewModel(
     private fun validateAttendeeEmailInput() {
         _state.value.emailInput.textAsFlow()
             .onEach { email ->
-                if (email.length > 8){
-                    val result = attendeeManager.fetchUser(email.toString())
+                val isValidFormat = userValidator.isValidEmail(email.toString())
+
+                if (isValidFormat){
+                    val result = attendeeManager.fetchLookupAttendee(email.toString())
                     when(result) {
                         is Result.Error -> {
                             val errorMessage = when(result.error) {
-                                DataError.Network.USER_NOT_FOUND -> UiText.StringResource(R.string.error_user_not_found)
+                                DataError.Network.NOT_FOUND -> UiText.StringResource(R.string.error_user_not_found)
                                 DataError.Network.CONFLICT -> UiText.StringResource(R.string.same_user_not_allowed)
                                 DataError.Network.BAD_REQUEST -> UiText.StringResource(R.string.invalid_email_format)
-                                else -> Unit
-                            } as UiText.StringResource
+                               else -> result.error.asUiText()
+                            }
 
                             _state.update { it.copy(
                                 emailErrorText = errorMessage,
@@ -231,7 +234,7 @@ class AgendaDetailScreenViewModel(
                                 it.copy(
                                     doesEmailExist = true,
                                     validEmail = result.data.email,
-                                    invitedUser = result.data,
+                                    invitedAttendee = result.data,
                                     emailErrorText = null
 
                                 )
@@ -378,12 +381,12 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.OnAddAttendee -> {
-                val invitedUser = _state.value.invitedUser ?: return
+                val invitedUser = _state.value.invitedAttendee ?: return
                 _state.update {
                     it.copy(
-                        attendees = it.attendees + invitedUser.toAttendee(),
+                        attendees = it.attendees + invitedUser,
                         isAddAttendeeBottomSheetVisible = false,
-                        invitedUser = null,
+                        invitedAttendee = null,
                     )
                 }
             }

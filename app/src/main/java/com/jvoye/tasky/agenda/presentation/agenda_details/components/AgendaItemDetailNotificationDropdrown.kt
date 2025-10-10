@@ -46,7 +46,10 @@ fun AgendaItemDetailNotificationDropdown(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { if (state.isEditMode) onAction(AgendaDetailAction.OnToggleNotificationDropdown) },
+            .clickable(
+                enabled = state.isEditMode,
+                onClick = { onAction(AgendaDetailAction.OnToggleNotificationDropdown) }
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {

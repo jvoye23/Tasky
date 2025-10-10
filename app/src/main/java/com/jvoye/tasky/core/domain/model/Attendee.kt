@@ -11,3 +11,9 @@ data class Attendee(
     val remindAt: LocalDateTime
 
 )
+interface AttendeeBase {
+    val userId: String
+    val email: String
+    val name: String
+    val isGoing: Boolean
+}

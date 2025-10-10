@@ -9,6 +9,7 @@ import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
 import com.jvoye.tasky.core.domain.model.Attendee
+import com.jvoye.tasky.core.domain.model.AttendeeBase
 
 sealed interface AgendaDetailAction {
     data object OnEditModeClick : AgendaDetailAction
@@ -28,7 +29,7 @@ sealed interface AgendaDetailAction {
     data class OnEditTextChanged(val editTextType: EditTextType, val value: String): AgendaDetailAction
     data class OnAddLocalPhotos(val photos: List<Uri>): AgendaDetailAction
     data class OnPhotoClick(val localPhotoPath: String?, val photoUrl: String?): AgendaDetailAction
-    data class OnDeleteAttendee(val attendee: Attendee): AgendaDetailAction
+    data class OnDeleteAttendee(val attendeeBase: AttendeeBase): AgendaDetailAction
     data class OnAddAttendee(val email: String): AgendaDetailAction
     data object OnToggleAddAttendeeBottomSheet : AgendaDetailAction
     data class OnChangeAttendeeFilter(val attendeeFilter: AttendeeFilterType): AgendaDetailAction

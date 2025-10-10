@@ -2,21 +2,21 @@ package com.jvoye.tasky.core.data.networking.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.convertIsoStringToSystemLocalDateTime
-import com.jvoye.tasky.core.data.networking.AttendeeDto
 import com.jvoye.tasky.core.data.networking.CreateReminderRequest
 import com.jvoye.tasky.core.data.networking.CreateTaskRequest
+import com.jvoye.tasky.core.data.networking.EventAttendeeDto
 import com.jvoye.tasky.core.data.networking.EventDto
 import com.jvoye.tasky.core.data.networking.FullAgendaDto
+import com.jvoye.tasky.core.data.networking.LookupAttendeeDto
 import com.jvoye.tasky.core.data.networking.PhotoDto
 import com.jvoye.tasky.core.data.networking.ReminderDto
 import com.jvoye.tasky.core.data.networking.TaskDto
-import com.jvoye.tasky.core.data.networking.UserDto
-import com.jvoye.tasky.core.domain.model.Attendee
+import com.jvoye.tasky.core.domain.model.EventAttendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.FullAgenda
+import com.jvoye.tasky.core.domain.model.LookupAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
-import com.jvoye.tasky.core.domain.model.User
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -101,7 +101,7 @@ fun EventDto.toTaskyItem(): TaskyItem {
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = convertIsoStringToSystemLocalDateTime(event.to),
-            attendees = event.attendees.map { it.toAttendee() },
+            attendees = event.attendees.map { it.toEventAttendee() },
             photos = event.photoKeys.map { it.toEventPhoto() },
             isUserEventCreator = event.isUserEventCreator,
             host = event.host
@@ -109,9 +109,10 @@ fun EventDto.toTaskyItem(): TaskyItem {
     )
 }
 
-fun AttendeeDto.toAttendee(): Attendee {
-    return Attendee(
-        username = username,
+@OptIn(ExperimentalTime::class)
+fun EventAttendeeDto.toEventAttendee(): EventAttendee {
+    return EventAttendee(
+        name = name,
         email = email,
         userId = userId,
         eventId = eventId,
@@ -169,10 +170,11 @@ private fun getUpdatedAtTime(): String {
     return isoString
 }
 
-fun UserDto.toUser(): User {
-    return User(
+fun LookupAttendeeDto.toLookupAttendee(): LookupAttendee {
+    return LookupAttendee(
+        userId = userId,
         email = email,
-        fullName = fullName,
-        userId = userId
+        name = fullName,
+        isGoing = false // set default to false
     )
 }

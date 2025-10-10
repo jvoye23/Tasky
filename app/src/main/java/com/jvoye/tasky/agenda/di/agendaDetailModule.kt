@@ -29,7 +29,8 @@ val agendaDetailModule = module {
             agendaRepository = get(),
             savedStateHandle = get(),
             imageManager = get(),
-            attendeeManager = get()
+            attendeeManager = get(),
+            userValidator = get()
         )
     }
 

@@ -3,6 +3,7 @@ package com.jvoye.tasky.core.data
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.core.domain.model.Attendee
+import com.jvoye.tasky.core.domain.model.EventAttendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
@@ -46,10 +47,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<Attendee>(
-                Attendee(
+            attendees = listOf<EventAttendee>(
+                EventAttendee(
                     email = "test1@email.com",
-                    username = "Attendee 1",
+                    name = "Attendee 1",
                     userId = "1",
                     eventId = "2",
                     isGoing = true,
@@ -76,10 +77,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<Attendee>(
-                Attendee(
-                    email = "test1@email.com",
-                    username = "Attendee 1",
+            attendees = listOf<EventAttendee>(
+                EventAttendee(
+                    email = "test2@email.com",
+                    name = "Attendee 2",
                     userId = "2",
                     eventId = "2",
                     isGoing = true,
@@ -150,10 +151,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<Attendee>(
-                Attendee(
-                    email = "test1@email.com",
-                    username = "Attendee 1",
+            attendees = listOf<EventAttendee>(
+                EventAttendee(
+                    email = "test3@email.com",
+                    name = "Attendee 3",
                     userId = "3",
                     eventId = "3",
                     isGoing = true,
@@ -180,10 +181,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<Attendee>(
-                Attendee(
+            attendees = listOf<EventAttendee>(
+                EventAttendee(
                     email = "test4@email.com",
-                    username = "Attendee 4",
+                    name = "Attendee 4",
                     userId = "4",
                     eventId = "4",
                     isGoing = true,

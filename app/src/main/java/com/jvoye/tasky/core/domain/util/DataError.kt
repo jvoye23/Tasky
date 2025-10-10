@@ -12,7 +12,7 @@ sealed interface DataError: Error {
         SERVER_ERROR,
         SERIALIZATION,
         BAD_REQUEST,
-        USER_NOT_FOUND,
+        NOT_FOUND,
         UNKNOWN
     }
 

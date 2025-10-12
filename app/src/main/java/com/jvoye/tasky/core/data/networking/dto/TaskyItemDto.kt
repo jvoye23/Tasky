@@ -1,4 +1,4 @@
-package com.jvoye.tasky.core.data.networking
+package com.jvoye.tasky.core.data.networking.dto
 
 import kotlinx.serialization.Serializable
 
@@ -40,8 +40,8 @@ data class EventInfoDto(
     val description: String,
     val from: String,
     val to: String,
-    val remindAt: String,
-    val host: String,
+    val remindAt: String? = null,
+    val hostId: String,
     val isUserEventCreator: Boolean,
     val attendees: List<EventAttendeeDto>,
     val photoKeys: List<PhotoDto>
@@ -56,9 +56,9 @@ data class UploadUrlDto(
 
 @Serializable
 data class EventAttendeeDto(
-    val userId: String,
     val email: String,
-    val name: String,
+    val username: String,
+    val userId: String,
     val eventId: String,
     val isGoing: Boolean,
     val remindAt: String

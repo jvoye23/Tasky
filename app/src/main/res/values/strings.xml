@@ -84,4 +84,5 @@
     <string name="error_user_not_found">User with that email does not exist</string>
     <string name="same_user_not_allowed">You can\'t add yourself as an attendee</string>
     <string name="invalid_email_format">Invalid email format</string>
+    <string name="select_to_date">Select a To date</string>
 </resources>

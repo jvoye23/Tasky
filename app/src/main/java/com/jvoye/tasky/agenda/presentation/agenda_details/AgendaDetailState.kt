@@ -6,8 +6,9 @@ import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
-import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.AttendeeBase
+import com.jvoye.tasky.core.domain.model.EventPhoto
+import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.LookupAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
@@ -38,10 +39,13 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val remindAt: LocalDateTime = (time.toInstant(TimeZone.currentSystemDefault()) - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
     val isEditMode: Boolean = false,
     val selectedDateMillis: Long = getNextHalfMarkLocalTime().toEpochMilliseconds(),
+    val selectedToDateMillis: Long = selectedDateMillis + 30.minutes.inWholeMilliseconds,
     val notificationType: NotificationType = NotificationType.THIRTY_MINUTES_BEFORE,
 
     val isDatePickerDialogVisible: Boolean = false,
     val isTimePickerDialogVisible: Boolean = false,
+    val isToDatePickerDialogVisible: Boolean = false,
+    val isToTimePickerDialogVisible: Boolean = false,
     val isNotificationDropdownExpanded: Boolean = false,
     val isDeleteBottomSheetVisible: Boolean = false,
     val isDeleteButtonLoading: Boolean = false,
@@ -53,11 +57,14 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isOnline: Boolean = true,
 
     val host: String? = null,
-    val isUserEventCreator: Boolean = false,
+    val isUserEventCreator: Boolean = true,
     val fromTime: LocalDateTime = getNextHalfMarkLocalTime(),
-    val toTime: LocalDateTime = getNextHalfMarkLocalTime(),
+    val toTime: LocalDateTime = (getNextHalfMarkLocalTime().toInstant(TimeZone.currentSystemDefault()) + 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+    val isFromTimeExpanded: Boolean = false,
+    val isToTimeExpanded: Boolean = false,
     val attendees: List<AttendeeBase> = emptyList<AttendeeBase>(),
     val photoKeys: List<String> = emptyList<String>(),
+    val eventPhotos: List<EventPhoto> = emptyList<EventPhoto>(),
 
     val isAddAttendeeBottomSheetVisible: Boolean = false,
     val attendeeFilter: AttendeeFilterType = AttendeeFilterType.ALL,
@@ -66,6 +73,9 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val emailErrorText: UiText? = null,
     val doesEmailExist: Boolean = false,
     val validEmail: String = "",
-    val invitedAttendee: LookupAttendee? = null
+    val invitedAttendee: LookupAttendee? = null,
+    val isDone: Boolean = false,
+
+    val localPhotosInfo: List<LocalPhotoInfo> = emptyList<LocalPhotoInfo>()
 
 )

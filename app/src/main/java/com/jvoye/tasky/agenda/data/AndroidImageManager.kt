@@ -1,20 +1,17 @@
 package com.jvoye.tasky.agenda.data
 
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import com.jvoye.tasky.agenda.domain.ImageManager
+import com.jvoye.tasky.core.domain.DispatcherProvider
+import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.util.ImageCompressor
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import java.io.File
-import androidx.core.net.toUri
-import com.jvoye.tasky.core.data.StandardDispatcherProvider
-import com.jvoye.tasky.core.domain.DispatcherProvider
-import io.ktor.utils.io.ioDispatcher
-import kotlinx.coroutines.CancellationException
 
 class AndroidImageManager(
     private val context: Context,
@@ -44,5 +41,30 @@ class AndroidImageManager(
             if(e is CancellationException) throw e
             Result.Error(DataError.Local.DISK_FULL)
         }
+    }
+
+    override fun createPhotoKeys(photos: List<String>, title: String): List<String> {
+        return photos.mapIndexed { index, photo ->
+            "${title}_photo0${index+1}"
+        }
+    }
+
+    override suspend fun filePathToLocalPhotoInfo(index: Int, filePath: String): LocalPhotoInfo {
+        return withContext(dispatcherProvider.io) {
+            val file = File(filePath)
+            val bytes = if (file.exists()) {
+                file.inputStream().use { it.readBytes() }
+            } else {
+                byteArrayOf()
+            }
+
+            val fileName = "photo${index+1}"
+
+            LocalPhotoInfo(
+                localPhotoKey = fileName,
+                filePath = filePath,
+                compressedBytes = bytes
+            )
+       }
     }
 }

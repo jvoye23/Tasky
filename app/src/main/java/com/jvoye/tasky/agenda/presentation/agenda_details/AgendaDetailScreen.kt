@@ -307,16 +307,35 @@ private fun AgendaDetailScreenContent(
         if (state.isTimePickerDialogVisible) {
             AgendaItemDetailTimePicker(
                 onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
-                onDismiss = { onAction(AgendaDetailAction.OnDismissTimePickerDialog) },
+                onDismiss = { onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
                 initialTime = state.time.time
             )
         }
-        if (state.isDatePickerDialogVisible){
+        if (state.isDatePickerDialogVisible) {
             AgendaDetailDatePicker(
-                onAction = onAction,
+                onConfirm = { onAction(AgendaDetailAction.ConfirmDateSelection(it)) },
+                onDismiss = { onAction(AgendaDetailAction.OnToggleDatePickerDialog) },
                 datePickerState = datePickerState
             )
         }
+        if (state.isToTimePickerDialogVisible) {
+            AgendaItemDetailTimePicker(
+                onConfirm = { onAction(AgendaDetailAction.ConfirmToTimeSelection(it)) },
+                onDismiss = { onAction(AgendaDetailAction.OnToggleToTimePickerDialog) },
+                initialTime = state.toTime.time
+            )
+        }
+
+        if (state.isToDatePickerDialogVisible){
+            AgendaDetailDatePicker(
+                onConfirm = { onAction(AgendaDetailAction.ConfirmToDateSelection(it)) },
+                onDismiss = { onAction(AgendaDetailAction.OnToggleToDatePickerDialog) },
+                datePickerState = datePickerState,
+                datePickerTitle = stringResource(R.string.select_to_date)
+            )
+
+        }
+
         if (state.isAddAttendeeBottomSheetVisible) {
             AddAttendeeBottomSheet(
                 state = state,
@@ -487,7 +506,7 @@ private fun TaskReminderDateTimePickerSection(
                 text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
                 containerColor = MaterialTheme.colorScheme.surfaceHigher,
                 contentColor = MaterialTheme.colorScheme.primary,
-                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
                 textStyle = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -500,7 +519,7 @@ private fun TaskReminderDateTimePickerSection(
                 text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
                 containerColor = MaterialTheme.colorScheme.surfaceHigher,
                 contentColor = MaterialTheme.colorScheme.primary,
-                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
                 textStyle = MaterialTheme.typography.bodyMedium
             )
         }
@@ -547,7 +566,7 @@ private fun EventDateTimePickerSection(
                     text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
                     containerColor = MaterialTheme.colorScheme.surfaceHigher,
                     contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -560,7 +579,7 @@ private fun EventDateTimePickerSection(
                     text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
                     containerColor = MaterialTheme.colorScheme.surfaceHigher,
                     contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleDatePickerDialog) },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -598,10 +617,10 @@ private fun EventDateTimePickerSection(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp)),
                     isEditMode = state.isEditMode,
-                    text = "${state.selectedDateMillis.toLocalDateTime().hour}:${((state.selectedDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
+                    text = "${state.selectedToDateMillis.toLocalDateTime().hour}:${((state.selectedToDateMillis.toLocalDateTime().minute)).toString().padStart(2, '0')}",
                     containerColor = MaterialTheme.colorScheme.surfaceHigher,
                     contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetTimeClick) },
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleToTimePickerDialog) },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -611,10 +630,10 @@ private fun EventDateTimePickerSection(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp)),
                     isEditMode = state.isEditMode,
-                    text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
+                    text = state.selectedToDateMillis.toLocalDateTime().toDatePickerString(),
                     containerColor = MaterialTheme.colorScheme.surfaceHigher,
                     contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnSetDateClick) },
+                    onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleToDatePickerDialog) },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -651,7 +670,8 @@ private fun EventPhotoPickerSection (
         }
     AgendaItemDetailPhotoPicker(
         modifier = modifier,
-        photos = state.localPhotos.takeLast(10),
+        //photos = state.localPhotos.takeLast(10),
+        photos = state.localPhotosInfo.map { it.filePath },
         onAddPhotosClick = {
             if (numberOfPhotosAlreadySelected < 9) {
                 pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -885,7 +905,7 @@ private fun AgendaDetailScreenPreview() {
 
 private val attendeeListPreview = listOf(
     EventAttendee(
-        name = "Visitor One",
+        username = "Visitor One",
         email = "visitorOne@testmail.com",
         userId = "12345",
         eventId = "1234abc",
@@ -893,7 +913,7 @@ private val attendeeListPreview = listOf(
         remindAt = LocalDateTime(2023, 1, 1, 12, 0),
     ),
     EventAttendee(
-        name = "Visitor Two",
+        username = "Visitor Two",
         email = "visitorTwo@testmail.com",
         userId = "12345",
         eventId = "1234abc",

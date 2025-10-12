@@ -13,9 +13,11 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
+import io.ktor.http.contentType
 
 suspend inline fun <reified Response: Any> HttpClient.get(
     route: String,
@@ -45,12 +47,15 @@ suspend inline fun <reified Request, reified Response: Any> HttpClient.post(
 
 suspend inline fun <reified Request, reified Response: Any> HttpClient.put(
     route: String,
-    body: Request
+    body: Request,
+    contentType: ContentType = ContentType.Application.Json
 ): Result<Response, DataError.Network> {
     return safeCall {
         put {
             url(constructRoute(route))
             setBody(body)
+            contentType(contentType
+            )
         }
     }
 }
@@ -106,6 +111,7 @@ fun constructRoute(route: String): String {
     return when {
         route.contains(BuildConfig.BASE_URL) -> route
         route.startsWith("/") -> BuildConfig.BASE_URL + route
+        route.startsWith("http") -> route
         else -> BuildConfig.BASE_URL + "/$route"
     }
 }

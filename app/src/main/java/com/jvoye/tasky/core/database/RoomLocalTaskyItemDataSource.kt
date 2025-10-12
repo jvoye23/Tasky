@@ -68,12 +68,12 @@ class RoomLocalTaskyItemDataSource(
         return try {
             val taskEntities = fullAgenda.tasks.map { it.toTaskEntity() }
             val reminderEntities = fullAgenda.reminders.map { it.toReminderEntity() }
-            // TODO: add event entities
-            // val eventEntities = fullAgenda.events.map { it.toEventEntity() }
+            val eventEntities = fullAgenda.events.map { it.toEventEntity() }
+
             taskDao.upsertTasks(taskEntities)
             reminderDao.upsertReminders(reminderEntities)
-            //TODO: upsert event entities
-            // eventDao.upsertEvents(eventEntities)
+            eventDao.upsertEvents(eventEntities)
+
             Result.Success(fullAgenda.tasks.map { it.id } + fullAgenda.reminders.map { it.id } + fullAgenda.events.map { it.id })
 
         } catch (e: SQLiteFullException) {

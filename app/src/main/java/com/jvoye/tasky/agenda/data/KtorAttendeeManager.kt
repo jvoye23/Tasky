@@ -1,7 +1,7 @@
 package com.jvoye.tasky.agenda.data
 
 import com.jvoye.tasky.agenda.domain.AttendeeManager
-import com.jvoye.tasky.core.data.networking.LookupAttendeeDto
+import com.jvoye.tasky.core.data.networking.dto.LookupAttendeeDto
 import com.jvoye.tasky.core.data.networking.delete
 import com.jvoye.tasky.core.data.networking.get
 import com.jvoye.tasky.core.data.networking.mappers.toLookupAttendee
@@ -24,7 +24,7 @@ class KtorAttendeeManager(
         }
     }
 
-    override suspend fun removeAttendee(eventId: String): EmptyResult<DataError> {
+    override suspend fun removeAttendee(eventId: String): EmptyResult<DataError.Network> {
         return httpClient.delete(
             route = "/attendee",
             queryParameters = mapOf("eventId" to eventId)

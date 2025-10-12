@@ -1,10 +1,10 @@
-package com.jvoye.tasky.core.data.networking
+package com.jvoye.tasky.core.data.networking.dto
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserDto(
+data class LookupAttendeeDto(
     val email: String,
     val fullName: String,
-    val userId: String,
+    val userId: String
 )

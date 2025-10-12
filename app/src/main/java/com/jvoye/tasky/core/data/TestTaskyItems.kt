@@ -2,9 +2,8 @@ package com.jvoye.tasky.core.data
 
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
-import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.EventAttendee
-import com.jvoye.tasky.core.domain.model.EventPhoto
+import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.TimeZone
@@ -50,7 +49,7 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             attendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test1@email.com",
-                    name = "Attendee 1",
+                    username = "Attendee 1",
                     userId = "1",
                     eventId = "2",
                     isGoing = true,
@@ -58,9 +57,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             ),
             photos = listOf(
-                EventPhoto(
-                    key = "key 1",
-                    url = "url 1"
+                LocalPhotoInfo(
+                    localPhotoKey = "123",
+                    filePath = "uriString",
+                    compressedBytes = ByteArray(0)
                 )
             ),
             isUserEventCreator = true,
@@ -80,7 +80,7 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             attendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test2@email.com",
-                    name = "Attendee 2",
+                    username = "Attendee 2",
                     userId = "2",
                     eventId = "2",
                     isGoing = true,
@@ -88,9 +88,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             ),
             photos = listOf(
-                EventPhoto(
-                    key = "key 2",
-                    url = "url 2"
+                LocalPhotoInfo(
+                    localPhotoKey = "123",
+                    filePath = "uriString",
+                    compressedBytes = ByteArray(0)
                 )
             ),
             isUserEventCreator = true,
@@ -154,7 +155,7 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             attendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test3@email.com",
-                    name = "Attendee 3",
+                    username = "Attendee 3",
                     userId = "3",
                     eventId = "3",
                     isGoing = true,
@@ -162,9 +163,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             ),
             photos = listOf(
-                EventPhoto(
-                    key = "key 3",
-                    url = "url 3"
+                LocalPhotoInfo(
+                    localPhotoKey = "123",
+                    filePath = "uriString",
+                    compressedBytes = ByteArray(0)
                 )
             ),
             isUserEventCreator = true,
@@ -184,7 +186,7 @@ val testTaskyItems = mutableListOf<TaskyItem>(
             attendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test4@email.com",
-                    name = "Attendee 4",
+                    username = "Attendee 4",
                     userId = "4",
                     eventId = "4",
                     isGoing = true,
@@ -192,9 +194,10 @@ val testTaskyItems = mutableListOf<TaskyItem>(
                 )
             ),
             photos = listOf(
-                EventPhoto(
-                    key = "key 1",
-                    url = "url 1"
+                LocalPhotoInfo(
+                    localPhotoKey = "123",
+                    filePath = "uriString",
+                    compressedBytes = ByteArray(0)
                 )
             ),
             isUserEventCreator = true,

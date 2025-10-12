@@ -14,6 +14,6 @@ data class Attendee(
 interface AttendeeBase {
     val userId: String
     val email: String
-    val name: String
+    val username: String
     val isGoing: Boolean
 }

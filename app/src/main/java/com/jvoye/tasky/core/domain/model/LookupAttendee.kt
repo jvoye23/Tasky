@@ -6,6 +6,6 @@ package com.jvoye.tasky.core.domain.model
 data class LookupAttendee(
     override val userId: String,
     override val email: String,
-    override val name: String,
+    override val username: String,
     override val isGoing: Boolean
 ): AttendeeBase

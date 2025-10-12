@@ -8,7 +8,6 @@ import androidx.compose.material3.TimePickerState
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
-import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.AttendeeBase
 
 sealed interface AgendaDetailAction {
@@ -17,12 +16,10 @@ sealed interface AgendaDetailAction {
     data object OnDeleteClick : AgendaDetailAction
     data object OnCloseAndCancelClick : AgendaDetailAction
     data class OnEditTextClick(val text: String?, val editTextType: EditTextType) : AgendaDetailAction
-    data object OnSetTimeClick : AgendaDetailAction
-    data object OnSetDateClick : AgendaDetailAction
-    data object OnDismissDatePickerDialog : AgendaDetailAction
     data class ConfirmDateSelection(val selectedDateMillis: Long) : AgendaDetailAction
     data class ConfirmTimeSelection(val timePickerState: TimePickerState) : AgendaDetailAction
-    data object OnDismissTimePickerDialog : AgendaDetailAction
+    data class ConfirmToDateSelection(val toDateSelectedDateMillis: Long): AgendaDetailAction
+    data class ConfirmToTimeSelection(val toTimePickerState: TimePickerState) : AgendaDetailAction
     data object OnToggleNotificationDropdown : AgendaDetailAction
     data class OnNotificationItemClick(val notificationType: NotificationType) : AgendaDetailAction
     data object OnToggleDeleteBottomSheet : AgendaDetailAction
@@ -33,4 +30,9 @@ sealed interface AgendaDetailAction {
     data class OnAddAttendee(val email: String): AgendaDetailAction
     data object OnToggleAddAttendeeBottomSheet : AgendaDetailAction
     data class OnChangeAttendeeFilter(val attendeeFilter: AttendeeFilterType): AgendaDetailAction
+
+    data object OnToggleTimePickerDialog: AgendaDetailAction
+    data object OnToggleDatePickerDialog: AgendaDetailAction
+    data object OnToggleToTimePickerDialog: AgendaDetailAction
+    data object OnToggleToDatePickerDialog: AgendaDetailAction
 }

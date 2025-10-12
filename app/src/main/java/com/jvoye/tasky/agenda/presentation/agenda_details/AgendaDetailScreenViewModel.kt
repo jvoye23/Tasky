@@ -18,12 +18,17 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMar
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.auth.domain.UserDataValidator
+import com.jvoye.tasky.core.domain.SessionStorage
+import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import com.jvoye.tasky.core.presentation.designsystem.util.textAsFlow
 import com.jvoye.tasky.core.presentation.ui.asUiText
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,7 +54,8 @@ class AgendaDetailScreenViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val imageManager: ImageManager,
     private val attendeeManager: AttendeeManager,
-    private val userValidator: UserDataValidator
+    private val userValidator: UserDataValidator,
+    private val sessionStorage: SessionStorage
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
         titleText = savedStateHandle["titleText"],
@@ -135,6 +141,25 @@ class AgendaDetailScreenViewModel(
             val newTaskyItemId = _state.value.taskyItem.id.ifBlank {
                 randomUUID().toString()
             }
+
+            val eventDetails = TaskyItemDetails.Event(
+                toTime = state.value.toTime,
+                attendees = _state.value.attendees,
+                photos = _state.value.localPhotosInfo ,
+                isUserEventCreator = true,
+                host = sessionStorage.get()?.userId ?: "",
+            )
+
+            val taskDetails = TaskyItemDetails.Task(
+                isDone = _state.value.isDone
+            )
+
+            val details = when(_state.value.taskyItem.type) {
+                TaskyType.EVENT -> eventDetails
+                TaskyType.TASK -> taskDetails
+                TaskyType.REMINDER -> TaskyItemDetails.Reminder
+            }
+
             val taskyItem = TaskyItem(
                 title = _state.value.titleText ?: "",
                 description = _state.value.descriptionText ?: "",
@@ -142,9 +167,11 @@ class AgendaDetailScreenViewModel(
                 id = if (isTaskyItemIdBlank) newTaskyItemId else _state.value.taskyItem.id,
                 type = _state.value.taskyItem.type,
                 remindAt = _state.value.remindAt,
-                details = _state.value.taskyItem.details,
+                details = details,
                 notificationType = _state.value.notificationType,
             )
+
+
 
             when(val result = if (isTaskyItemIdBlank) {
                 agendaRepository.upsertTaskyItem(taskyItem)
@@ -192,12 +219,21 @@ class AgendaDetailScreenViewModel(
         viewModelScope.launch {
             when (val result = imageManager.compressImages(uris.map { it.toString() })) {
                 is Result.Success -> {
+                    val newLocalPhotoPaths = result.data
+                    val deferredLocalPhotoInfos = newLocalPhotoPaths.mapIndexed { index, localPhotoPath ->
+                        async {
+                            imageManager.filePathToLocalPhotoInfo(index = index, filePath = localPhotoPath)
+                        }
+                    }
+                    // Wait for all async jobs to complete
+                    val newLocalPhotoInfos: List<LocalPhotoInfo> = deferredLocalPhotoInfos.awaitAll()
                     _state.update {
                         it.copy(
-                            localPhotos = it.localPhotos + result.data
+                            localPhotosInfo = it.localPhotosInfo + newLocalPhotoInfos
                         )
                     }
                 }
+
                 is Result.Error -> {
                     eventChannel.send(AgendaDetailEvent.Error(result.error.asUiText()))
                 }
@@ -261,16 +297,33 @@ class AgendaDetailScreenViewModel(
             AgendaDetailAction.OnDeleteClick -> {
                 deleteTaskyItem()
             }
-            AgendaDetailAction.OnSetDateClick -> {
+
+            AgendaDetailAction.OnToggleTimePickerDialog -> {
                 _state.update { it.copy(
-                    isDatePickerDialogVisible = true
+                    isTimePickerDialogVisible = !it.isTimePickerDialogVisible
                 ) }
             }
-            AgendaDetailAction.OnSetTimeClick -> {
+
+            AgendaDetailAction.OnToggleDatePickerDialog -> {
                 _state.update { it.copy(
-                    isTimePickerDialogVisible = true
-                )}
+                    isDatePickerDialogVisible = !it.isDatePickerDialogVisible
+                ) }
             }
+
+            AgendaDetailAction.OnToggleToTimePickerDialog -> {
+                _state.update { it.copy(
+                    isToTimePickerDialogVisible = !it.isToTimePickerDialogVisible
+                ) }
+            }
+
+            AgendaDetailAction.OnToggleToDatePickerDialog -> {
+                _state.update { it.copy(
+                    isToDatePickerDialogVisible = !it.isToDatePickerDialogVisible
+                ) }
+            }
+
+
+
             is AgendaDetailAction.ConfirmDateSelection -> {
                 val currentSelectedTime = _state.value.time.time
                 val newDate = action.selectedDateMillis.toLocalDateTime().date
@@ -290,9 +343,22 @@ class AgendaDetailScreenViewModel(
                 ) }
             }
 
-            AgendaDetailAction.OnDismissDatePickerDialog -> {
+            is AgendaDetailAction.ConfirmToDateSelection -> {
+                val currentSelectedToTime = _state.value.toTime.time
+                val newDate = action.toDateSelectedDateMillis.toLocalDateTime().date
+                val newLocalDateTime = LocalDateTime(
+                    year = newDate.year,
+                    month = newDate.month,
+                    day = newDate.day,
+                    hour = currentSelectedToTime.hour,
+                    minute = currentSelectedToTime.minute,
+                    second = 0,
+                    nanosecond = 0
+                )
                 _state.update { it.copy(
-                    isDatePickerDialogVisible = false
+                    selectedToDateMillis = newLocalDateTime.toEpochMilliseconds(),
+                    toTime = newLocalDateTime,
+                    isToDatePickerDialogVisible = false
                 ) }
             }
 
@@ -316,9 +382,23 @@ class AgendaDetailScreenViewModel(
                 ) }
             }
 
-            AgendaDetailAction.OnDismissTimePickerDialog -> {
+            is AgendaDetailAction.ConfirmToTimeSelection -> {
+                val toHour = action.toTimePickerState.hour
+                val toMinute = action.toTimePickerState.minute
+                val toSecond = 0
+                val toDate = _state.value.toTime.date
+                val toTime = LocalDateTime(
+                    year = toDate.year,
+                    month = toDate.month,
+                    day = toDate.day,
+                    hour = toHour,
+                    minute = toMinute,
+                    second = toSecond
+                )
                 _state.update { it.copy(
-                    isTimePickerDialogVisible = false
+                    selectedToDateMillis = toTime.toEpochMilliseconds(),
+                    toTime = toTime,
+                    isToTimePickerDialogVisible = false
                 ) }
             }
 

@@ -78,6 +78,9 @@ fun convertIsoStringToUtcDateTime(isoString: String): LocalDateTime {
 @OptIn(ExperimentalTime::class)
 fun getNextHalfMarkLocalTime(): LocalDateTime {
     val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+    val newHour = if (now.hour == 23) 0 else now.hour + 1
+
     val newTime = if (now.minute < 30) {
         LocalDateTime(
             year = now.year,
@@ -91,7 +94,7 @@ fun getNextHalfMarkLocalTime(): LocalDateTime {
             year = now.year,
             month = now.month,
             day = now.day,
-            hour = now.hour + 1,
+            hour = newHour,
             minute = 0
         )
     }

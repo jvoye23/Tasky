@@ -3,8 +3,6 @@ package com.jvoye.tasky.core.data.networking
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LookupAttendeeDto(
-    val email: String,
-    val fullName: String,
-    val userId: String
+data class ConfirmUploadRequest(
+    val uploadedKeys: List<String>,
 )

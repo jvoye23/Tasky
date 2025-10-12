@@ -15,22 +15,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
-import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
 
 @Composable
 fun AgendaDetailDatePicker(
-    onAction: (AgendaDetailAction) -> Unit,
-    datePickerState: DatePickerState
+    onConfirm: (Long) -> Unit,
+    onDismiss: () -> Unit,
+    datePickerState: DatePickerState,
+    datePickerTitle: String = stringResource(R.string.select_a_date)
 ) {
     DatePickerDialog(
-        onDismissRequest = {
-            onAction(AgendaDetailAction.OnDismissDatePickerDialog)
-        },
+        onDismissRequest = { onDismiss() },
         confirmButton = {
             TextButton(
                 enabled = datePickerState.selectedDateMillis != null,
                 onClick = {
-                    onAction(AgendaDetailAction.ConfirmDateSelection(selectedDateMillis = datePickerState.selectedDateMillis!!))
+                    onConfirm(datePickerState.selectedDateMillis!!)
                 }
             ) {
                 Text(
@@ -41,9 +40,7 @@ fun AgendaDetailDatePicker(
         },
         dismissButton = {
             TextButton(
-                onClick = {
-                    onAction(AgendaDetailAction.OnDismissDatePickerDialog)
-                }
+                onClick = { onDismiss() }
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
@@ -56,7 +53,7 @@ fun AgendaDetailDatePicker(
             state = datePickerState,
             title = {
                 Text(
-                    text = stringResource(R.string.select_a_date),
+                    text = datePickerTitle,
                     modifier = Modifier
                         .padding(24.dp)
                 )

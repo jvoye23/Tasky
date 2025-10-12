@@ -8,9 +8,12 @@ sealed interface TaskyItemDetails {
     data class Event(
         val toTime: LocalDateTime,
         val attendees: List<AttendeeBase>,
-        val photos: List<EventPhoto>,
+        val photos: List<LocalPhotoInfo>,
+        val newPhotosKeys: List<String> = emptyList(),
+        val deletedPhotoKeys: List<String> = emptyList(),
         val isUserEventCreator: Boolean,
-        val host: String
+        val host: String,
+        val isGoing: Boolean = true
     ): TaskyItemDetails
 
     data class Task(
@@ -30,3 +33,15 @@ data class TaskyItem(
     val details: TaskyItemDetails,
     val notificationType: NotificationType = NotificationType.THIRTY_MINUTES_BEFORE
 )
+
+fun TaskyItem.detailsAsEvent(): TaskyItemDetails.Event? {
+    return details as? TaskyItemDetails.Event
+}
+
+fun TaskyItem.detailsAsTask(): TaskyItemDetails.Task? {
+    return details as? TaskyItemDetails.Task
+}
+
+fun TaskyItem.detailsAsReminder(): TaskyItemDetails.Reminder? {
+    return details as? TaskyItemDetails.Reminder
+}

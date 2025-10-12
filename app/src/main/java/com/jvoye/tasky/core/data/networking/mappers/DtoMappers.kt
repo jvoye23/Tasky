@@ -2,25 +2,33 @@ package com.jvoye.tasky.core.data.networking.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.convertIsoStringToSystemLocalDateTime
+import com.jvoye.tasky.core.data.networking.CreateEventRequest
 import com.jvoye.tasky.core.data.networking.CreateReminderRequest
 import com.jvoye.tasky.core.data.networking.CreateTaskRequest
-import com.jvoye.tasky.core.data.networking.EventAttendeeDto
-import com.jvoye.tasky.core.data.networking.EventDto
-import com.jvoye.tasky.core.data.networking.FullAgendaDto
-import com.jvoye.tasky.core.data.networking.LookupAttendeeDto
-import com.jvoye.tasky.core.data.networking.PhotoDto
-import com.jvoye.tasky.core.data.networking.ReminderDto
-import com.jvoye.tasky.core.data.networking.TaskDto
+import com.jvoye.tasky.core.data.networking.UpdateEventRequest
+import com.jvoye.tasky.core.data.networking.dto.EventAttendeeDto
+import com.jvoye.tasky.core.data.networking.dto.EventDto
+import com.jvoye.tasky.core.data.networking.dto.EventInfoDto
+import com.jvoye.tasky.core.data.networking.dto.FullAgendaDto
+import com.jvoye.tasky.core.data.networking.dto.LookupAttendeeDto
+import com.jvoye.tasky.core.data.networking.dto.PhotoDto
+import com.jvoye.tasky.core.data.networking.dto.ReminderDto
+import com.jvoye.tasky.core.data.networking.dto.TaskDto
+import com.jvoye.tasky.core.data.networking.dto.UploadUrlDto
 import com.jvoye.tasky.core.domain.model.EventAttendee
 import com.jvoye.tasky.core.domain.model.EventPhoto
 import com.jvoye.tasky.core.domain.model.FullAgenda
+import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.LookupAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.model.UploadUrl
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -91,20 +99,22 @@ fun ReminderDto.toTaskyItem(): TaskyItem {
 }
 
 
+@OptIn(ExperimentalTime::class)
 fun EventDto.toTaskyItem(): TaskyItem {
     return TaskyItem(
         id = event.id,
         title = event.title,
         description = event.description,
         time = convertIsoStringToSystemLocalDateTime(event.from),
-        remindAt = convertIsoStringToSystemLocalDateTime(event.remindAt),
+        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = convertIsoStringToSystemLocalDateTime(event.to),
             attendees = event.attendees.map { it.toEventAttendee() },
-            photos = event.photoKeys.map { it.toEventPhoto() },
+            photos = emptyList(),
             isUserEventCreator = event.isUserEventCreator,
-            host = event.host
+            host = event.hostId,
+            isGoing = event.attendees.any { it.isGoing },
         ),
     )
 }
@@ -112,12 +122,12 @@ fun EventDto.toTaskyItem(): TaskyItem {
 @OptIn(ExperimentalTime::class)
 fun EventAttendeeDto.toEventAttendee(): EventAttendee {
     return EventAttendee(
-        name = name,
+        username = username,
         email = email,
         userId = userId,
         eventId = eventId,
         isGoing = isGoing,
-        remindAt = LocalDateTime.parse(remindAt)
+        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
     )
 }
 
@@ -174,7 +184,76 @@ fun LookupAttendeeDto.toLookupAttendee(): LookupAttendee {
     return LookupAttendee(
         userId = userId,
         email = email,
-        name = fullName,
+        username = fullName,
         isGoing = false // set default to false
+    )
+}
+
+fun UploadUrlDto.toUploadUrl(): UploadUrl {
+    return UploadUrl(
+        photoKey = photoKey,
+        uploadKey = uploadKey,
+        url = url
+    )
+}
+
+@OptIn(ExperimentalTime::class)
+fun TaskyItem.toCreateEventRequest(): CreateEventRequest {
+    return CreateEventRequest(
+        id = id,
+        title = title,
+        description = description,
+        from = time.toInstant(TimeZone.UTC).toString(),
+        to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
+        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        attendeeIds = details.attendees.map { it.userId },
+        photoKeys = details.photos.map { it.localPhotoKey },
+        updatedAt = getUpdatedAtTime(),
+    )
+}
+
+@OptIn(ExperimentalTime::class)
+fun TaskyItem.toUpdateEventRequest(): UpdateEventRequest {
+    return UpdateEventRequest(
+        title = title,
+        description = description,
+        from = time.toInstant(TimeZone.UTC).toString(),
+        to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
+        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        attendeeIds = details.attendees.map { it.userId },
+        newPhotoKeys = details.newPhotosKeys,
+        deletedPhotoKeys = details.deletedPhotoKeys,
+        isGoing = details.isGoing,
+        updatedAt = getUpdatedAtTime(),
+    )
+}
+
+@OptIn(ExperimentalTime::class)
+fun EventInfoDto.toTaskyItem(): TaskyItem {
+    return TaskyItem(
+        id = id,
+        title = title,
+        description = description,
+        time = convertIsoStringToSystemLocalDateTime(from),
+        type = TaskyType.EVENT,
+        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+        details = TaskyItemDetails.Event(
+            toTime = convertIsoStringToSystemLocalDateTime(to),
+            attendees = attendees.map { it.toEventAttendee() },
+            photos = photoKeys.map { it.toLocalPhotoInfo()},
+            newPhotosKeys = emptyList(),
+            deletedPhotoKeys = emptyList(),
+            isUserEventCreator = isUserEventCreator,
+            host = hostId,
+            isGoing = true
+        )
+    )
+}
+
+fun PhotoDto.toLocalPhotoInfo(): LocalPhotoInfo {
+    return LocalPhotoInfo(
+        localPhotoKey = key,
+        filePath = url,
+        compressedBytes = byteArrayOf()
     )
 }

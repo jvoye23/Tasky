@@ -8,11 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailEvent
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
-import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
@@ -58,7 +56,8 @@ class AgendaViewModel(
                 getDateRowEntries()
                 getAgendaListTitle()
                 getAgendaItems()
-                agendaRepository.fetchFullAgenda()
+                agendaRepository.deleteTaskyItem(taskyType = TaskyType.EVENT, taskyItemId = "044ba82c-9160-478a-b3f4-e97121fbd5cd")
+                //agendaRepository.fetchFullAgenda()
                 hasLoadedInitialData = true
             }
         }

@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailState
-import com.jvoye.tasky.core.domain.model.Attendee
 import com.jvoye.tasky.core.domain.model.AttendeeBase
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Bin
 import com.jvoye.tasky.core.presentation.designsystem.theme.headlineXSmall
@@ -58,14 +57,14 @@ fun AttendeeListItem (
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = getInitials(attendeeBase.name),
+                text = getInitials(attendeeBase.username),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = attendeeBase.name,
+            text = attendeeBase.username,
             style = MaterialTheme.typography.headlineXSmall,
             color = MaterialTheme.colorScheme.onSurface
         )

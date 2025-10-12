@@ -132,4 +132,7 @@ dependencies {
 
     // Image Loading
     implementation(libs.coil.compose)
+
+    //Json library
+    implementation(libs.gson)
 }

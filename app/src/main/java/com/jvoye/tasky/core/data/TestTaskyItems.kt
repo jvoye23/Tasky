@@ -46,14 +46,14 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<EventAttendee>(
+            eventAttendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test1@email.com",
                     username = "Attendee 1",
                     userId = "1",
                     eventId = "2",
                     isGoing = true,
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
+                    remindAt = "2025-10-12T16:50:00Z"
                 )
             ),
             photos = listOf(
@@ -77,14 +77,14 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<EventAttendee>(
+            eventAttendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test2@email.com",
                     username = "Attendee 2",
                     userId = "2",
                     eventId = "2",
                     isGoing = true,
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
+                    remindAt = "2025-10-12T16:50:00Z"
                 )
             ),
             photos = listOf(
@@ -152,14 +152,14 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<EventAttendee>(
+            eventAttendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test3@email.com",
                     username = "Attendee 3",
                     userId = "3",
                     eventId = "3",
                     isGoing = true,
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
+                    remindAt = "2025-10-12T16:50:00Z"
                 )
             ),
             photos = listOf(
@@ -183,14 +183,14 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = LocalDateTime(2023, 3, 1, 10, 0),
-            attendees = listOf<EventAttendee>(
+            eventAttendees = listOf<EventAttendee>(
                 EventAttendee(
                     email = "test4@email.com",
                     username = "Attendee 4",
                     userId = "4",
                     eventId = "4",
                     isGoing = true,
-                    remindAt = LocalDateTime(2025, 11, 1, 10, 0)
+                    remindAt = "2025-10-12T16:50:00Z"
                 )
             ),
             photos = listOf(

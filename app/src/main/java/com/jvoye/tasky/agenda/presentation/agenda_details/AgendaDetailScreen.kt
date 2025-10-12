@@ -80,10 +80,9 @@ import kotlin.time.ExperimentalTime
 
 @Composable
 fun AgendaDetailScreenRoot(
-    modifier: Modifier = Modifier,
     onCloseAndCancelClick: () -> Unit,
     onEditTextClick: (String?, EditTextType) -> Unit,
-    onEditPhotoClick: (localPhotoPath: String?, photoUrl: String?) -> Unit,
+    onEditPhotoClick: (photoPath: String, photoIndex: Int) -> Unit,
     viewModel: AgendaDetailScreenViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -126,7 +125,7 @@ fun AgendaDetailScreenRoot(
             when(action) {
                 is AgendaDetailAction.OnCloseAndCancelClick -> onCloseAndCancelClick()
                 is AgendaDetailAction.OnEditTextClick -> onEditTextClick(action.text, action.editTextType)
-                is AgendaDetailAction.OnPhotoClick -> onEditPhotoClick(action.localPhotoPath, action.photoUrl)
+                is AgendaDetailAction.OnPhotoClick -> onEditPhotoClick(action.photoPath, action.index)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -173,8 +172,8 @@ private fun AgendaDetailScreenContent(
     onAction: (AgendaDetailAction) -> Unit,
     datePickerState: DatePickerState
 ) {
-    val groupedAttendees: Map<Boolean, List<AttendeeBase>>  = remember(state.attendees) {
-        state.attendees.groupBy { it.isGoing }
+    val groupedAttendees: Map<Boolean, List<AttendeeBase>>  = remember(state.lookupAttendees) {
+        state.lookupAttendees.groupBy { it.isGoing }
     }
 
     Column(
@@ -648,7 +647,7 @@ private fun EventPhotoPickerSection (
     onAction: (AgendaDetailAction) -> Unit,
     state: AgendaDetailState
 ) {
-    val numberOfPhotosAlreadySelected = state.localPhotos.size
+    val numberOfPhotosAlreadySelected = state.newLocalPhotoInfos.size + state.remotePhotos.size
 
     // MaxItems must always be bigger than 1 or the app crashes when the screen is recomposes after
     // the PhotoPicker is closed
@@ -670,8 +669,7 @@ private fun EventPhotoPickerSection (
         }
     AgendaItemDetailPhotoPicker(
         modifier = modifier,
-        //photos = state.localPhotos.takeLast(10),
-        photos = state.localPhotosInfo.map { it.filePath },
+        photos = state.photoGridItems,
         onAddPhotosClick = {
             if (numberOfPhotosAlreadySelected < 9) {
                 pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -827,7 +825,7 @@ private fun LazyListScope.attendeeList(
         }
 
         AttendeeFilterType.GOING -> {
-            val goingAttendees = state.attendees.filter { it.isGoing }
+            val goingAttendees = state.lookupAttendees.filter { it.isGoing }
             if (goingAttendees.isNotEmpty()) {
                 stickyHeader {
                     AttendeeListHeader(title = stringResource(R.string.going))
@@ -846,7 +844,7 @@ private fun LazyListScope.attendeeList(
         }
 
         AttendeeFilterType.NOT_GOING -> {
-            val notGoingAttendees = state.attendees.filter { !it.isGoing }
+            val notGoingAttendees = state.lookupAttendees.filter { !it.isGoing }
             if (notGoingAttendees.isNotEmpty()) {
                 stickyHeader {
                     AttendeeListHeader(title = stringResource(R.string.not_going))
@@ -896,7 +894,7 @@ private fun AgendaDetailScreenPreview() {
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 isEditMode = false,
-                attendees = attendeeListPreview
+                lookupAttendees = attendeeListPreview
             ),
             onAction = {}
         )
@@ -910,7 +908,7 @@ private val attendeeListPreview = listOf(
         userId = "12345",
         eventId = "1234abc",
         isGoing = true,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0),
+        remindAt = "2025-10-12T16:50:00Z",
     ),
     EventAttendee(
         username = "Visitor Two",
@@ -918,6 +916,6 @@ private val attendeeListPreview = listOf(
         userId = "12345",
         eventId = "1234abc",
         isGoing = false,
-        remindAt = LocalDateTime(2023, 1, 1, 12, 0),
+        remindAt = "2025-10-12T16:50:00Z",
     ),
 )

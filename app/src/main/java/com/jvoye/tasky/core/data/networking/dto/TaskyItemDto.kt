@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullAgendaDto(
-    val events: List<EventDto>,
+    val events: List<EventInfoDto>,
     val tasks: List<TaskDto>,
     val reminders: List<ReminderDto>
 )

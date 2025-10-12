@@ -16,14 +16,13 @@ import com.jvoye.tasky.core.data.networking.dto.ReminderDto
 import com.jvoye.tasky.core.data.networking.dto.TaskDto
 import com.jvoye.tasky.core.data.networking.dto.UploadUrlDto
 import com.jvoye.tasky.core.domain.model.EventAttendee
-import com.jvoye.tasky.core.domain.model.EventPhoto
+import com.jvoye.tasky.core.domain.model.RemotePhoto
 import com.jvoye.tasky.core.domain.model.FullAgenda
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.LookupAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.model.UploadUrl
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -110,8 +109,11 @@ fun EventDto.toTaskyItem(): TaskyItem {
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
             toTime = convertIsoStringToSystemLocalDateTime(event.to),
-            attendees = event.attendees.map { it.toEventAttendee() },
+            eventAttendees = event.attendees.map { it.toEventAttendee() },
             photos = emptyList(),
+            newPhotosKeys = emptyList(),
+            deletedPhotoKeys = emptyList(),
+            remotePhotos = event.photoKeys.map { it.toRemotePhoto() },
             isUserEventCreator = event.isUserEventCreator,
             host = event.hostId,
             isGoing = event.attendees.any { it.isGoing },
@@ -127,12 +129,12 @@ fun EventAttendeeDto.toEventAttendee(): EventAttendee {
         userId = userId,
         eventId = eventId,
         isGoing = isGoing,
-        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault())
+        remindAt = remindAt
     )
 }
 
-fun PhotoDto.toEventPhoto(): EventPhoto {
-    return EventPhoto(
+fun PhotoDto.toRemotePhoto(): RemotePhoto {
+    return RemotePhoto(
         key = key,
         url = url
     )
@@ -206,7 +208,7 @@ fun TaskyItem.toCreateEventRequest(): CreateEventRequest {
         from = time.toInstant(TimeZone.UTC).toString(),
         to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
         remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
-        attendeeIds = details.attendees.map { it.userId },
+        attendeeIds = details.eventAttendees.map { it.userId },
         photoKeys = details.photos.map { it.localPhotoKey },
         updatedAt = getUpdatedAtTime(),
     )
@@ -220,7 +222,7 @@ fun TaskyItem.toUpdateEventRequest(): UpdateEventRequest {
         from = time.toInstant(TimeZone.UTC).toString(),
         to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
         remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
-        attendeeIds = details.attendees.map { it.userId },
+        attendeeIds = details.eventAttendees.map { it.userId },
         newPhotoKeys = details.newPhotosKeys,
         deletedPhotoKeys = details.deletedPhotoKeys,
         isGoing = details.isGoing,
@@ -239,10 +241,11 @@ fun EventInfoDto.toTaskyItem(): TaskyItem {
         remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
         details = TaskyItemDetails.Event(
             toTime = convertIsoStringToSystemLocalDateTime(to),
-            attendees = attendees.map { it.toEventAttendee() },
-            photos = photoKeys.map { it.toLocalPhotoInfo()},
+            eventAttendees = attendees.map { it.toEventAttendee() },
+            photos = emptyList(),
             newPhotosKeys = emptyList(),
             deletedPhotoKeys = emptyList(),
+            remotePhotos = photoKeys.map { it.toRemotePhoto() },
             isUserEventCreator = isUserEventCreator,
             host = hostId,
             isGoing = true

@@ -18,6 +18,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 class OfflineFirstAgendaRepository(
     private val localTaskyItemDataSource: LocalTaskyItemDataSource,
@@ -63,43 +64,35 @@ class OfflineFirstAgendaRepository(
         }
         val taskyItemWithId = taskyItem.copy(id = localResult.data)
 
-        if (taskyItemWithId.type != TaskyType.EVENT) {
-            val remoteResult = remoteTaskyItemDataSource.postTaskyItem(taskyItemWithId)
-            return when (remoteResult) {
+        val result = if (taskyItemWithId.type != TaskyType.EVENT) {
+            when (val remoteResult = remoteTaskyItemDataSource.postTaskyItem(taskyItemWithId)) {
                 is Result.Error -> {
                     // TODO: handle error case later
                     Result.Success(Unit)
                 }
-
                 is Result.Success -> {
                     applicationScope.async {
                         localTaskyItemDataSource.upsertTaskyItem(remoteResult.data)
-                            .asEmptyDataResult()
                     }.await()
                 }
             }
 
-        // Handle Event upsert
+            // Handle Event upsert
         } else {
-            val remoteEventResult = remoteTaskyItemDataSource.postTaskyEvent(taskyItemWithId)
-            val result = when (remoteEventResult) {
+            when (val remoteEventResult = remoteTaskyItemDataSource.postTaskyEvent(taskyItemWithId)) {
                 is Result.Error -> {
                     // TODO: handle error case later
                     remoteEventResult
                 }
-
                 is Result.Success -> {
-                    val uploaded = coroutineScope {
+                    val uploadedKeys = coroutineScope {
                         remoteEventResult.data.uploadUrls.map { uploadUrl ->
                             async {
                                 val bytes = taskyItem.detailsAsEvent()?.photos?.firstOrNull {
                                     it.localPhotoKey == uploadUrl.photoKey
                                 }?.compressedBytes
                                 if (bytes != null) {
-                                    when (remoteTaskyItemDataSource.uploadPhoto(
-                                        url = uploadUrl.url,
-                                        photo = bytes
-                                    )) {
+                                    when (remoteTaskyItemDataSource.uploadPhoto(url = uploadUrl.url, photo = bytes)) {
                                         is Result.Success -> uploadUrl.uploadKey
                                         is Result.Error -> null
                                     }
@@ -110,31 +103,32 @@ class OfflineFirstAgendaRepository(
                         }.awaitAll().filterNotNull()
                     }
 
-                    if (uploaded.isEmpty()) {
+                    if (uploadedKeys.isEmpty()) {
                         localTaskyItemDataSource.upsertTaskyItem(taskyItem = remoteEventResult.data.toTaskyItem())
                     } else {
                         // Send Photo Upload Confirmation POST
-                        val confirmResult = remoteTaskyItemDataSource.confirmPhotosUpload(
-                            taskyItemId = taskyItemWithId.id,
-                            confirmUploadRequest = ConfirmUploadRequest(
-                                uploadedKeys = uploaded
+                        applicationScope.async {
+                            val confirmResult = remoteTaskyItemDataSource.confirmPhotosUpload(
+                                taskyItemId = taskyItemWithId.id,
+                                confirmUploadRequest = ConfirmUploadRequest(
+                                    uploadedKeys = uploadedKeys
+                                )
                             )
-                        )
-                        when (confirmResult) {
-                            is Result.Success -> {
-                                localTaskyItemDataSource.upsertTaskyItem(taskyItem = remoteEventResult.data.toTaskyItem())
+                            when (confirmResult) {
+                                is Result.Success -> {
+                                    localTaskyItemDataSource.upsertTaskyItem(taskyItem = confirmResult.data.toTaskyItem())
+                                }
+                                is Result.Error -> {
+                                    // TODO: handle error case later
+                                    Result.Success(Unit) // Returning a success placeholder
+                                }
                             }
-
-                            is Result.Error -> {
-                                // TODO: handle error case later
-                                confirmResult
-                            }
-                        }
+                        }.await()
                     }
                 }
             }
-            return result.asEmptyDataResult()
         }
+        return result.asEmptyDataResult()
     }
 
     override suspend fun updateTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError> {

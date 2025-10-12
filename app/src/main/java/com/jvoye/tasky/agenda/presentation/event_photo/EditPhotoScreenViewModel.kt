@@ -12,9 +12,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class EditPhotoScreenViewModel (
-    private val localPhotoPath: String?,
-    private val photoUrl: String?,
-    private val agendaRepository: AgendaRepository
+    private val photoPath: String,
+    private val photoIndex: Int
 ): ViewModel() {
 
     private val eventChannel = Channel<EditPhotoEvent>()
@@ -22,12 +21,13 @@ class EditPhotoScreenViewModel (
 
     private var hasLoadedInitialData = false
     private val _state = MutableStateFlow(EditPhotoState(
-        localPhotoPath = localPhotoPath
+        photoPath = photoPath,
+        photoIndex = photoIndex
     ))
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
-                // TODO: load photo ID
+
                 hasLoadedInitialData = true
             }
         }
@@ -39,18 +39,12 @@ class EditPhotoScreenViewModel (
 
     fun onAction(action: EditPhotoAction) {
         when(action) {
-            is EditPhotoAction.OnDeleteClick -> {
-
-            }
             EditPhotoAction.OnToggleEditMode -> {
                 _state.update { it.copy(
                     isEditMode = !it.isEditMode
                 )}
             }
-
             else -> Unit
         }
     }
-
-
 }

@@ -29,6 +29,7 @@ datastoreCore = "1.1.7"
 kotlinx-datetime = "0.7.1"
 coilCompose = "2.7.0"
 kotlinxCoroutines = "1.10.2"
+gson = "2.13.2"
 
 
 [libraries]
@@ -84,6 +85,7 @@ material3 = { group = "androidx.compose.material3", name = "material3", version.
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCore" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 
 [bundles]

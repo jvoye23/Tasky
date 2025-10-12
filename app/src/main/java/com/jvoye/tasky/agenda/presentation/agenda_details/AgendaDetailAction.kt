@@ -25,7 +25,7 @@ sealed interface AgendaDetailAction {
     data object OnToggleDeleteBottomSheet : AgendaDetailAction
     data class OnEditTextChanged(val editTextType: EditTextType, val value: String): AgendaDetailAction
     data class OnAddLocalPhotos(val photos: List<Uri>): AgendaDetailAction
-    data class OnPhotoClick(val localPhotoPath: String?, val photoUrl: String?): AgendaDetailAction
+    data class OnPhotoClick(val index: Int, val photoPath: String): AgendaDetailAction
     data class OnDeleteAttendee(val attendeeBase: AttendeeBase): AgendaDetailAction
     data class OnAddAttendee(val email: String): AgendaDetailAction
     data object OnToggleAddAttendeeBottomSheet : AgendaDetailAction
@@ -35,4 +35,5 @@ sealed interface AgendaDetailAction {
     data object OnToggleDatePickerDialog: AgendaDetailAction
     data object OnToggleToTimePickerDialog: AgendaDetailAction
     data object OnToggleToDatePickerDialog: AgendaDetailAction
+    data class OnDeletePhoto(val photoIndex: Int): AgendaDetailAction
 }

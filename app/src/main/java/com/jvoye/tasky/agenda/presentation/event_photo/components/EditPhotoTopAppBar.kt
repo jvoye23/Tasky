@@ -33,6 +33,7 @@ import kotlin.time.ExperimentalTime
 fun EditPhotoTopAppBar(
     title: String = "",
     onAction: (EditPhotoAction) -> Unit,
+    onDeletePhotoClick: (Int) -> Unit,
     state: EditPhotoState,
 
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -73,7 +74,12 @@ fun EditPhotoTopAppBar(
                 modifier = Modifier
                     .size(40.dp),
                 onClick = {
-                    onAction(editPhotoAction(state))
+                    if(state.isOnline && state.isEditMode) {
+                        onDeletePhotoClick(state.photoIndex)
+                    } else {
+                        onAction(editPhotoAction(state))
+                    }
+
                 },
                 content = {
                     Icon(
@@ -104,7 +110,6 @@ private fun editPhotoActionIcon(state: EditPhotoState): ImageVector = when {
 
 private fun editPhotoAction(state: EditPhotoState): EditPhotoAction = when {
     !state.isEditMode -> EditPhotoAction.OnToggleEditMode
-    state.isOnline -> EditPhotoAction.OnDeleteClick
     else -> EditPhotoAction.OnToggleEditMode
 }
 
@@ -123,6 +128,7 @@ private fun TopAppBarPreview() {
             EditPhotoTopAppBar(
                 title = "EDIT TASK",
                 onAction = {},
+                onDeletePhotoClick = {},
                 state = EditPhotoState(
                     isEditMode = true,
                     isOnline = false,

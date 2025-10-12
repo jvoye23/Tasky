@@ -7,10 +7,11 @@ import kotlinx.datetime.LocalDateTime
 sealed interface TaskyItemDetails {
     data class Event(
         val toTime: LocalDateTime,
-        val attendees: List<AttendeeBase>,
+        val eventAttendees: List<EventAttendee>,
         val photos: List<LocalPhotoInfo>,
         val newPhotosKeys: List<String> = emptyList(),
         val deletedPhotoKeys: List<String> = emptyList(),
+        val remotePhotos: List<RemotePhoto> = emptyList(),
         val isUserEventCreator: Boolean,
         val host: String,
         val isGoing: Boolean = true

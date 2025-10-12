@@ -41,6 +41,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_list.mappers.toUiText
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.model.detailsAsEvent
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Awaiting
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Done
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_More
@@ -198,11 +199,34 @@ fun AgendaItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                Text(
-                    text = getItemCardDateTimeString(taskyItem.time),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = agendaItemTextColor
-                )
+                if (taskyItem.type != TaskyType.EVENT){
+                    Text(
+                        text = getItemCardDateTimeString(taskyItem.time),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = agendaItemTextColor
+                    )
+                } else {
+                    Text(
+                        text = getItemCardDateTimeString(
+                            localDateTime = taskyItem.time),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = agendaItemTextColor
+                    )
+                    Text(
+                        text = " - ",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = agendaItemTextColor
+                    )
+
+                    Text(
+                        text = getItemCardDateTimeString(
+                            localDateTime = taskyItem.detailsAsEvent()?.toTime),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = agendaItemTextColor
+                    )
+                }
+
+
             }
         }
     }
@@ -221,12 +245,20 @@ private fun AgendaItemPreview() {
             AgendaItemCard(
                 taskyItem = TaskyItem(
                     id = "8",
-                    title = "Task 4 Title",
+                    title = "Event 4 Title",
                     description = "Task 4 description",
                     time = LocalDateTime(2023, 3, 1, 10, 0, 0, 0),
-                    type = TaskyType.TASK,
-                    details = TaskyItemDetails.Task(
-                        isDone = true
+                    type = TaskyType.EVENT,
+                    details = TaskyItemDetails.Event(
+                        toTime = LocalDateTime(2023, 3, 1, 12, 0, 0, 0),
+                        isGoing = true,
+                        eventAttendees = emptyList(),
+                        photos = emptyList(),
+                        newPhotosKeys = emptyList(),
+                        deletedPhotoKeys = emptyList(),
+                        remotePhotos = emptyList(),
+                        isUserEventCreator = true,
+                        host = "123",
                     ),
                     remindAt = LocalDateTime(2023, 1, 1, 11, 30),
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE

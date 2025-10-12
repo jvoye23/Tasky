@@ -36,6 +36,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun EditPhotoScreenRoot(
     onCloseAndCancelClick: () -> Unit,
+    onDeletePhotoClick: (Int) -> Unit,
     viewModel: EditPhotoScreenViewModel = koinViewModel ()
 ) {
     val context = LocalContext.current
@@ -72,17 +73,16 @@ fun EditPhotoScreenRoot(
                 else -> Unit
             }
             viewModel.onAction(action)
-        }
+        },
+        onDeletePhotoClick = onDeletePhotoClick
     )
-
-
-
 }
 
 @Composable
 fun EditPhotoScreen(
     state: EditPhotoState,
-    onAction: (EditPhotoAction) -> Unit
+    onAction: (EditPhotoAction) -> Unit,
+    onDeletePhotoClick: (Int) -> Unit,
     ) {
     Scaffold(
         modifier = Modifier
@@ -91,6 +91,7 @@ fun EditPhotoScreen(
         topBar = {
             EditPhotoTopAppBar(
                 onAction = onAction,
+                onDeletePhotoClick = onDeletePhotoClick,
                 state = state,
                 title = state.titleText
             )
@@ -105,7 +106,7 @@ fun EditPhotoScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SubcomposeAsyncImage(
-                model = state.photoUrl ?: state.localPhotoPath,
+                model = state.photoPath,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -157,7 +158,8 @@ private fun EditPhotoScreenPreview() {
                 isOnline = true,
                 titleText = "01 MARCH 2022"
             ),
-            onAction = {}
+            onAction = {},
+            onDeletePhotoClick = {}
         )
     }
 }

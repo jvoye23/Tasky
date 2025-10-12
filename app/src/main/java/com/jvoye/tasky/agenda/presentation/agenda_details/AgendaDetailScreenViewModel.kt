@@ -22,6 +22,7 @@ import com.jvoye.tasky.core.domain.SessionStorage
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.model.detailsAsEvent
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
@@ -99,6 +100,8 @@ class AgendaDetailScreenViewModel(
             savedStateHandle["isEditMode"] = state.isEditMode
             savedStateHandle["selectedDateMillis"] = state.selectedDateMillis
             savedStateHandle["notificationType"] = state.notificationType
+            savedStateHandle["selectedToDateMillis"] = state.selectedToDateMillis
+
 
         }
         .stateIn(
@@ -116,8 +119,19 @@ class AgendaDetailScreenViewModel(
             titleText = itemFromRepo.title,
             descriptionText = itemFromRepo.description,
             time = itemFromRepo.time,
+            toTime = itemFromRepo.detailsAsEvent()?.toTime!!,
+            remindAt = itemFromRepo.remindAt,
+            eventAttendees = itemFromRepo.detailsAsEvent()?.eventAttendees!!,
+            remotePhotos = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.url } ?: emptyList(),
+            remotePhotoInfos = itemFromRepo.detailsAsEvent()?.remotePhotos ?: emptyList(),
+
+            photoGridItems = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.toPhotoGridItem() } ?: emptyList(),
+
             selectedDateMillis = itemFromRepo.time.toEpochMilliseconds(),
-            notificationType = itemFromRepo.notificationType
+            selectedToDateMillis = itemFromRepo.detailsAsEvent()?.toTime?.toEpochMilliseconds() ?: 0,
+            notificationType = itemFromRepo.notificationType,
+            host = itemFromRepo.detailsAsEvent()?.host,
+            isUserEventCreator = itemFromRepo.detailsAsEvent()?.isUserEventCreator ?: false,
         ) }
     }
 
@@ -144,10 +158,11 @@ class AgendaDetailScreenViewModel(
 
             val eventDetails = TaskyItemDetails.Event(
                 toTime = state.value.toTime,
-                attendees = _state.value.attendees,
-                photos = _state.value.localPhotosInfo ,
+                eventAttendees = _state.value.eventAttendees,
+                photos = _state.value.newLocalPhotoInfos ,
                 isUserEventCreator = true,
                 host = sessionStorage.get()?.userId ?: "",
+                remotePhotos = emptyList()
             )
 
             val taskDetails = TaskyItemDetails.Task(
@@ -229,7 +244,9 @@ class AgendaDetailScreenViewModel(
                     val newLocalPhotoInfos: List<LocalPhotoInfo> = deferredLocalPhotoInfos.awaitAll()
                     _state.update {
                         it.copy(
-                            localPhotosInfo = it.localPhotosInfo + newLocalPhotoInfos
+                            newLocalPhotoInfos = it.newLocalPhotoInfos + newLocalPhotoInfos,
+                            photoGridItems = it.photoGridItems + newLocalPhotoInfos.map { it.toPhotoGridItem() }
+
                         )
                     }
                 }
@@ -464,7 +481,7 @@ class AgendaDetailScreenViewModel(
                 val invitedUser = _state.value.invitedAttendee ?: return
                 _state.update {
                     it.copy(
-                        attendees = it.attendees + invitedUser,
+                        lookupAttendees = it.lookupAttendees + invitedUser,
                         isAddAttendeeBottomSheetVisible = false,
                         invitedAttendee = null,
                     )
@@ -474,6 +491,22 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.OnChangeAttendeeFilter -> {
                 _state.update { it.copy(
                     attendeeFilter = action.attendeeFilter
+                ) }
+            }
+
+            is AgendaDetailAction.OnDeletePhoto -> {
+                val photoGridItems = _state.value.photoGridItems
+                val photo = photoGridItems[action.photoIndex]
+
+                if (photo.remoteKey != null) {
+                    _state.update {
+                        it.copy(
+                            deletedPhotoKeys = it.deletedPhotoKeys + photo.remoteKey
+                        )
+                    }
+                }
+                _state.update { it.copy(
+                    photoGridItems = it.photoGridItems - photoGridItems[action.photoIndex]
                 ) }
             }
 

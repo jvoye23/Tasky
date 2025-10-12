@@ -63,7 +63,6 @@ fun TaskyItem.toReminderEntity(): ReminderEntity {
 }
 
 fun EventEntity.toTaskyItem(): TaskyItem {
-    //TODO: parse attendees and photos
     return TaskyItem(
         id = id,
         title = title,
@@ -72,10 +71,11 @@ fun EventEntity.toTaskyItem(): TaskyItem {
         time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
         details = TaskyItemDetails.Event(
             toTime = convertIsoStringToSystemLocalDateTime(toDateTimeUtc),
-            attendees = emptyList(),
+            eventAttendees = attendees,
             photos = emptyList(),
             isUserEventCreator = isUserEventCreator,
-            host = host
+            host = host,
+            remotePhotos = remotePhotos
         ),
         remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc)
     )
@@ -90,8 +90,8 @@ fun TaskyItem.toEventEntity(): EventEntity {
         description = description,
         dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
         toDateTimeUtc = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
-        attendees = details.attendees.toString(),
-        photos = details.photos.toString(),
+        attendees = details.eventAttendees,
+        remotePhotos = details.remotePhotos,
         remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString(),
         isUserEventCreator = details.isUserEventCreator,
         host = details.host

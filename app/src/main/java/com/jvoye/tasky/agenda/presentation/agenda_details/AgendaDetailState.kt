@@ -7,7 +7,8 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFil
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.core.domain.model.AttendeeBase
-import com.jvoye.tasky.core.domain.model.EventPhoto
+import com.jvoye.tasky.core.domain.model.EventAttendee
+import com.jvoye.tasky.core.domain.model.RemotePhoto
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.LookupAttendee
 import com.jvoye.tasky.core.domain.model.TaskyItem
@@ -52,8 +53,8 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
 
     val isSavingTaskyItem: Boolean = false,
     val isDeletingTaskyItem: Boolean = false,
-    val localPhotos: List<String> = emptyList<String>(),
     val remotePhotos: List<String> = emptyList<String>(),
+    val remotePhotoInfos: List<RemotePhoto> = emptyList(),
     val isOnline: Boolean = true,
 
     val host: String? = null,
@@ -62,9 +63,10 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val toTime: LocalDateTime = (getNextHalfMarkLocalTime().toInstant(TimeZone.currentSystemDefault()) + 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
     val isFromTimeExpanded: Boolean = false,
     val isToTimeExpanded: Boolean = false,
-    val attendees: List<AttendeeBase> = emptyList<AttendeeBase>(),
-    val photoKeys: List<String> = emptyList<String>(),
-    val eventPhotos: List<EventPhoto> = emptyList<EventPhoto>(),
+    val eventAttendees: List<EventAttendee> = emptyList<EventAttendee>(),
+    val lookupAttendees: List<AttendeeBase> = emptyList<AttendeeBase>(),
+    val deletedPhotoKeys: List<String> = emptyList<String>(),
+    val eventPhotos: List<RemotePhoto> = emptyList<RemotePhoto>(),
 
     val isAddAttendeeBottomSheetVisible: Boolean = false,
     val attendeeFilter: AttendeeFilterType = AttendeeFilterType.ALL,
@@ -76,6 +78,29 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val invitedAttendee: LookupAttendee? = null,
     val isDone: Boolean = false,
 
-    val localPhotosInfo: List<LocalPhotoInfo> = emptyList<LocalPhotoInfo>()
+    val newLocalPhotoInfos: List<LocalPhotoInfo> = emptyList<LocalPhotoInfo>(),
 
+    val photoGridItems: List<PhotoGridItem> = emptyList<PhotoGridItem>()
+
+)
+
+data class PhotoGridItem(
+    val remoteKey: String?,
+    val localPhotoKey: String?,
+    val url: String?,
+    val localPath: String?
+)
+
+fun LocalPhotoInfo.toPhotoGridItem() = PhotoGridItem(
+    remoteKey = null,
+    url = null,
+    localPhotoKey = localPhotoKey,
+    localPath = filePath
+)
+
+fun RemotePhoto.toPhotoGridItem() = PhotoGridItem(
+    remoteKey = key,
+    url = url,
+    localPhotoKey = null,
+    localPath = null,
 )

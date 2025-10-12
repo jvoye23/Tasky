@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
+import com.jvoye.tasky.agenda.presentation.agenda_details.PhotoGridItem
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Offline
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
@@ -43,7 +44,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 @Composable
 fun AgendaItemDetailPhotoPicker(
     modifier: Modifier = Modifier,
-    photos: List<String> = emptyList(),
+    photos: List<PhotoGridItem> = emptyList(),
     onAddPhotosClick: () -> Unit,
     onAction: (AgendaDetailAction) -> Unit,
     isOnline: Boolean,
@@ -73,13 +74,14 @@ fun AgendaItemDetailPhotoPicker(
                     maxLines = 2
                 ) {
                     // Display a box for each photo.
-                    photos.forEach { photoUri ->
+                    photos.forEach { photoPath ->
                         PhotoBox(
                             // weight(1f) makes each item in a row take up equal space.
                             modifier = Modifier.weight(1f),
                             onAddPhotosClick = onAddPhotosClick,
                             onAction = onAction,
-                            localPhotoPath = photoUri
+                            photoPath = photoPath.url ?: photoPath.localPath,
+                            index = photos.indexOf(photoPath)
 
                         )
                     }
@@ -93,7 +95,8 @@ fun AgendaItemDetailPhotoPicker(
                                 modifier = Modifier.weight(1f),
                                 onAddPhotosClick = onAddPhotosClick,
                                 onAction = onAction,
-                                localPhotoPath = "" // Empty URI signifies the "add" button
+                                photoPath = null,// Null signifies the "add" button
+                                index = 0
                             )
                             // Fills the rest with invisible spacers to maintain alignment.
                             repeat(remainingSlots - 1) {
@@ -117,7 +120,8 @@ private fun PhotoBox(
     modifier: Modifier = Modifier,
     onAddPhotosClick: () -> Unit,
     onAction: (AgendaDetailAction) -> Unit,
-    localPhotoPath: String
+    photoPath: String?,
+    index: Int
 ) {
     Box(
         modifier = modifier
@@ -130,16 +134,16 @@ private fun PhotoBox(
             .size(65.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (localPhotoPath.isNotBlank()) {
+        if (!photoPath.isNullOrBlank()) {
             SubcomposeAsyncImage(
-                model = localPhotoPath,
+                model = photoPath,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(5.dp))
                     .padding(2.dp)
-                    .clickable { onAction(AgendaDetailAction.OnPhotoClick(localPhotoPath = localPhotoPath, photoUrl = null /*"https://assets.dunked.com/assets/prod/22884/p17s2tfgc31jte13d51pea1l2oblr3.png))"*/)) },
+                    .clickable { onAction(AgendaDetailAction.OnPhotoClick(index = index,  photoPath = photoPath)) },
                 loading = {
                     Box(
                         modifier = Modifier
@@ -236,12 +240,7 @@ private fun PhotoSectionHeader(
 private fun AgendaItemDetailPhotoPickerPreview() {
     TaskyTheme {
         AgendaItemDetailPhotoPicker(
-            photos = listOf(
-                //"1", "2", "3", "4", "5", "6", "7", "8", "9"
-                "1", "2", "3", "4", "5", "6"
-                //"1", "2", "3", "4"
-                //"1"
-            ),
+            photos = emptyList(),
             onAddPhotosClick = {},
             onAction = {},
             isOnline = true,

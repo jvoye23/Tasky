@@ -11,6 +11,7 @@ import com.jvoye.tasky.core.domain.model.EventAttendee
 import com.jvoye.tasky.core.domain.model.RemotePhoto
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.LookupAttendee
+import com.jvoye.tasky.core.domain.model.PhotoGridItem
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
@@ -59,12 +60,15 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
 
     val host: String? = null,
     val isUserEventCreator: Boolean = true,
+    val currentSessionUserId: String = "",
+    val isGoing: Boolean = true,
     val fromTime: LocalDateTime = getNextHalfMarkLocalTime(),
     val toTime: LocalDateTime = (getNextHalfMarkLocalTime().toInstant(TimeZone.currentSystemDefault()) + 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
     val isFromTimeExpanded: Boolean = false,
     val isToTimeExpanded: Boolean = false,
     val eventAttendees: List<EventAttendee> = emptyList<EventAttendee>(),
     val lookupAttendees: List<AttendeeBase> = emptyList<AttendeeBase>(),
+    val allAttendees: List<AttendeeBase> = eventAttendees + lookupAttendees,
     val deletedPhotoKeys: List<String> = emptyList<String>(),
     val eventPhotos: List<RemotePhoto> = emptyList<RemotePhoto>(),
 
@@ -79,28 +83,5 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isDone: Boolean = false,
 
     val newLocalPhotoInfos: List<LocalPhotoInfo> = emptyList<LocalPhotoInfo>(),
-
     val photoGridItems: List<PhotoGridItem> = emptyList<PhotoGridItem>()
-
-)
-
-data class PhotoGridItem(
-    val remoteKey: String?,
-    val localPhotoKey: String?,
-    val url: String?,
-    val localPath: String?
-)
-
-fun LocalPhotoInfo.toPhotoGridItem() = PhotoGridItem(
-    remoteKey = null,
-    url = null,
-    localPhotoKey = localPhotoKey,
-    localPath = filePath
-)
-
-fun RemotePhoto.toPhotoGridItem() = PhotoGridItem(
-    remoteKey = key,
-    url = url,
-    localPhotoKey = null,
-    localPath = null,
 )

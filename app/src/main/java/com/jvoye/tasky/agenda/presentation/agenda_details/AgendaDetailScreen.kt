@@ -72,6 +72,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Chevron_Right
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Offline
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import kotlinx.datetime.LocalDateTime
@@ -172,8 +173,8 @@ private fun AgendaDetailScreenContent(
     onAction: (AgendaDetailAction) -> Unit,
     datePickerState: DatePickerState
 ) {
-    val groupedAttendees: Map<Boolean, List<AttendeeBase>>  = remember(state.lookupAttendees) {
-        state.lookupAttendees.groupBy { it.isGoing }
+    val groupedAttendees: Map<Boolean, List<AttendeeBase>>  = remember(state.allAttendees) {
+        state.allAttendees.groupBy { it.isGoing }
     }
 
     Column(
@@ -669,6 +670,7 @@ private fun EventPhotoPickerSection (
         }
     AgendaItemDetailPhotoPicker(
         modifier = modifier,
+        //photos = state.photoGridItems,
         photos = state.photoGridItems,
         onAddPhotosClick = {
             if (numberOfPhotosAlreadySelected < 9) {
@@ -692,7 +694,13 @@ private fun DeleteButtonSection (
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onAction(AgendaDetailAction.OnToggleDeleteBottomSheet) }                ,
+            .clickable {
+                if(state.currentSessionUserId == state.host) {
+                    onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)
+                } else {
+                    onAction(AgendaDetailAction.OnToggleEventVisit)
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally
         ) {
         HorizontalDivider(
@@ -701,17 +709,34 @@ private fun DeleteButtonSection (
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.surfaceHigher
         )
-        Text(
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 24.dp),
-            text = when(state.taskyItem.type){
-                TaskyType.EVENT -> stringResource(R.string.delete_event)
-                TaskyType.TASK -> stringResource(R.string.delete_task)
-                TaskyType.REMINDER -> stringResource(R.string.delete_reminder)
-            },
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.error
-        )
+
+        if(state.currentSessionUserId == state.host) {
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 24.dp),
+                text = when(state.taskyItem.type){
+                    TaskyType.EVENT -> stringResource(R.string.delete_event)
+                    TaskyType.TASK -> stringResource(R.string.delete_task)
+                    TaskyType.REMINDER -> stringResource(R.string.delete_reminder)
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        } else {
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 24.dp),
+                text = when(state.isGoing){
+                    true -> stringResource(R.string.leave_event)
+                    false -> stringResource(R.string.join_event)
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = when(state.isGoing) {
+                    true -> MaterialTheme.colorScheme.error
+                    false -> MaterialTheme.colorScheme.success
+                }
+            )
+        }
     }
 }
 
@@ -825,7 +850,7 @@ private fun LazyListScope.attendeeList(
         }
 
         AttendeeFilterType.GOING -> {
-            val goingAttendees = state.lookupAttendees.filter { it.isGoing }
+            val goingAttendees = state.allAttendees.filter { it.isGoing }
             if (goingAttendees.isNotEmpty()) {
                 stickyHeader {
                     AttendeeListHeader(title = stringResource(R.string.going))
@@ -844,7 +869,7 @@ private fun LazyListScope.attendeeList(
         }
 
         AttendeeFilterType.NOT_GOING -> {
-            val notGoingAttendees = state.lookupAttendees.filter { !it.isGoing }
+            val notGoingAttendees = state.allAttendees.filter { !it.isGoing }
             if (notGoingAttendees.isNotEmpty()) {
                 stickyHeader {
                     AttendeeListHeader(title = stringResource(R.string.not_going))

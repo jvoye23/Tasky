@@ -35,11 +35,10 @@ val agendaDetailModule = module {
         )
     }
 
-    viewModel { (localPhotoPath: String?, photoUrl: String?) ->
+    viewModel { (photoPath: String, photoIndex: Int) ->
         EditPhotoScreenViewModel(
-            localPhotoPath = localPhotoPath,
-            photoUrl = photoUrl,
-            agendaRepository = get()
+            photoPath = photoPath,
+            photoIndex = photoIndex
         )
     }
 }

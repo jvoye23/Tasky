@@ -1,11 +1,52 @@
 package com.jvoye.tasky.core.database.mappers
 
 import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.jvoye.tasky.core.domain.model.AttendeeBase
+import com.jvoye.tasky.core.domain.model.EventAttendee
+import com.jvoye.tasky.core.domain.model.RemotePhoto
 
-import com.jvoye.tasky.core.domain.model.Attendee
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
+class RoomConverters {
+    private val gson = Gson()
+
+    // Converts a List of photos into a JSON string
+    @TypeConverter
+    fun fromRemotePhotoListToJsonString(eventPhotos: List<RemotePhoto>?): String? {
+        if (eventPhotos == null) {
+            return null
+        }
+        return gson.toJson(eventPhotos)
+    }
+
+    @TypeConverter
+    fun toRemotePhotoList(json: String?): List<RemotePhoto>? {
+        if (json.isNullOrBlank()) {
+            return null
+        }
+        val type = object : TypeToken<List<RemotePhoto>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    @TypeConverter
+    fun fromEventAttendeeListToJsonString(attendees: List<EventAttendee>?): String? {
+        if (attendees == null) {
+            return null
+        }
+        return gson.toJson(attendees)
+    }
+
+    @TypeConverter
+    fun toEventAttendeeList(json: String?): List<EventAttendee>? {
+        if (json.isNullOrBlank()) {
+            return null
+        }
+        val type = object : TypeToken<List<EventAttendee>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+
+}
 
 /*class RoomConverters {
     @TypeConverter

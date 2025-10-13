@@ -51,8 +51,8 @@ data class EditTextNavKey(
 
 @Serializable
 data class EditPhotoNavKey(
-    val localPhotoPath: String,
-    val photoUrl: String?
+    val photoPath: String,
+    val photoIndex: Int,
 ): NavKey
 
 @Composable
@@ -64,6 +64,7 @@ fun NavigationRoot(
         if (isLoggedIn) AgendaNavKey else RegisterNavKey
     )
     val editTextCallback = remember { mutableStateOf<((String) -> Unit)?>(null) }
+    val deletePhotoCallback = remember { mutableStateOf<((Int) -> Unit)?>(null) }
 
     NavDisplay(
         modifier = modifier,
@@ -162,10 +163,17 @@ fun NavigationRoot(
                                     editTextType = editTextType
                                     ))
                             },
-                            onEditPhotoClick = { localPhotoPath, photoUrl ->
+                            onEditPhotoClick = { photoPath, photoIndex ->
+                                deletePhotoCallback.value = { photoIndex ->
+                                    detailVm.onAction(
+                                        action = AgendaDetailAction.OnDeletePhoto(
+                                            photoIndex = photoIndex
+                                        )
+                                    )
+                                }
                                 backStack.add(EditPhotoNavKey(
-                                    localPhotoPath = localPhotoPath ?: "",
-                                    photoUrl = photoUrl
+                                    photoPath = photoPath,
+                                    photoIndex = photoIndex
                                 ))
                             }
                         )
@@ -193,7 +201,11 @@ fun NavigationRoot(
                         EditPhotoScreenRoot(
                             onCloseAndCancelClick = { backStack.remove(key) },
                             viewModel = koinViewModel {
-                                parametersOf(key.localPhotoPath, key.photoUrl)
+                                parametersOf(key.photoPath, key.photoIndex)
+                            },
+                            onDeletePhotoClick = { photoIndex ->
+                                deletePhotoCallback.value?.invoke(photoIndex)
+                                backStack.remove(key)
                             }
                         )
                     }

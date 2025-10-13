@@ -123,11 +123,11 @@ class KtorRemoteTaskyItemDataSource(
     }
 
     override suspend fun confirmPhotosUpload(taskyItemId: String, confirmUploadRequest: ConfirmUploadRequest
-    ): Result<TaskyItem, DataError.Network> {
+    ): Result<EventInfoDto, DataError.Network> {
         return httpClient.post<ConfirmUploadRequest, EventInfoDto>(
             route = "/event/$taskyItemId/confirm-upload",
             body = confirmUploadRequest
-        ).map { it.toTaskyItem() }
+        )
     }
 
     override suspend fun uploadPhoto(url: String,photo: ByteArray): EmptyResult<DataError.Network> {

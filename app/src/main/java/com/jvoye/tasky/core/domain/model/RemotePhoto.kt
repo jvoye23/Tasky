@@ -1,6 +1,6 @@
 package com.jvoye.tasky.core.domain.model
 
-data class EventPhoto(
+data class RemotePhoto(
     val key: String,
     val url: String
 )

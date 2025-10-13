@@ -56,7 +56,6 @@ class AgendaViewModel(
                 getDateRowEntries()
                 getAgendaListTitle()
                 getAgendaItems()
-                //agendaRepository.deleteTaskyItem(taskyType = TaskyType.EVENT, taskyItemId = "044ba82c-9160-478a-b3f4-e97121fbd5cd")
                 agendaRepository.fetchFullAgenda()
                 hasLoadedInitialData = true
             }
@@ -227,7 +226,6 @@ class AgendaViewModel(
         }
 
         _state.update { it.copy(
-            currentDate = today,
             dateRowEntries = entries
         ) }
     }

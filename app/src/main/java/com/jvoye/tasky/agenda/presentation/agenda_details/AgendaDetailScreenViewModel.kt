@@ -3,6 +3,7 @@
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
 import android.net.Uri
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -20,9 +21,11 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTim
 import com.jvoye.tasky.auth.domain.UserDataValidator
 import com.jvoye.tasky.core.domain.SessionStorage
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
+import com.jvoye.tasky.core.domain.model.PhotoGridItem
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.model.detailsAsEvent
+import com.jvoye.tasky.core.domain.model.toPhotoGridItemTwo
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
@@ -87,7 +90,7 @@ class AgendaDetailScreenViewModel(
                     savedStateHandle["itemId"] = taskyItemId
 
                 }
-
+                getSessionUserId()
                 getTypeAndEditMode(isEdit, taskyType)
                 validateAttendeeEmailInput()
 
@@ -101,8 +104,6 @@ class AgendaDetailScreenViewModel(
             savedStateHandle["selectedDateMillis"] = state.selectedDateMillis
             savedStateHandle["notificationType"] = state.notificationType
             savedStateHandle["selectedToDateMillis"] = state.selectedToDateMillis
-
-
         }
         .stateIn(
             viewModelScope,
@@ -121,17 +122,16 @@ class AgendaDetailScreenViewModel(
             time = itemFromRepo.time,
             toTime = itemFromRepo.detailsAsEvent()?.toTime!!,
             remindAt = itemFromRepo.remindAt,
-            eventAttendees = itemFromRepo.detailsAsEvent()?.eventAttendees!!,
+            allAttendees = itemFromRepo.detailsAsEvent()?.eventAttendees ?: emptyList(),
             remotePhotos = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.url } ?: emptyList(),
             remotePhotoInfos = itemFromRepo.detailsAsEvent()?.remotePhotos ?: emptyList(),
-
-            photoGridItems = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.toPhotoGridItem() } ?: emptyList(),
-
+            photoGridItems = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.toPhotoGridItemTwo() } ?: emptyList(),
             selectedDateMillis = itemFromRepo.time.toEpochMilliseconds(),
             selectedToDateMillis = itemFromRepo.detailsAsEvent()?.toTime?.toEpochMilliseconds() ?: 0,
             notificationType = itemFromRepo.notificationType,
             host = itemFromRepo.detailsAsEvent()?.host,
             isUserEventCreator = itemFromRepo.detailsAsEvent()?.isUserEventCreator ?: false,
+            isGoing = itemFromRepo.detailsAsEvent()?.isGoing ?: false
         ) }
     }
 
@@ -142,6 +142,13 @@ class AgendaDetailScreenViewModel(
             taskyItem = it.taskyItem.copy(
                 type = type
             )
+        ) }
+    }
+
+    private suspend fun getSessionUserId(){
+        val id = sessionStorage.get()?.userId ?: ""
+        _state.update { it.copy(
+            currentSessionUserId = id
         ) }
     }
 
@@ -159,10 +166,14 @@ class AgendaDetailScreenViewModel(
             val eventDetails = TaskyItemDetails.Event(
                 toTime = state.value.toTime,
                 eventAttendees = _state.value.eventAttendees,
+                lookupAttendees = _state.value.lookupAttendees,
                 photos = _state.value.newLocalPhotoInfos ,
                 isUserEventCreator = true,
                 host = sessionStorage.get()?.userId ?: "",
-                remotePhotos = emptyList()
+                remotePhotos = _state.value.remotePhotoInfos,
+                newPhotosKeys = _state.value.newLocalPhotoInfos.map { it.localPhotoKey },
+                deletedPhotoKeys = _state.value.deletedPhotoKeys,
+                isGoing = _state.value.isGoing,
             )
 
             val taskDetails = TaskyItemDetails.Task(
@@ -185,8 +196,6 @@ class AgendaDetailScreenViewModel(
                 details = details,
                 notificationType = _state.value.notificationType,
             )
-
-
 
             when(val result = if (isTaskyItemIdBlank) {
                 agendaRepository.upsertTaskyItem(taskyItem)
@@ -245,7 +254,7 @@ class AgendaDetailScreenViewModel(
                     _state.update {
                         it.copy(
                             newLocalPhotoInfos = it.newLocalPhotoInfos + newLocalPhotoInfos,
-                            photoGridItems = it.photoGridItems + newLocalPhotoInfos.map { it.toPhotoGridItem() }
+                            photoGridItems  = it.photoGridItems + newLocalPhotoInfos.map { it.toPhotoGridItemTwo() }
 
                         )
                     }
@@ -339,8 +348,6 @@ class AgendaDetailScreenViewModel(
                 ) }
             }
 
-
-
             is AgendaDetailAction.ConfirmDateSelection -> {
                 val currentSelectedTime = _state.value.time.time
                 val newDate = action.selectedDateMillis.toLocalDateTime().date
@@ -428,20 +435,14 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.OnNotificationItemClick -> {
                 val time = _state.value.time
                 val timeInstant = time.toInstant(TimeZone.currentSystemDefault())
-
-                _state.update {
-                    it.copy(
-                        notificationType = action.notificationType,
-                        isNotificationDropdownExpanded = false
-                    )
-                }
-
                 val remindAt = (timeInstant - action.notificationType.offset)
                     .toLocalDateTime(TimeZone.currentSystemDefault())
 
                 _state.update {
                     it.copy(
-                        remindAt = remindAt
+                        remindAt = remindAt,
+                        notificationType = action.notificationType,
+                        isNotificationDropdownExpanded = false
                     )
                 }
             }
@@ -468,12 +469,10 @@ class AgendaDetailScreenViewModel(
             is AgendaDetailAction.OnAddLocalPhotos -> {
                 onImagesSelected(action.photos)
             }
-            is AgendaDetailAction.OnDeleteAttendee -> {
 
-            }
             AgendaDetailAction.OnToggleAddAttendeeBottomSheet -> {
                 _state.update { it.copy(
-                    isAddAttendeeBottomSheetVisible = !it.isAddAttendeeBottomSheetVisible
+                    isAddAttendeeBottomSheetVisible = !it.isAddAttendeeBottomSheetVisible,
                 ) }
             }
 
@@ -482,10 +481,19 @@ class AgendaDetailScreenViewModel(
                 _state.update {
                     it.copy(
                         lookupAttendees = it.lookupAttendees + invitedUser,
+                        allAttendees = it.allAttendees + invitedUser,
                         isAddAttendeeBottomSheetVisible = false,
                         invitedAttendee = null,
+
                     )
                 }
+            }
+            is AgendaDetailAction.OnDeleteAttendee -> {
+                val currentAttendees = state.value.allAttendees
+                _state.update { it.copy(
+                    allAttendees = currentAttendees - action.attendeeBase
+                ) }
+
             }
 
             is AgendaDetailAction.OnChangeAttendeeFilter -> {
@@ -495,18 +503,27 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.OnDeletePhoto -> {
-                val photoGridItems = _state.value.photoGridItems
-                val photo = photoGridItems[action.photoIndex]
-
-                if (photo.remoteKey != null) {
-                    _state.update {
-                        it.copy(
-                            deletedPhotoKeys = it.deletedPhotoKeys + photo.remoteKey
-                        )
+                val photos = _state.value.photoGridItems
+                val item = photos[action.photoIndex]
+                when(item) {
+                    is PhotoGridItem.Remote -> {
+                        _state.update {
+                            it.copy(
+                                deletedPhotoKeys = it.deletedPhotoKeys + item.key,
+                                photoGridItems = it.photoGridItems - item
+                            )
+                        }
+                    }
+                    is PhotoGridItem.Local -> {
+                        _state.update { it.copy(
+                            photoGridItems = it.photoGridItems - item
+                        ) }
                     }
                 }
+            }
+            is AgendaDetailAction.OnToggleEventVisit -> {
                 _state.update { it.copy(
-                    photoGridItems = it.photoGridItems - photoGridItems[action.photoIndex]
+                    isGoing = !it.isGoing
                 ) }
             }
 

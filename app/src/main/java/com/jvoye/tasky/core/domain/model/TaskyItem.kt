@@ -8,6 +8,7 @@ sealed interface TaskyItemDetails {
     data class Event(
         val toTime: LocalDateTime,
         val eventAttendees: List<EventAttendee>,
+        val lookupAttendees: List<AttendeeBase> = emptyList(),
         val photos: List<LocalPhotoInfo>,
         val newPhotosKeys: List<String> = emptyList(),
         val deletedPhotoKeys: List<String> = emptyList(),

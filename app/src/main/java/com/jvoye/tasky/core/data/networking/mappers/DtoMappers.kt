@@ -222,7 +222,7 @@ fun TaskyItem.toUpdateEventRequest(): UpdateEventRequest {
         from = time.toInstant(TimeZone.UTC).toString(),
         to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
         remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
-        attendeeIds = details.eventAttendees.map { it.userId },
+        attendeeIds = details.eventAttendees.map { it.userId } + details.lookupAttendees.map { it.userId },
         newPhotoKeys = details.newPhotosKeys,
         deletedPhotoKeys = details.deletedPhotoKeys,
         isGoing = details.isGoing,

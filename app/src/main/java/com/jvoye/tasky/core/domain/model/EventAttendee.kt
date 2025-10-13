@@ -2,7 +2,7 @@ package com.jvoye.tasky.core.domain.model
 
 
 /**
- * Represents the Domain model for a LookupAttendee
+ * Represents the Domain model for an Event Attendee
  */
 data class EventAttendee (
     override val userId: String,

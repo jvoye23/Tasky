@@ -19,12 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailState
 import com.jvoye.tasky.core.domain.model.AttendeeBase
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Bin
+import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.headlineXSmall
 import com.jvoye.tasky.core.presentation.designsystem.theme.labelXSmall
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
@@ -69,14 +71,14 @@ fun AttendeeListItem (
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.weight(1f))
-        if (state.isUserEventCreator) {
+        if ((state.isUserEventCreator && attendeeBase.userId == state.currentSessionUserId) || (attendeeBase.userId == state.host)) {
             Text(
                 text = stringResource(R.string.creator),
                 style = MaterialTheme.typography.labelXSmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
-        if(state.isEditMode && !state.isUserEventCreator) {
+        if(state.isEditMode && (state.currentSessionUserId == state.host ) && (attendeeBase.userId != state.host)) {
             IconButton(
                 modifier = Modifier
                     .size(32.dp),

@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.presentation.agenda_details.AgendaDetailAction
-import com.jvoye.tasky.agenda.presentation.agenda_details.PhotoGridItem
+import com.jvoye.tasky.core.domain.model.PhotoGridItem
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Offline
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_plus
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
@@ -80,7 +80,8 @@ fun AgendaItemDetailPhotoPicker(
                             modifier = Modifier.weight(1f),
                             onAddPhotosClick = onAddPhotosClick,
                             onAction = onAction,
-                            photoPath = photoPath.url ?: photoPath.localPath,
+                            //photoPath = photoPath.url ?: photoPath.localPath,
+                            photoPath = photoPath.path,
                             index = photos.indexOf(photoPath)
 
                         )

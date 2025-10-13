@@ -36,4 +36,5 @@ sealed interface AgendaDetailAction {
     data object OnToggleToTimePickerDialog: AgendaDetailAction
     data object OnToggleToDatePickerDialog: AgendaDetailAction
     data class OnDeletePhoto(val photoIndex: Int): AgendaDetailAction
+    data object OnToggleEventVisit: AgendaDetailAction
 }

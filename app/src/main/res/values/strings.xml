@@ -85,4 +85,6 @@
     <string name="same_user_not_allowed">You can\'t add yourself as an attendee</string>
     <string name="invalid_email_format">Invalid email format</string>
     <string name="select_to_date">Select a To date</string>
+    <string name="leave_event">LEAVE EVENT</string>
+    <string name="join_event">JOIN EVENT</string>
 </resources>

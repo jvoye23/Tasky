@@ -30,3 +30,5 @@ val DarkModeLink = Color(color = 0xFFB1B8FE)
 val BrandSecondary = Color(color = 0xFF279F70)
 val BrandTertiary = Color(color = 0xFFCAEF45)
 val BrandSupplementary = Color(color = 0xFFFDEFA8)
+
+val TaskyBackgroundColor = Color(color = 0xFF279F70)

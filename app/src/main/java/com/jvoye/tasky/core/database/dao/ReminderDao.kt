@@ -6,6 +6,7 @@ import androidx.room.Upsert
 import com.jvoye.tasky.core.database.entity.ReminderEntity
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 
 @Dao
 interface ReminderDao {
@@ -20,6 +21,12 @@ interface ReminderDao {
 
     @Query("SELECT * FROM reminders ORDER BY dateTimeUtc DESC")
     fun getReminders(): Flow<List<ReminderEntity>>
+
+    /**
+     * Finds all entries for a specific LocalDate String like "2025-10-16"
+     */
+    @Query("SELECT * FROM reminders WHERE dateTimeUtc LIKE :localDateString ||'%'")
+    fun getRemindersForDate(localDateString: String): Flow<List<ReminderEntity>>
 
     @Query("DELETE FROM reminders WHERE id = :id")
     suspend fun deleteReminder(id: String)

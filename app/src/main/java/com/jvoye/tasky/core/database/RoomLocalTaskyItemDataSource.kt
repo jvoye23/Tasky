@@ -20,6 +20,7 @@ import com.jvoye.tasky.core.domain.util.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.LocalDate
 import kotlin.time.ExperimentalTime
 
 class RoomLocalTaskyItemDataSource(
@@ -48,6 +49,27 @@ class RoomLocalTaskyItemDataSource(
             (tasks + reminders + events).sortedBy { it.time }
         }
 
+    }
+
+    override fun getTaskyItemsForDate(localDateString: String): Flow<List<TaskyItem>> {
+        val tasks = taskDao.getTasksForDate(localDateString)
+            .map { taskEntities ->
+                taskEntities.map { it.toTaskyItem() }
+             }
+
+        val reminders = reminderDao.getRemindersForDate(localDateString)
+            .map { reminderEntities ->
+                reminderEntities.map { it.toTaskyItem() }
+            }
+
+        val events = eventDao.getEventsForDate(localDateString)
+            .map { eventEntities ->
+                eventEntities.map { it.toTaskyItem() }
+            }
+
+        return combine(tasks, reminders, events) { tasks, reminders, events ->
+            (tasks + reminders + events).sortedBy { it.time }
+        }
     }
 
     override suspend fun getTaskyItem(taskyType: TaskyType, taskyItemId: String): TaskyItem {

@@ -1,15 +1,11 @@
 package com.jvoye.tasky.core.data
 
-import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
-import com.jvoye.tasky.core.domain.model.EventAttendee
-import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
+import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
-import kotlinx.datetime.LocalDateTime
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -18,14 +14,16 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         id = "1",
         title = "Task 1 Title",
         description = "Task 1 description",
-        time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+        time = Clock.System.now(),
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(
             isDone = false
         ),
-        remindAt = LocalDateTime(2025, 11, 1, 10, 0),
+        remindAt = Clock.System.now() - 30.minutes,
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
+)
+/*
     TaskyItem(
         id = "2",
         title = "Task 2 Title",
@@ -226,4 +224,4 @@ val testTaskyItems = mutableListOf<TaskyItem>(
         remindAt = LocalDateTime(2025, 11, 1, 10, 0),
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
-)
+)*/

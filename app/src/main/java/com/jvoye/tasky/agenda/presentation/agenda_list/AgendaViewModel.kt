@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.AgendaRepository
-import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
+import com.jvoye.tasky.core.domain.notification.NotificationService
 import com.jvoye.tasky.core.domain.util.Result
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import com.jvoye.tasky.core.presentation.mappers.toUserUi
@@ -38,7 +38,8 @@ import kotlin.time.ExperimentalTime
 class AgendaViewModel(
     private val encryptedSessionDataStore: EncryptedSessionDataStore,
     private val authRepository: AuthRepository,
-    private val agendaRepository: AgendaRepository
+    private val agendaRepository: AgendaRepository,
+    private val notificationService: NotificationService
 ): ViewModel() {
 
     private val eventChannel = Channel<AgendaEvent>()
@@ -258,6 +259,8 @@ class AgendaViewModel(
                     eventChannel.send(AgendaEvent.Error(result.error.asUiText()))
                 }
                 is Result.Success -> {
+                    //TODO Cancel all notification Ids
+                    notificationService.cancelAllNotifications(notificationIds = emptyList())
                     eventChannel.send(AgendaEvent.LogoutSuccess)
                 }
             }

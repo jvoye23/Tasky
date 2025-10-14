@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.core.database.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
@@ -10,6 +12,7 @@ import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 fun TaskEntity.toTaskyItem(): TaskyItem {
     return TaskyItem(
@@ -17,11 +20,11 @@ fun TaskEntity.toTaskyItem(): TaskyItem {
         title = title,
         description = description,
         type = TaskyType.TASK,
-        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
+        time = Instant.parse(dateTimeUtc),
         details = TaskyItemDetails.Task(
             isDone = isDone
         ),
-        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc)
+        remindAt = Instant.parse(remindAtUtc)
     )
 }
 
@@ -32,9 +35,9 @@ fun TaskyItem.toTaskEntity(): TaskEntity {
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
+        dateTimeUtc = time.toString(),
         isDone = (details as TaskyItemDetails.Task).isDone,
-        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString()
+        remindAtUtc = remindAt.toString()
     )
 }
 
@@ -44,8 +47,8 @@ fun ReminderEntity.toTaskyItem(): TaskyItem {
         title = title,
         description = description,
         type = TaskyType.REMINDER,
-        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
-        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc),
+        time = Instant.parse(dateTimeUtc),
+        remindAt = Instant.parse(remindAtUtc),
         details = TaskyItemDetails.Reminder,
     )
 }
@@ -57,8 +60,8 @@ fun TaskyItem.toReminderEntity(): ReminderEntity {
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
-        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString()
+        dateTimeUtc = time.toString(),
+        remindAtUtc = remindAt.toString()
     )
 }
 
@@ -68,16 +71,15 @@ fun EventEntity.toTaskyItem(): TaskyItem {
         title = title,
         description = description,
         type = TaskyType.EVENT,
-        time = convertIsoStringToSystemLocalDateTime(dateTimeUtc),
+        time = Instant.parse(dateTimeUtc),
         details = TaskyItemDetails.Event(
-            toTime = convertIsoStringToSystemLocalDateTime(toDateTimeUtc),
+            toTime = Instant.parse(toDateTimeUtc),
             eventAttendees = attendees,
             photos = emptyList(),
             isUserEventCreator = isUserEventCreator,
             host = host,
             remotePhotos = remotePhotos
-        ),
-        remindAt = convertIsoStringToSystemLocalDateTime(remindAtUtc)
+        )
     )
 }
 
@@ -88,11 +90,11 @@ fun TaskyItem.toEventEntity(): EventEntity {
         type = type.toString(),
         title = title,
         description = description,
-        dateTimeUtc = time.toInstant(TimeZone.UTC).toString(),
-        toDateTimeUtc = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
+        dateTimeUtc = time.toString(),
+        toDateTimeUtc = (details as TaskyItemDetails.Event).toTime.toString(),
         attendees = details.eventAttendees,
         remotePhotos = details.remotePhotos,
-        remindAtUtc = remindAt.toInstant(TimeZone.UTC).toString(),
+        remindAtUtc = remindAt.toString(),
         isUserEventCreator = details.isUserEventCreator,
         host = details.host
     )

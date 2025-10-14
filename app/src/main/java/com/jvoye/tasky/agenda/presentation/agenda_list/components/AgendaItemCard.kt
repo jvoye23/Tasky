@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.agenda.presentation.agenda_list.components
 
 import androidx.compose.foundation.background
@@ -50,6 +52,12 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.agendaItemFinished
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun AgendaItemCard(
@@ -201,14 +209,14 @@ fun AgendaItemCard(
             ) {
                 if (taskyItem.type != TaskyType.EVENT){
                     Text(
-                        text = getItemCardDateTimeString(taskyItem.time),
+                        text = getItemCardDateTimeString(taskyItem.time.toLocalDateTime(TimeZone.currentSystemDefault())),
                         style = MaterialTheme.typography.bodySmall,
                         color = agendaItemTextColor
                     )
                 } else {
                     Text(
                         text = getItemCardDateTimeString(
-                            localDateTime = taskyItem.time),
+                            localDateTime = taskyItem.time.toLocalDateTime(TimeZone.currentSystemDefault())),
                         style = MaterialTheme.typography.bodySmall,
                         color = agendaItemTextColor
                     )
@@ -220,7 +228,8 @@ fun AgendaItemCard(
 
                     Text(
                         text = getItemCardDateTimeString(
-                            localDateTime = taskyItem.detailsAsEvent()?.toTime),
+                            localDateTime = taskyItem.detailsAsEvent()?.toTime?.toLocalDateTime(TimeZone.currentSystemDefault())
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = agendaItemTextColor
                     )
@@ -247,10 +256,10 @@ private fun AgendaItemPreview() {
                     id = "8",
                     title = "Event 4 Title",
                     description = "Task 4 description",
-                    time = LocalDateTime(2023, 3, 1, 10, 0, 0, 0),
+                    time = Clock.System.now(),
                     type = TaskyType.EVENT,
                     details = TaskyItemDetails.Event(
-                        toTime = LocalDateTime(2023, 3, 1, 12, 0, 0, 0),
+                        toTime = Clock.System.now() + 1.days,
                         isGoing = true,
                         eventAttendees = emptyList(),
                         photos = emptyList(),
@@ -260,7 +269,7 @@ private fun AgendaItemPreview() {
                         isUserEventCreator = true,
                         host = "123",
                     ),
-                    remindAt = LocalDateTime(2023, 1, 1, 11, 30),
+                    remindAt = Clock.System.now() - 30.minutes,
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 action = {}

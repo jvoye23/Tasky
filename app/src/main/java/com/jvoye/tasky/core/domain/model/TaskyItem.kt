@@ -2,11 +2,13 @@ package com.jvoye.tasky.core.domain.model
 
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
-import kotlinx.datetime.LocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 sealed interface TaskyItemDetails {
+    @OptIn(ExperimentalTime::class)
     data class Event(
-        val toTime: LocalDateTime,
+        val toTime: Instant,
         val eventAttendees: List<EventAttendee>,
         val lookupAttendees: List<AttendeeBase> = emptyList(),
         val photos: List<LocalPhotoInfo>,
@@ -25,13 +27,14 @@ sealed interface TaskyItemDetails {
     data object Reminder: TaskyItemDetails
 }
 
+@OptIn(ExperimentalTime::class)
 data class TaskyItem(
     val id: String,
     val type: TaskyType,
     val title: String,
     val description: String,
-    val time: LocalDateTime,
-    val remindAt: LocalDateTime,
+    val time: Instant,
+    val remindAt: Instant? = null,
     val details: TaskyItemDetails,
     val notificationType: NotificationType = NotificationType.THIRTY_MINUTES_BEFORE
 )

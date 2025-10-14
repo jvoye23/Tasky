@@ -15,7 +15,7 @@ data class EventEntity(
     val description: String,
     val dateTimeUtc: String,
     val toDateTimeUtc: String,
-    val remindAtUtc: String,
+    val remindAtUtc: String? = null,
     val attendees: List<EventAttendee>,
     val remotePhotos: List<RemotePhoto>,
     val isUserEventCreator: Boolean,

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.core.data.networking.mappers
 
 import com.jvoye.tasky.agenda.domain.TaskyType
@@ -27,7 +29,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -75,8 +76,8 @@ fun TaskDto.toTaskyItem(): TaskyItem {
         id = id,
         title = title,
         description = description,
-        time = convertIsoStringToSystemLocalDateTime(time),
-        remindAt = convertIsoStringToSystemLocalDateTime(remindAt),
+        time = Instant.parse(time),
+        remindAt = Instant.parse(remindAt),
         details = TaskyItemDetails.Task(
             isDone = isDone
         ),
@@ -90,8 +91,8 @@ fun ReminderDto.toTaskyItem(): TaskyItem {
         id = id,
         title = title,
         description = description,
-        time = convertIsoStringToSystemLocalDateTime(time),
-        remindAt = convertIsoStringToSystemLocalDateTime(remindAt),
+        time = Instant.parse(time),
+        remindAt = Instant.parse(remindAt),
         details = TaskyItemDetails.Reminder,
         type = TaskyType.REMINDER
     )
@@ -104,11 +105,10 @@ fun EventDto.toTaskyItem(): TaskyItem {
         id = event.id,
         title = event.title,
         description = event.description,
-        time = convertIsoStringToSystemLocalDateTime(event.from),
-        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+        time = Instant.parse(event.from),
         type = TaskyType.EVENT,
         details = TaskyItemDetails.Event(
-            toTime = convertIsoStringToSystemLocalDateTime(event.to),
+            toTime = Instant.parse(event.to),
             eventAttendees = event.attendees.map { it.toEventAttendee() },
             photos = emptyList(),
             newPhotosKeys = emptyList(),
@@ -155,8 +155,8 @@ fun TaskyItem.toCreateTaskRequest(): CreateTaskRequest {
         id = id,
         title = title,
         description = description,
-        time = time.toInstant(TimeZone.UTC).toString(),
-        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        time = time.toString(),
+        remindAt = remindAt.toString(),
         updatedAt = getUpdatedAtTime(),
         isDone = (details as TaskyItemDetails.Task).isDone
     )
@@ -168,15 +168,15 @@ fun TaskyItem.toCreateReminderRequest(): CreateReminderRequest {
         id = id,
         title = title,
         description = description,
-        time = time.toInstant(TimeZone.UTC).toString(),
-        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        time = time.toString(),
+        remindAt = remindAt.toString(),
         updatedAt = getUpdatedAtTime()
     )
 }
 
 @OptIn(ExperimentalTime::class)
 private fun getUpdatedAtTime(): String {
-    val now = Clock.System.now()
+    val now = Clock.System.now().toLocalDateTime(TimeZone.UTC).toInstant(TimeZone.UTC)
     val truncatedInstant = Instant.fromEpochSeconds(now.epochSeconds)
     val isoString = truncatedInstant.toString()
     return isoString
@@ -205,9 +205,9 @@ fun TaskyItem.toCreateEventRequest(): CreateEventRequest {
         id = id,
         title = title,
         description = description,
-        from = time.toInstant(TimeZone.UTC).toString(),
-        to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
-        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        from = time.toString(),
+        to = (details as TaskyItemDetails.Event).toTime.toString(),
+        remindAt = remindAt.toString(),
         attendeeIds = details.eventAttendees.map { it.userId },
         photoKeys = details.photos.map { it.localPhotoKey },
         updatedAt = getUpdatedAtTime(),
@@ -219,9 +219,9 @@ fun TaskyItem.toUpdateEventRequest(): UpdateEventRequest {
     return UpdateEventRequest(
         title = title,
         description = description,
-        from = time.toInstant(TimeZone.UTC).toString(),
-        to = (details as TaskyItemDetails.Event).toTime.toInstant(TimeZone.UTC).toString(),
-        remindAt = remindAt.toInstant(TimeZone.UTC).toString(),
+        from = time.toString(),
+        to = (details as TaskyItemDetails.Event).toTime.toString(),
+        remindAt = remindAt.toString(),
         attendeeIds = details.eventAttendees.map { it.userId } + details.lookupAttendees.map { it.userId },
         newPhotoKeys = details.newPhotosKeys,
         deletedPhotoKeys = details.deletedPhotoKeys,
@@ -236,11 +236,10 @@ fun EventInfoDto.toTaskyItem(): TaskyItem {
         id = id,
         title = title,
         description = description,
-        time = convertIsoStringToSystemLocalDateTime(from),
+        time = Instant.parse(from),
         type = TaskyType.EVENT,
-        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) + 10.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
         details = TaskyItemDetails.Event(
-            toTime = convertIsoStringToSystemLocalDateTime(to),
+            toTime = Instant.parse(to),
             eventAttendees = attendees.map { it.toEventAttendee() },
             photos = emptyList(),
             newPhotosKeys = emptyList(),

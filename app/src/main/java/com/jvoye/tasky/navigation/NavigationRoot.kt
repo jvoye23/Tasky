@@ -1,6 +1,7 @@
 package com.jvoye.tasky.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import com.jvoye.tasky.PendingNavigation
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaScreenRoot
 import com.jvoye.tasky.agenda.domain.EditTextType
@@ -58,13 +60,26 @@ data class EditPhotoNavKey(
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
-    isLoggedIn: Boolean
+    isLoggedIn: Boolean,
+    pendingNavigation: PendingNavigation?,
+    onNavigationHandled: () -> Unit
 ) {
     val backStack = rememberNavBackStack(
         if (isLoggedIn) AgendaNavKey else RegisterNavKey
     )
     val editTextCallback = remember { mutableStateOf<((String) -> Unit)?>(null) }
     val deletePhotoCallback = remember { mutableStateOf<((Int) -> Unit)?>(null) }
+
+    LaunchedEffect(pendingNavigation) {
+        pendingNavigation?.let {
+            backStack.add(AgendaDetailNavKey(
+                isEditMode = false,
+                taskyType = it.itemType,
+                taskyItemId = it.itemId
+            ))
+            onNavigationHandled()
+        }
+    }
 
     NavDisplay(
         modifier = modifier,

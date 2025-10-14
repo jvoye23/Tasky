@@ -40,7 +40,6 @@ data class EventInfoDto(
     val description: String,
     val from: String,
     val to: String,
-    val remindAt: String? = null,
     val hostId: String,
     val isUserEventCreator: Boolean,
     val attendees: List<EventAttendeeDto>,

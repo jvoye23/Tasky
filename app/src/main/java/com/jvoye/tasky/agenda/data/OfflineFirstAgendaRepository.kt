@@ -9,6 +9,8 @@ import com.jvoye.tasky.core.domain.RemoteTaskyItemDataSource
 import com.jvoye.tasky.core.domain.TaskyItemId
 import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.detailsAsEvent
+import com.jvoye.tasky.core.domain.model.toAgendaNotification
+import com.jvoye.tasky.core.domain.notification.NotificationService
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.EmptyResult
 import com.jvoye.tasky.core.domain.util.Result
@@ -19,11 +21,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.ExperimentalTime
 
 class OfflineFirstAgendaRepository(
     private val localTaskyItemDataSource: LocalTaskyItemDataSource,
     private val remoteTaskyItemDataSource: RemoteTaskyItemDataSource,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
+    private val notificationService: NotificationService
 ): AgendaRepository {
 
     override fun getTaskyItems(): Flow<List<TaskyItem>> {
@@ -57,11 +61,14 @@ class OfflineFirstAgendaRepository(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     override suspend fun upsertTaskyItem(taskyItem: TaskyItem): EmptyResult<DataError> {
         val localResult = localTaskyItemDataSource.upsertTaskyItem(taskyItem)
         if (localResult !is Result.Success) {
             return localResult.asEmptyDataResult()
         }
+        notificationService.scheduleNotification(taskyItem.toAgendaNotification())
+
         val taskyItemWithId = taskyItem.copy(id = localResult.data)
 
         val result = if (taskyItemWithId.type != TaskyType.EVENT) {
@@ -74,6 +81,7 @@ class OfflineFirstAgendaRepository(
                     applicationScope.async {
                         localTaskyItemDataSource.upsertTaskyItem(remoteResult.data)
                     }.await()
+
                 }
             }
 
@@ -116,14 +124,18 @@ class OfflineFirstAgendaRepository(
                             )
                             when (confirmResult) {
                                 is Result.Success -> {
+                                    notificationService.scheduleNotification(taskyItem.toAgendaNotification())
                                     localTaskyItemDataSource.upsertTaskyItem(taskyItem = confirmResult.data.toTaskyItem())
+
                                 }
+
                                 is Result.Error -> {
                                     // TODO: handle error case later
                                     Result.Success(Unit) // Returning a success placeholder
                                 }
                             }
                         }.await()
+
                     }
                 }
             }
@@ -142,6 +154,7 @@ class OfflineFirstAgendaRepository(
 
                 is Result.Success -> {
                     applicationScope.async {
+                        notificationService.scheduleNotification(taskyItem.toAgendaNotification())
                         localTaskyItemDataSource.upsertTaskyItem(newRemoteResult.data)
                             .asEmptyDataResult()
                     }.await()
@@ -192,6 +205,7 @@ class OfflineFirstAgendaRepository(
                             )
                             when(confirmResult) {
                                 is Result.Success -> {
+                                    notificationService.scheduleNotification(taskyItem.toAgendaNotification())
                                     localTaskyItemDataSource.upsertTaskyItem(taskyItem = confirmResult.data.toTaskyItem())
 
                                 }
@@ -214,6 +228,7 @@ class OfflineFirstAgendaRepository(
 
     override suspend fun deleteTaskyItem(taskyType: TaskyType, taskyItemId: TaskyItemId): EmptyResult<DataError> {
         localTaskyItemDataSource.deleteTaskyItem(taskyType, taskyItemId)
+        notificationService.cancelNotification(taskyItemId)
         val remoteResult = applicationScope.async {
             remoteTaskyItemDataSource.deleteTaskyItem(taskyItemId, taskyType)
         }.await()

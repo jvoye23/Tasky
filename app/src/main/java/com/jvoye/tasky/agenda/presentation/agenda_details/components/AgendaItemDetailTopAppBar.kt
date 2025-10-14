@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.agenda.presentation.agenda_details.components
 
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +37,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +58,7 @@ fun AgendaItemDetailTopAppBar(
                     // TODO() Replace DateTime string to date set in Agenda Screen
                     text = if (isEditMode){
                         stringResource(R.string.edit_uppercase) + " " + taskyItem?.type.toString().uppercase()
-                    } else getItemDetailDateString(taskyItem?.time).uppercase(),
+                    } else getItemDetailDateString(taskyItem?.time?.toLocalDateTime(TimeZone.currentSystemDefault())).uppercase(),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -149,13 +152,13 @@ private fun TopAppBarPreview() {
                     id = "1",
                     title = "Task 1 Title",
                     description = "Task 1 description",
-                    time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                    time = Clock.System.now(),
                     type = TaskyType.TASK,
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE,
-                    remindAt = LocalDateTime(2023, 1, 1, 11, 30)
+                    remindAt = Clock.System.now() - 30.minutes
                 ),
 
                 onAction = {}

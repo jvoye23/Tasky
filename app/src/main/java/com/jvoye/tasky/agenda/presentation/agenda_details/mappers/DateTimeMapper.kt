@@ -100,3 +100,36 @@ fun getNextHalfMarkLocalTime(): LocalDateTime {
     }
     return newTime
 }
+
+@OptIn(ExperimentalTime::class)
+fun getNextHalfMarkInstant(): Instant {
+    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+    val newHour = if (now.hour == 23) 0 else now.hour + 1
+
+    val newTime = if (now.minute < 30) {
+        LocalDateTime(
+            year = now.year,
+            month = now.month,
+            day = now.day,
+            hour = now.hour,
+            minute = 30
+        )
+    } else {
+        LocalDateTime(
+            year = now.year,
+            month = now.month,
+            day = now.day,
+            hour = newHour,
+            minute = 0
+        )
+    }
+    return newTime.toInstant(TimeZone.currentSystemDefault())
+
+
+
+
+
+
+
+}

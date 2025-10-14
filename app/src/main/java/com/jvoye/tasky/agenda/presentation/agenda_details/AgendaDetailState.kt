@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AttendeeFilterType
+import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkInstant
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMarkLocalTime
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.core.domain.model.AttendeeBase
@@ -22,25 +23,26 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 // TODO(): Change strings to UiText
 data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val taskyItem: TaskyItem = TaskyItem(
         title = "Title",
         description = "Description",
-        time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+        time = Clock.System.now(),
         id = "",
         type = TaskyType.TASK,
         details = TaskyItemDetails.Task(isDone = false),
-        remindAt = (Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault()) - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+        remindAt = Clock.System.now() - 30.minutes,
         notificationType = NotificationType.THIRTY_MINUTES_BEFORE
     ),
     val titleText: String? = null,
     val descriptionText: String? = null,
-    val time: LocalDateTime = getNextHalfMarkLocalTime(),
-    val remindAt: LocalDateTime = (time.toInstant(TimeZone.currentSystemDefault()) - 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+    val time: Instant = getNextHalfMarkInstant(),
+    val remindAt: Instant = time - 30.minutes,
     val isEditMode: Boolean = false,
-    val selectedDateMillis: Long = getNextHalfMarkLocalTime().toEpochMilliseconds(),
+    val selectedDateMillis: Long = getNextHalfMarkInstant().toEpochMilliseconds(),
     val selectedToDateMillis: Long = selectedDateMillis + 30.minutes.inWholeMilliseconds,
     val notificationType: NotificationType = NotificationType.THIRTY_MINUTES_BEFORE,
 
@@ -62,8 +64,7 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isUserEventCreator: Boolean = true,
     val currentSessionUserId: String = "",
     val isGoing: Boolean = true,
-    val fromTime: LocalDateTime = getNextHalfMarkLocalTime(),
-    val toTime: LocalDateTime = (getNextHalfMarkLocalTime().toInstant(TimeZone.currentSystemDefault()) + 30.minutes).toLocalDateTime(TimeZone.currentSystemDefault()),
+    val toTime: Instant = getNextHalfMarkInstant() + 30.minutes,
     val isFromTimeExpanded: Boolean = false,
     val isToTimeExpanded: Boolean = false,
     val eventAttendees: List<EventAttendee> = emptyList<EventAttendee>(),

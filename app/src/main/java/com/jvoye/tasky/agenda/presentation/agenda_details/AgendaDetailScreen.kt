@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
@@ -75,8 +75,11 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -308,7 +311,7 @@ private fun AgendaDetailScreenContent(
             AgendaItemDetailTimePicker(
                 onConfirm = { onAction(AgendaDetailAction.ConfirmTimeSelection(it)) },
                 onDismiss = { onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
-                initialTime = state.time.time
+                initialTime = state.time.toLocalDateTime(TimeZone.currentSystemDefault()).time
             )
         }
         if (state.isDatePickerDialogVisible) {
@@ -322,7 +325,7 @@ private fun AgendaDetailScreenContent(
             AgendaItemDetailTimePicker(
                 onConfirm = { onAction(AgendaDetailAction.ConfirmToTimeSelection(it)) },
                 onDismiss = { onAction(AgendaDetailAction.OnToggleToTimePickerDialog) },
-                initialTime = state.toTime.time
+                initialTime = state.toTime.toLocalDateTime(TimeZone.currentSystemDefault()).time
             )
         }
 
@@ -519,7 +522,7 @@ private fun TaskReminderDateTimePickerSection(
                 text = state.selectedDateMillis.toLocalDateTime().toDatePickerString(),
                 containerColor = MaterialTheme.colorScheme.surfaceHigher,
                 contentColor = MaterialTheme.colorScheme.primary,
-                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleTimePickerDialog) },
+                onClick = { if (isEditMode) onAction(AgendaDetailAction.OnToggleDatePickerDialog) },
                 textStyle = MaterialTheme.typography.bodyMedium
             )
         }
@@ -910,12 +913,12 @@ private fun AgendaDetailScreenPreview() {
                     id = "1",
                     title = "Task 1 Title",
                     description = "Weekly plan\nRole distribution",
-                    time = LocalDateTime(2023, 1, 1, 12, 0),
+                    time = Clock.System.now(),
                     type = TaskyType.EVENT,
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),
-                    remindAt = LocalDateTime(2023, 1, 1, 11, 30),
+                    remindAt = Clock.System.now() - 30.minutes,
                     notificationType = NotificationType.THIRTY_MINUTES_BEFORE
                 ),
                 isEditMode = false,

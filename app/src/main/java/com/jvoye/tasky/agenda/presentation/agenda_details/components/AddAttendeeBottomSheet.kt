@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.agenda.presentation.agenda_details.components
 
 import androidx.compose.foundation.background
@@ -34,6 +36,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_Check
 import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_X
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

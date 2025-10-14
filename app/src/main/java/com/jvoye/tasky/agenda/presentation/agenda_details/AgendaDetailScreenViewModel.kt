@@ -3,7 +3,6 @@
 package com.jvoye.tasky.agenda.presentation.agenda_details
 
 import android.net.Uri
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -49,6 +48,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID.randomUUID
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class AgendaDetailScreenViewModel(
     private val isEdit: Boolean,
@@ -120,8 +120,8 @@ class AgendaDetailScreenViewModel(
             titleText = itemFromRepo.title,
             descriptionText = itemFromRepo.description,
             time = itemFromRepo.time,
-            toTime = itemFromRepo.detailsAsEvent()?.toTime!!,
-            remindAt = itemFromRepo.remindAt,
+            toTime = itemFromRepo.detailsAsEvent()?.toTime ?: itemFromRepo.time,
+            remindAt = itemFromRepo.remindAt?: itemFromRepo.time,
             allAttendees = itemFromRepo.detailsAsEvent()?.eventAttendees ?: emptyList(),
             remotePhotos = itemFromRepo.detailsAsEvent()?.remotePhotos?.map { it.url } ?: emptyList(),
             remotePhotoInfos = itemFromRepo.detailsAsEvent()?.remotePhotos ?: emptyList(),
@@ -164,7 +164,7 @@ class AgendaDetailScreenViewModel(
             }
 
             val eventDetails = TaskyItemDetails.Event(
-                toTime = state.value.toTime,
+                toTime = _state.value.toTime,
                 eventAttendees = _state.value.eventAttendees,
                 lookupAttendees = _state.value.lookupAttendees,
                 photos = _state.value.newLocalPhotoInfos ,
@@ -349,39 +349,41 @@ class AgendaDetailScreenViewModel(
             }
 
             is AgendaDetailAction.ConfirmDateSelection -> {
-                val currentSelectedTime = _state.value.time.time
-                val newDate = action.selectedDateMillis.toLocalDateTime().date
-                val newLocalDateTime = LocalDateTime(
+                val currentTime = _state.value.time.toLocalDateTime(TimeZone.currentSystemDefault())
+                val newDate = Instant.fromEpochMilliseconds(action.selectedDateMillis).toLocalDateTime(TimeZone.currentSystemDefault())
+                val newDateTime = LocalDateTime(
                     year = newDate.year,
                     month = newDate.month,
                     day = newDate.day,
-                    hour = currentSelectedTime.hour,
-                    minute = currentSelectedTime.minute,
-                    second = 0,
-                    nanosecond = 0
+                    hour = currentTime.hour,
+                    minute = currentTime.minute,
+                    second = 0
                 )
+                val newMillis = newDateTime.toEpochMilliseconds()
+
+
                 _state.update { it.copy(
-                    selectedDateMillis = newLocalDateTime.toEpochMilliseconds(),
-                    time = newLocalDateTime,
+                    selectedDateMillis = newMillis,
+                    time = newDateTime.toInstant(TimeZone.currentSystemDefault()),
                     isDatePickerDialogVisible = false
                 ) }
             }
 
             is AgendaDetailAction.ConfirmToDateSelection -> {
-                val currentSelectedToTime = _state.value.toTime.time
-                val newDate = action.toDateSelectedDateMillis.toLocalDateTime().date
-                val newLocalDateTime = LocalDateTime(
-                    year = newDate.year,
-                    month = newDate.month,
-                    day = newDate.day,
-                    hour = currentSelectedToTime.hour,
-                    minute = currentSelectedToTime.minute,
-                    second = 0,
-                    nanosecond = 0
+                val currentToTime = _state.value.toTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                val newToDate = Instant.fromEpochMilliseconds(action.toDateSelectedDateMillis).toLocalDateTime(TimeZone.currentSystemDefault())
+                val newToDateTime = LocalDateTime(
+                    year = newToDate.year,
+                    month = newToDate.month,
+                    day = newToDate.day,
+                    hour = currentToTime.hour,
+                    minute = currentToTime.minute,
+                    second = 0
                 )
+                val newMillis = newToDateTime.toEpochMilliseconds()
                 _state.update { it.copy(
-                    selectedToDateMillis = newLocalDateTime.toEpochMilliseconds(),
-                    toTime = newLocalDateTime,
+                    selectedToDateMillis = newMillis,
+                    toTime = newToDateTime.toInstant(TimeZone.currentSystemDefault()),
                     isToDatePickerDialogVisible = false
                 ) }
             }
@@ -390,18 +392,18 @@ class AgendaDetailScreenViewModel(
                 val newHour = action.timePickerState.hour
                 val newMinute = action.timePickerState.minute
                 val newSecond = 0
-                val currentDate = _state.value.time.date
-                val newLocalDateTime = LocalDateTime(
-                    year = currentDate.year,
-                    month = currentDate.month,
-                    day = currentDate.day,
+                val currentSelectedDate = _state.value.time.toLocalDateTime(TimeZone.currentSystemDefault())
+                val newTime = LocalDateTime(
+                    year = currentSelectedDate.year,
+                    month = currentSelectedDate.month,
+                    day = currentSelectedDate.day,
                     hour = newHour,
                     minute = newMinute,
                     second = newSecond
                 )
                 _state.update { it.copy(
-                    selectedDateMillis = newLocalDateTime.toEpochMilliseconds(),
-                    time = newLocalDateTime,
+                    selectedDateMillis = newTime.toEpochMilliseconds(),
+                    time = newTime.toInstant(TimeZone.currentSystemDefault()),
                     isTimePickerDialogVisible = false
                 ) }
             }
@@ -410,18 +412,18 @@ class AgendaDetailScreenViewModel(
                 val toHour = action.toTimePickerState.hour
                 val toMinute = action.toTimePickerState.minute
                 val toSecond = 0
-                val toDate = _state.value.toTime.date
-                val toTime = LocalDateTime(
-                    year = toDate.year,
-                    month = toDate.month,
-                    day = toDate.day,
+                val currentSelectedToDate = _state.value.toTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                val newToTime = LocalDateTime(
+                    year = currentSelectedToDate.year,
+                    month = currentSelectedToDate.month,
+                    day = currentSelectedToDate.day,
                     hour = toHour,
                     minute = toMinute,
                     second = toSecond
                 )
                 _state.update { it.copy(
-                    selectedToDateMillis = toTime.toEpochMilliseconds(),
-                    toTime = toTime,
+                    selectedToDateMillis = newToTime.toEpochMilliseconds(),
+                    toTime = newToTime.toInstant(TimeZone.currentSystemDefault()),
                     isToTimePickerDialogVisible = false
                 ) }
             }
@@ -434,9 +436,7 @@ class AgendaDetailScreenViewModel(
 
             is AgendaDetailAction.OnNotificationItemClick -> {
                 val time = _state.value.time
-                val timeInstant = time.toInstant(TimeZone.currentSystemDefault())
-                val remindAt = (timeInstant - action.notificationType.offset)
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                val remindAt = time - action.notificationType.offset
 
                 _state.update {
                     it.copy(

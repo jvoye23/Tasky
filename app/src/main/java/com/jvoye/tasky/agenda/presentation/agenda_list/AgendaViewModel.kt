@@ -10,6 +10,7 @@ import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
+import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.notification.NotificationService
 import com.jvoye.tasky.core.domain.util.Result
@@ -56,8 +57,9 @@ class AgendaViewModel(
                 getUserInitials()
                 getDateRowEntries()
                 getAgendaListTitle()
-                getAgendaItems()
+                getTodaysAgendaItems()
                 agendaRepository.fetchFullAgenda()
+                toggleScreenLoading()
                 hasLoadedInitialData = true
             }
         }
@@ -66,6 +68,13 @@ class AgendaViewModel(
             SharingStarted.WhileSubscribed(5_000L),
             _state.value
         )
+    private fun toggleScreenLoading() {
+        _state.update {
+            it.copy(
+                isScreenLoading = false
+            )
+        }
+    }
 
     fun onAction(action: AgendaAction){
         when(action){
@@ -104,8 +113,19 @@ class AgendaViewModel(
             AgendaAction.OnLogOutClick -> onLogoutClick()
 
             is AgendaAction.OnDateRowItemClick -> {
+                val selectedDate = action.selectedDate
+                viewModelScope.launch {
+                    agendaRepository.getTaskyItemsForDate(localDateString = selectedDate.toString())
+                        .collect { taskyItems ->
+                            _state.update { it.copy(
+                                agendaList = taskyItems
+                            )
+                        }
+                    }
+                }
                 _state.update { it.copy(
-                    currentDate = action.selectedDate
+                    currentDate = selectedDate,
+                    dateHeadline = selectedDate.toString()
                 ) }
                 getAgendaListTitle()
             }
@@ -200,12 +220,17 @@ class AgendaViewModel(
         }
     }
 
-    private fun getAgendaItems() {
+    private fun getTodaysAgendaItems() {
+        // Example: today = 2025-10-14
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+
         viewModelScope.launch {
-            agendaRepository.getTaskyItems().collect { taskyItems ->
-                _state.update { it.copy(
-                    agendaList = taskyItems
-                ) }
+            agendaRepository.getTaskyItemsForDate(localDateString = today)
+                .collect { taskyItems ->
+                    _state.update { it.copy(
+                        agendaList = taskyItems
+                    )
+                }
             }
         }
     }

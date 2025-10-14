@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,9 +46,13 @@ import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaFab
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaItemCard
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaTopBar
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.ScrollableDateRow
+import com.jvoye.tasky.core.domain.model.TaskyItem
+import com.jvoye.tasky.core.presentation.designsystem.TimelineDivider
+import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyBackgroundColor
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
@@ -108,7 +113,7 @@ fun AgendaScreenRoot(
 
             }
         )
-        if(state.isLoggingOut) {
+        if(state.isLoggingOut || state.isScreenLoading) {
             FullScreenLoadingIndicator()
         }
     }
@@ -163,6 +168,10 @@ private fun AgendaScreenContent(
     onAction: (AgendaAction) -> Unit,
     datePickerState: DatePickerState
 ) {
+    val groupedAgendaItems: Map<Boolean, List<TaskyItem>> = remember(state.agendaList) {
+        state.agendaList.groupBy { it.time <= Clock.System.now() }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -179,9 +188,9 @@ private fun AgendaScreenContent(
         verticalArrangement = Arrangement.Top
     ) {
         ScrollableDateRow(
-            currentDate = state.currentDate,
             entries = state.dateRowEntries,
-            action = onAction
+            action = onAction,
+            state = state
         )
         Text(
             modifier = Modifier
@@ -198,18 +207,31 @@ private fun AgendaScreenContent(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(
-                items = state.agendaList,
-                key = { taskyItem -> taskyItem.id },
-                contentType = {it.type }
-            ) { taskyItem ->
-                Row(modifier = Modifier.animateItem()) {
-                    AgendaItemCard(
-                        taskyItem = taskyItem,
-                        action = onAction
-                    )
+            groupedAgendaItems.forEach { (isPast, agendaList) ->
+                stickyHeader {
+                    if (!isPast) {
+                        TimelineDivider(
+                            circleColor = MaterialTheme.colorScheme.primary,
+                            lineColor = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+                items(
+                    //items = state.agendaList,
+                    items = agendaList,
+                    key = { taskyItem -> taskyItem.id },
+                    contentType = {it.type }
+                ) { taskyItem ->
+                    Row(modifier = Modifier.animateItem()) {
+                        AgendaItemCard(
+                            taskyItem = taskyItem,
+                            action = onAction
+                        )
+                    }
                 }
             }
+
+
         }
         if (state.isDatePickerDialogVisible){
             AgendaDatePicker(
@@ -232,7 +254,7 @@ fun FullScreenLoadingIndicator() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.5f))
+            .background(TaskyBackgroundColor)
             .pointerInput(Unit) {
                 // Intercept all touch events to disable the underlying content
                 awaitPointerEventScope {

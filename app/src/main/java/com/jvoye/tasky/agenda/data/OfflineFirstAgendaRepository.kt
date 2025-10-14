@@ -21,6 +21,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 import kotlin.time.ExperimentalTime
 
 class OfflineFirstAgendaRepository(
@@ -32,6 +33,10 @@ class OfflineFirstAgendaRepository(
 
     override fun getTaskyItems(): Flow<List<TaskyItem>> {
         return localTaskyItemDataSource.getTaskyItems()
+    }
+
+    override fun getTaskyItemsForDate(localDateString: String): Flow<List<TaskyItem>> {
+        return localTaskyItemDataSource.getTaskyItemsForDate(localDateString = localDateString)
     }
 
     override suspend fun fetchFullAgenda(): EmptyResult<DataError> {

@@ -30,5 +30,7 @@ data class AgendaState(
     val isAgendaItemMenuExpanded: Boolean = false,
     val isDeleteBottomSheetVisible: Boolean = false,
     val isDeleteButtonLoading: Boolean = false,
-    val taskyItemToBeDeleted: TaskyItem? = null
+    val taskyItemToBeDeleted: TaskyItem? = null,
+    val isScreenLoading: Boolean = true
+
 )

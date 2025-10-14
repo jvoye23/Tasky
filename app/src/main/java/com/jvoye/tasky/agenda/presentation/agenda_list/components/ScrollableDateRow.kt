@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaAction
+import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaState
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.supplementary
@@ -32,20 +33,19 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun ScrollableDateRow(
     entries: List<DateRowEntry>?,
-    currentDate: LocalDate?,
-    action: (AgendaAction) -> Unit
+    action: (AgendaAction) -> Unit,
+    state: AgendaState
 ) {
     val lazyListState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     // The index of the item to be centered.
-    val centerIndex = 15
+    val centerIndex = 16
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(!state.isScreenLoading) {
         delay(50)
         lazyListState.animateScrollToItem(
             index = centerIndex,
-            scrollOffset = -lazyListState.layoutInfo.viewportSize.width / 2
+            scrollOffset = (-lazyListState.layoutInfo.viewportSize.width / 2) - 110 // -110 is 2x DateRowEntry
         )
     }
     LazyRow(
@@ -61,7 +61,7 @@ fun ScrollableDateRow(
                         .padding(horizontal = 10.dp)
                         .padding(vertical = 10.dp)
                         .clickable {},
-                    isSelected = currentDate == entry.localDate,
+                    isSelected = state.currentDate == entry.localDate,
                     date = entry,
                     onItemClick = { action(AgendaAction.OnDateRowItemClick(entry.localDate)) }
                 )

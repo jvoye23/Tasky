@@ -6,11 +6,13 @@ import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.util.DataError
 import com.jvoye.tasky.core.domain.util.Result
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 
 typealias TaskyItemId = String
 
 interface LocalTaskyItemDataSource {
     fun getTaskyItems(): Flow<List<TaskyItem>>
+    fun getTaskyItemsForDate(localDateString: String): Flow<List<TaskyItem>>
     suspend fun getTaskyItem(taskyType: TaskyType, taskyItemId: String): TaskyItem
     suspend fun upsertTaskyItem(taskyItem: TaskyItem): Result<TaskyItemId, DataError.Local>
     suspend fun upsertFullAgenda(fullAgenda: FullAgenda): Result<List<TaskyItemId>, DataError.Local>

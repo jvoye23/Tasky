@@ -698,7 +698,7 @@ private fun DeleteButtonSection (
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                if(state.currentSessionUserId == state.host) {
+                if((state.currentSessionUserId == state.host) || (state.taskyItem.type == TaskyType.REMINDER || state.taskyItem.type == TaskyType.TASK)) {
                     onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)
                 } else {
                     onAction(AgendaDetailAction.OnToggleEventVisit)
@@ -713,7 +713,7 @@ private fun DeleteButtonSection (
             color = MaterialTheme.colorScheme.surfaceHigher
         )
 
-        if(state.currentSessionUserId == state.host) {
+        if((state.currentSessionUserId == state.host) || (state.taskyItem.type == TaskyType.REMINDER || state.taskyItem.type == TaskyType.TASK)) {
             Text(
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 24.dp),
@@ -914,7 +914,7 @@ private fun AgendaDetailScreenPreview() {
                     title = "Task 1 Title",
                     description = "Weekly plan\nRole distribution",
                     time = Clock.System.now(),
-                    type = TaskyType.EVENT,
+                    type = TaskyType.TASK,
                     details = TaskyItemDetails.Task(
                         isDone = false
                     ),

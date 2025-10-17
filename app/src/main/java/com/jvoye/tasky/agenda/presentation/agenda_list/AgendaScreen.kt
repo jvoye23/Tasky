@@ -187,43 +187,51 @@ private fun AgendaScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        ScrollableDateRow(
-            entries = state.dateRowEntries,
-            action = onAction,
-            state = state
-        )
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp)
-                .padding(horizontal = 16.dp),
-            text = state.dateHeadline,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item {
+                ScrollableDateRow(
+                    entries = state.dateRowEntries,
+                    action = onAction,
+                    state = state
+                )
+            }
+            item {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp)
+                        .padding(horizontal = 16.dp),
+                    text = state.dateHeadline,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+            }
+
             groupedAgendaItems.forEach { (isPast, agendaList) ->
                 stickyHeader {
                     if (!isPast) {
                         TimelineDivider(
                             circleColor = MaterialTheme.colorScheme.primary,
                             lineColor = MaterialTheme.colorScheme.primary,
+                            paddingStart = 16.dp,
+                            paddingEnd = 16.dp
                         )
                     }
                 }
                 items(
-                    //items = state.agendaList,
                     items = agendaList,
                     key = { taskyItem -> taskyItem.id },
                     contentType = {it.type }
                 ) { taskyItem ->
                     Row(modifier = Modifier.animateItem()) {
                         AgendaItemCard(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
                             taskyItem = taskyItem,
                             action = onAction
                         )

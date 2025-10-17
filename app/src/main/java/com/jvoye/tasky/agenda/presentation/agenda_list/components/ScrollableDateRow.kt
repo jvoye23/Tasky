@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.jvoye.tasky.agenda.presentation.agenda_list.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -20,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaAction
@@ -29,6 +33,10 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.supplementary
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun ScrollableDateRow(
@@ -63,7 +71,8 @@ fun ScrollableDateRow(
                         .clickable {},
                     isSelected = state.currentDate == entry.localDate,
                     date = entry,
-                    onItemClick = { action(AgendaAction.OnDateRowItemClick(entry.localDate)) }
+                    onItemClick = { action(AgendaAction.OnDateRowItemClick(entry.localDate)) },
+                    state = state
                 )
             }
         }
@@ -75,17 +84,26 @@ fun DateRowItem(
     modifier: Modifier = Modifier,
     isSelected: Boolean,
     date: DateRowEntry,
+    state: AgendaState,
     onItemClick: (LocalDate) -> Unit
 ) {
     Column(
         modifier = modifier
             .widthIn(min = 55.dp)
             .clip(RoundedCornerShape(50.dp))
+            .border(
+                shape = RoundedCornerShape(50.dp),
+                width = 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.supplementary
+                else if(date.localDate.day == Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).day) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                else Color.Transparent
+            )
             .background(
                 if (isSelected) MaterialTheme.colorScheme.supplementary
                 else MaterialTheme.colorScheme.surface
             )
-            .padding(15.dp)
+
+            .padding(all = if(date.localDate.day == Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).day) 14.dp else 15.dp)
             .clickable {
                 onItemClick(date.localDate)
             },
@@ -116,13 +134,14 @@ private fun DateRowItemPreview() {
     TaskyTheme {
         DateRowItem(
             modifier = Modifier,
-            isSelected = true,
+            isSelected = false,
             date = DateRowEntry(
-                localDate = LocalDate(2023, 10, 10),
+                localDate = LocalDate(2025, 10, 15),
                 dayOfTheMonth = 10,
-                dayOfWeek = LocalDate(2023, 10, 10).dayOfWeek
+                dayOfWeek = LocalDate(2025, 10, 15).dayOfWeek
             ),
-            onItemClick = {}
+            onItemClick = {},
+            state = AgendaState()
         )
 
     }

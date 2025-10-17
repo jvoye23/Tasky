@@ -1,17 +1,21 @@
 package com.jvoye.tasky.navigation
 
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+
 import com.jvoye.tasky.PendingNavigation
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaScreenRoot
@@ -26,6 +30,11 @@ import com.jvoye.tasky.auth.presentation.register.RegisterScreenRoot
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+
 
 @Serializable
 data object RegisterNavKey: NavKey
@@ -57,6 +66,7 @@ data class EditPhotoNavKey(
     val photoIndex: Int,
 ): NavKey
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
@@ -67,6 +77,16 @@ fun NavigationRoot(
     val backStack = rememberNavBackStack(
         if (isLoggedIn) AgendaNavKey else RegisterNavKey
     )
+
+    //Nav3 alpha11 changes
+    val windowAdaptiveInfo = currentWindowAdaptiveInfo()
+    val directive = remember(windowAdaptiveInfo) {
+        calculatePaneScaffoldDirective(windowAdaptiveInfo)
+            .copy(horizontalPartitionSpacerSize = 0.dp)
+    }
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+
+
     val editTextCallback = remember { mutableStateOf<((String) -> Unit)?>(null) }
     val deletePhotoCallback = remember { mutableStateOf<((Int) -> Unit)?>(null) }
 
@@ -85,10 +105,11 @@ fun NavigationRoot(
         modifier = modifier,
         backStack = backStack,
         entryDecorators = listOf(
-            rememberSavedStateNavEntryDecorator(),
+            rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator(),
-            rememberSceneSetupNavEntryDecorator()
+            //rememberSceneSetupNavEntryDecorator()
         ),
+        sceneStrategy = listDetailStrategy,
         entryProvider = { key ->
             when(key) {
                 is RegisterNavKey -> {
@@ -118,7 +139,12 @@ fun NavigationRoot(
                 }
                 is AgendaNavKey -> {
                     NavEntry(
-                        key= key
+                        key= key,
+                        metadata = ListDetailSceneStrategy.listPane(
+                            detailPlaceholder = {
+                                Text("Choose an item from the list")
+                            }
+                        )
                     ) {
                         AgendaScreenRoot(
                             onSuccessfulLogout = {
@@ -134,6 +160,16 @@ fun NavigationRoot(
                                 )
                             },
                             onAgendaItemClick = { _, agendaType, taskyItemId->
+                                val newAgendaNavKey = AgendaNavKey
+
+
+                                //Check if the last backstack entry is already a AgendaKey
+                                val lastKey = backStack.lastOrNull()
+                                if (lastKey is AgendaNavKey) {
+                                    backStack.remove(lastKey)
+                                }
+                                backStack.add(newAgendaNavKey)
+
                                 backStack.add(AgendaDetailNavKey(
                                     isEditMode = false,
                                     taskyType = agendaType,
@@ -155,7 +191,8 @@ fun NavigationRoot(
                 }
                 is AgendaDetailNavKey -> {
                     NavEntry(
-                        key= key
+                        key= key,
+                        metadata = ListDetailSceneStrategy.detailPane()
                     ) {
                         val detailVm: AgendaDetailScreenViewModel = koinViewModel {
                             parametersOf(key.isEditMode, key.taskyType, key.taskyItemId, key.editedText, key.editTextType)

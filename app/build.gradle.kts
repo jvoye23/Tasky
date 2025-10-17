@@ -102,12 +102,17 @@ dependencies {
 
     // WindowSizeClasses
     implementation(libs.material3.adaptive)
+    implementation(libs.androidx.adaptive.layout)
+
+
+
     implementation(libs.androidx.compose.material3.windowsizeclass)
 
     // Navigation 3
     implementation(libs.nav3.runtime)
     implementation(libs.nav3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.nav3)
+    implementation(libs.androidx.material3.navigation3)
 
     //Ktor
     implementation(libs.bundles.ktor)

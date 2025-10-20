@@ -23,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +51,8 @@ import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.presentation.designsystem.TimelineDivider
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyBackgroundColor
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.core.presentation.designsystem.theme.success
+import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
@@ -168,6 +171,28 @@ private fun AgendaScreenContent(
     onAction: (AgendaAction) -> Unit,
     datePickerState: DatePickerState
 ) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
+    when(deviceConfiguration){
+        DeviceConfiguration.MOBILE_PORTRAIT -> {
+            /*MobilePortraitLayout(
+                modifier = Modifier,
+                state = state,
+                onAction = onAction,
+                datePickerState = datePickerState
+            )*/
+        }
+        DeviceConfiguration.MOBILE_LANDSCAPE -> {}
+        DeviceConfiguration.TABLET_PORTRAIT -> {}
+        DeviceConfiguration.TABLET_LANDSCAPE -> {
+
+        }
+        DeviceConfiguration.DESKTOP -> {}
+    }
+
+
+
     val groupedAgendaItems: Map<Boolean, List<TaskyItem>> = remember(state.agendaList) {
         state.agendaList.groupBy { it.time <= Clock.System.now() }
     }
@@ -255,6 +280,201 @@ private fun AgendaScreenContent(
             )
         }
     }
+}
+// Device configurations Layout
+@Composable
+private fun MobilePortraitLayout(
+    modifier: Modifier = Modifier,
+    state: AgendaState,
+    onAction: (AgendaAction) -> Unit,
+    datePickerState: DatePickerState
+) {
+    val groupedAgendaItems: Map<Boolean, List<TaskyItem>> = remember(state.agendaList) {
+        state.agendaList.groupBy { it.time <= Clock.System.now() }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(
+                RoundedCornerShape(
+                    topStart = 24.dp,
+                    topEnd = 24.dp
+                )
+            )
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 16.dp),
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                ScrollableDateRow(
+                    entries = state.dateRowEntries,
+                    action = onAction,
+                    state = state
+                )
+            }
+            item {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp)
+                        .padding(horizontal = 16.dp),
+                    text = state.dateHeadline,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+            }
+
+            groupedAgendaItems.forEach { (isPast, agendaList) ->
+                stickyHeader {
+                    if (!isPast) {
+                        TimelineDivider(
+                            circleColor = MaterialTheme.colorScheme.primary,
+                            lineColor = MaterialTheme.colorScheme.primary,
+                            paddingStart = 16.dp,
+                            paddingEnd = 16.dp
+                        )
+                    }
+                }
+                items(
+                    items = agendaList,
+                    key = { taskyItem -> taskyItem.id },
+                    contentType = {it.type }
+                ) { taskyItem ->
+                    Row(modifier = Modifier.animateItem()) {
+                        AgendaItemCard(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
+                            taskyItem = taskyItem,
+                            action = onAction
+                        )
+                    }
+                }
+            }
+
+
+        }
+        if (state.isDatePickerDialogVisible){
+            AgendaDatePicker(
+                action = onAction,
+                datePickerState = datePickerState
+            )
+        }
+        if (state.isDeleteBottomSheetVisible) {
+            AgendaItemDeleteBottomSheet(
+                onDelete = {onAction(AgendaAction.OnDeleteClick)},
+                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                isDeleteButtonLoading = state.isDeleteButtonLoading
+            )
+        }
+    }
+
+}
+
+@Composable
+private fun TabletLandscapeLayout(
+    modifier: Modifier = Modifier,
+    state: AgendaState,
+    onAction: (AgendaAction) -> Unit,
+    datePickerState: DatePickerState
+) {
+    val groupedAgendaItems: Map<Boolean, List<TaskyItem>> = remember(state.agendaList) {
+        state.agendaList.groupBy { it.time <= Clock.System.now() }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(
+                RoundedCornerShape(
+                    topStart = 24.dp,
+                    topEnd = 24.dp
+                )
+            )
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 16.dp),
+
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                ScrollableDateRow(
+                    entries = state.dateRowEntries,
+                    action = onAction,
+                    state = state
+                )
+            }
+            item {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp)
+                        .padding(horizontal = 16.dp),
+                    text = state.dateHeadline,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+            }
+
+            groupedAgendaItems.forEach { (isPast, agendaList) ->
+                stickyHeader {
+                    if (!isPast) {
+                        TimelineDivider(
+                            circleColor = MaterialTheme.colorScheme.primary,
+                            lineColor = MaterialTheme.colorScheme.primary,
+                            paddingStart = 16.dp,
+                            paddingEnd = 16.dp
+                        )
+                    }
+                }
+                items(
+                    items = agendaList,
+                    key = { taskyItem -> taskyItem.id },
+                    contentType = {it.type }
+                ) { taskyItem ->
+                    Row(modifier = Modifier.animateItem()) {
+                        AgendaItemCard(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
+                            taskyItem = taskyItem,
+                            action = onAction
+                        )
+                    }
+                }
+            }
+
+
+        }
+        if (state.isDatePickerDialogVisible){
+            AgendaDatePicker(
+                action = onAction,
+                datePickerState = datePickerState
+            )
+        }
+        if (state.isDeleteBottomSheetVisible) {
+            AgendaItemDeleteBottomSheet(
+                onDelete = {onAction(AgendaAction.OnDeleteClick)},
+                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                isDeleteButtonLoading = state.isDeleteButtonLoading
+            )
+        }
+    }
+
 }
 
 @Composable

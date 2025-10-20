@@ -17,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import com.jvoye.tasky.navigation.NavigationRoot
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

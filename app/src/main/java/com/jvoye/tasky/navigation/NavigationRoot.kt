@@ -1,5 +1,7 @@
 package com.jvoye.tasky.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -34,6 +36,7 @@ import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import com.jvoye.tasky.core.presentation.designsystem.theme.success
 
 
 @Serializable
@@ -69,7 +72,8 @@ data class EditPhotoNavKey(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NavigationRoot(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .background(MaterialTheme.colorScheme.background),
     isLoggedIn: Boolean,
     pendingNavigation: PendingNavigation?,
     onNavigationHandled: () -> Unit
@@ -82,9 +86,10 @@ fun NavigationRoot(
     val windowAdaptiveInfo = currentWindowAdaptiveInfo()
     val directive = remember(windowAdaptiveInfo) {
         calculatePaneScaffoldDirective(windowAdaptiveInfo)
-            .copy(horizontalPartitionSpacerSize = 0.dp)
+            .copy(horizontalPartitionSpacerSize = 24.dp)
     }
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+    val twoPaneStrategy = rememberTwoPaneSceneStrategy<NavKey>()
 
 
     val editTextCallback = remember { mutableStateOf<((String) -> Unit)?>(null) }
@@ -106,10 +111,10 @@ fun NavigationRoot(
         backStack = backStack,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator(),
-            //rememberSceneSetupNavEntryDecorator()
+            rememberViewModelStoreNavEntryDecorator()
         ),
         sceneStrategy = listDetailStrategy,
+        //sceneStrategy = twoPaneStrategy,
         entryProvider = { key ->
             when(key) {
                 is RegisterNavKey -> {
@@ -140,6 +145,7 @@ fun NavigationRoot(
                 is AgendaNavKey -> {
                     NavEntry(
                         key= key,
+                        //metadata = TaskyTwoPaneScene.twoPane()
                         metadata = ListDetailSceneStrategy.listPane(
                             detailPlaceholder = {
                                 Text("Choose an item from the list")
@@ -193,6 +199,7 @@ fun NavigationRoot(
                     NavEntry(
                         key= key,
                         metadata = ListDetailSceneStrategy.detailPane()
+                        //metadata = TaskyTwoPaneScene.twoPane()
                     ) {
                         val detailVm: AgendaDetailScreenViewModel = koinViewModel {
                             parametersOf(key.isEditMode, key.taskyType, key.taskyItemId, key.editedText, key.editTextType)

@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import com.jvoye.tasky.core.presentation.designsystem.theme.Icon_More
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
 import com.jvoye.tasky.core.presentation.designsystem.theme.agendaItemFinished
 import com.jvoye.tasky.core.presentation.designsystem.theme.surfaceHigher
+import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
 import com.jvoye.tasky.core.presentation.designsystem.util.UiText
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -71,6 +73,9 @@ fun AgendaItemCard(
         TaskyType.EVENT -> MaterialTheme.colorScheme.background
         TaskyType.REMINDER -> MaterialTheme.colorScheme.primary
     }
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     Row(
         modifier = modifier

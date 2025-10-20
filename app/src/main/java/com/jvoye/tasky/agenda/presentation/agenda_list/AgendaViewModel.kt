@@ -10,7 +10,6 @@ import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
-import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.notification.NotificationService
 import com.jvoye.tasky.core.domain.util.Result
@@ -170,7 +169,7 @@ class AgendaViewModel(
                         eventChannel.send(AgendaEvent.Error(UiText.StringResource(R.string.item_not_found)))
                     }
                     _state.update { it.copy(
-                        isDeleteBottomSheetVisible = false
+                        isDeleteDialogVisible = false
                     )}
                 }
             }
@@ -184,16 +183,17 @@ class AgendaViewModel(
             }
             is AgendaAction.OnToggleDeleteBottomSheet -> {
                 _state.update { it.copy(
-                    isDeleteBottomSheetVisible = !it.isDeleteBottomSheetVisible,
+                    isDeleteDialogVisible = !it.isDeleteDialogVisible,
                     taskyItemToBeDeleted = null
                 ) }
             }
             is AgendaAction.OnDeleteMenuItemClick -> {
                 _state.update { it.copy(
-                    isDeleteBottomSheetVisible = true,
+                    isDeleteDialogVisible = true,
                     taskyItemToBeDeleted = action.taskyItem
                 ) }
             }
+
             else -> Unit
         }
     }

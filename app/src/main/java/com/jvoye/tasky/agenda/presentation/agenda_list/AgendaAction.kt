@@ -22,4 +22,5 @@ sealed interface AgendaAction {
     data object OnDeleteClick: AgendaAction
     data object OnToggleDeleteBottomSheet: AgendaAction
     data class OnDeleteMenuItemClick(val taskyItem: TaskyItem): AgendaAction
+    data object OnToggleDeleteDialog: AgendaAction
 }

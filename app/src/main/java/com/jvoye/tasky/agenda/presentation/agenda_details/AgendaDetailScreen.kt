@@ -53,7 +53,7 @@ import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.domain.TaskyType
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AddAttendeeBottomSheet
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaDetailDatePicker
-import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteBottomSheet
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteDialog
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailNotificationDropdown
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPhotoPicker
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailTimePicker
@@ -301,9 +301,9 @@ private fun AgendaDetailScreenContent(
         )
 
         if (state.isDeleteBottomSheetVisible) {
-            AgendaItemDeleteBottomSheet(
+            AgendaItemDeleteDialog(
                 onDelete = {onAction(AgendaDetailAction.OnDeleteClick)},
-                onToggleDeleteBottomSheet = {onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)},
+                onToggleDeleteDialog = {onAction(AgendaDetailAction.OnToggleDeleteBottomSheet)},
                 isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }

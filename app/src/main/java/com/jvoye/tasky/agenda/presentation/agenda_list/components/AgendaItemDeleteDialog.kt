@@ -1,0 +1,136 @@
+package com.jvoye.tasky.agenda.presentation.agenda_list.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.jvoye.tasky.R
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyDeleteButton
+import com.jvoye.tasky.core.presentation.designsystem.buttons.TaskyOutlinedButton
+import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AgendaItemDeleteDialog(
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+    onToggleDeleteDialog:() -> Unit,
+    isDeleteButtonLoading: Boolean,
+) {
+    val sheetState = rememberModalBottomSheetState()
+
+    Dialog(
+        onDismissRequest = { onToggleDeleteDialog() },
+        content = {
+            SheetContent(
+                modifier = modifier,
+                onToggleDeleteDialog = onToggleDeleteDialog,
+                onDelete = onDelete,
+                isDeleteButtonLoading = isDeleteButtonLoading
+            )
+        },
+        properties = DialogProperties()
+    )
+
+     
+
+    ModalBottomSheet(
+        onDismissRequest = { onToggleDeleteDialog() },
+        modifier = Modifier.fillMaxWidth(),
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        SheetContent(
+            onToggleDeleteDialog = onToggleDeleteDialog,
+            onDelete = onDelete,
+            isDeleteButtonLoading = isDeleteButtonLoading
+        )
+    }
+}
+
+@Composable
+private fun SheetContent(
+    modifier: Modifier = Modifier,
+    onToggleDeleteDialog: () -> Unit,
+    onDelete: () -> Unit,
+    isDeleteButtonLoading: Boolean,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+            .padding(horizontal = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.delete_question),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.this_action_cannot_be_reversed),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TaskyOutlinedButton(
+                onClick = { onToggleDeleteDialog() },
+                modifier = Modifier
+                    .weight(.5f),
+                text = stringResource(R.string.cancel).uppercase(),
+            )
+            TaskyDeleteButton(
+                onClick = { onDelete() },
+                text = stringResource(R.string.delete).uppercase(),
+                isLoading = isDeleteButtonLoading,
+                modifier = Modifier
+                    .weight(.5f)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun SheetContentPreview() {
+    TaskyTheme {
+        SheetContent(
+            modifier = Modifier,
+            onToggleDeleteDialog = {},
+            onDelete = {},
+            isDeleteButtonLoading = false
+        )
+    }
+}

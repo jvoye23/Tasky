@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteBottomSheet
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteDialog
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaDatePicker
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaFab
 import com.jvoye.tasky.agenda.presentation.agenda_list.components.AgendaItemCard
@@ -51,7 +51,6 @@ import com.jvoye.tasky.core.domain.model.TaskyItem
 import com.jvoye.tasky.core.presentation.designsystem.TimelineDivider
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyBackgroundColor
 import com.jvoye.tasky.core.presentation.designsystem.theme.TaskyTheme
-import com.jvoye.tasky.core.presentation.designsystem.theme.success
 import com.jvoye.tasky.core.presentation.designsystem.util.DeviceConfiguration
 import com.jvoye.tasky.core.presentation.ui.ObserveAsEvents
 import org.koin.compose.viewmodel.koinViewModel
@@ -272,10 +271,10 @@ private fun AgendaScreenContent(
                 datePickerState = datePickerState
             )
         }
-        if (state.isDeleteBottomSheetVisible) {
-            AgendaItemDeleteBottomSheet(
+        if (state.isDeleteDialogVisible) {
+            AgendaItemDeleteDialog(
                 onDelete = {onAction(AgendaAction.OnDeleteClick)},
-                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                onToggleDeleteDialog = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
                 isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }
@@ -368,10 +367,10 @@ private fun MobilePortraitLayout(
                 datePickerState = datePickerState
             )
         }
-        if (state.isDeleteBottomSheetVisible) {
-            AgendaItemDeleteBottomSheet(
+        if (state.isDeleteDialogVisible) {
+            AgendaItemDeleteDialog(
                 onDelete = {onAction(AgendaAction.OnDeleteClick)},
-                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                onToggleDeleteDialog = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
                 isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }
@@ -466,10 +465,10 @@ private fun TabletLandscapeLayout(
                 datePickerState = datePickerState
             )
         }
-        if (state.isDeleteBottomSheetVisible) {
-            AgendaItemDeleteBottomSheet(
+        if (state.isDeleteDialogVisible) {
+            AgendaItemDeleteDialog(
                 onDelete = {onAction(AgendaAction.OnDeleteClick)},
-                onToggleDeleteBottomSheet = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
+                onToggleDeleteDialog = {onAction(AgendaAction.OnToggleDeleteBottomSheet)},
                 isDeleteButtonLoading = state.isDeleteButtonLoading
             )
         }

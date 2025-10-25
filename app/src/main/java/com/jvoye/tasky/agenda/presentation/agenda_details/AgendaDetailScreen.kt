@@ -51,7 +51,7 @@ import com.jvoye.tasky.R
 import com.jvoye.tasky.agenda.domain.EditTextType
 import com.jvoye.tasky.agenda.domain.NotificationType
 import com.jvoye.tasky.agenda.domain.TaskyType
-import com.jvoye.tasky.agenda.presentation.agenda_details.components.AddAttendeeBottomSheet
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AddAttendeeDialog
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaDetailDatePicker
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDeleteDialog
 import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailNotificationDropdown
@@ -340,7 +340,7 @@ private fun AgendaDetailScreenContent(
         }
 
         if (state.isAddAttendeeBottomSheetVisible) {
-            AddAttendeeBottomSheet(
+            AddAttendeeDialog(
                 state = state,
                 onAction = onAction
             )

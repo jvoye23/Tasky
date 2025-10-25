@@ -10,6 +10,7 @@ import com.jvoye.tasky.agenda.domain.AgendaRepository
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.auth.domain.AuthRepository
 import com.jvoye.tasky.core.data.auth.EncryptedSessionDataStore
+import com.jvoye.tasky.core.domain.ConnectivityObserver
 import com.jvoye.tasky.core.domain.model.TaskyItemDetails
 import com.jvoye.tasky.core.domain.notification.NotificationService
 import com.jvoye.tasky.core.domain.util.Result
@@ -19,6 +20,8 @@ import com.jvoye.tasky.core.presentation.ui.asUiText
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -39,7 +42,8 @@ class AgendaViewModel(
     private val encryptedSessionDataStore: EncryptedSessionDataStore,
     private val authRepository: AuthRepository,
     private val agendaRepository: AgendaRepository,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
 
     private val eventChannel = Channel<AgendaEvent>()
@@ -59,6 +63,7 @@ class AgendaViewModel(
                 getTodaysAgendaItems()
                 agendaRepository.fetchFullAgenda()
                 toggleScreenLoading()
+                observerConnectivity()
                 hasLoadedInitialData = true
             }
         }
@@ -67,6 +72,26 @@ class AgendaViewModel(
             SharingStarted.WhileSubscribed(5_000L),
             _state.value
         )
+
+
+
+   /* private fun getOnlineStatus() {
+        val isConnected = connectivityObserver.isConnected
+        _state.update { it.copy(
+            isOnline = isConnected
+        ) }
+    }*/
+
+    private fun observerConnectivity() {
+        connectivityObserver.isConnected
+            .onEach { isConnected ->
+                _state.update { it.copy(
+                    isOnline = isConnected
+                ) }
+            }
+            .launchIn(viewModelScope)
+    }
+
     private fun toggleScreenLoading() {
         _state.update {
             it.copy(

@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -99,6 +101,9 @@ private fun RegisterScreen(
     onAction: (RegisterAction) -> Unit,
     onLogInClick: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -242,10 +247,55 @@ private fun RegisterScreen(
             }
             DeviceConfiguration.TABLET_LANDSCAPE,
             DeviceConfiguration.DESKTOP -> {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
+                        .padding(innerPadding)
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    item {
+                        RegistrationHeaderSection(
+                            modifier = Modifier
+                                .padding(bottom = 36.dp),
+                            headerText = stringResource(R.string.create_your_account)
+                        )
+                    }
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(
+                                    horizontal = 24.dp,
+                                    vertical = 32.dp
+                                )
+                                .consumeWindowInsets(WindowInsets.navigationBars)
+                        ) {
+                            RegistrationFormSection(
+                                state = state,
+                                onAction = onAction
+                            )
+
+                            Spacer(modifier = Modifier.height(32.dp))
+
+                            RegistrationButtonSection(
+                                onAction = onAction,
+                                onLogInClick = onLogInClick,
+                                isRegistering = state.isRegistering
+                            )
+                        }
+                    }
+
+                }
+
+                /*Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -278,7 +328,7 @@ private fun RegisterScreen(
                             isRegistering = state.isRegistering
                         )
                     }
-                }
+                }*/
             }
         }
     }

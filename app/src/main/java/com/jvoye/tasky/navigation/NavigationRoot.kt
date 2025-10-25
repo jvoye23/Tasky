@@ -36,6 +36,7 @@ import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import com.jvoye.tasky.agenda.presentation.agenda_details.components.AgendaItemDetailPlaceholder
 import com.jvoye.tasky.core.presentation.designsystem.theme.success
 
 
@@ -148,7 +149,7 @@ fun NavigationRoot(
                         //metadata = TaskyTwoPaneScene.twoPane()
                         metadata = ListDetailSceneStrategy.listPane(
                             detailPlaceholder = {
-                                Text("Choose an item from the list")
+                                AgendaItemDetailPlaceholder()
                             }
                         )
                     ) {

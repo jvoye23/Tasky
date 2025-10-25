@@ -31,7 +31,8 @@ val agendaDetailModule = module {
             imageManager = get(),
             attendeeManager = get(),
             userValidator = get(),
-            sessionStorage = get()
+            sessionStorage = get(),
+            connectivityObserver = get()
         )
     }
 

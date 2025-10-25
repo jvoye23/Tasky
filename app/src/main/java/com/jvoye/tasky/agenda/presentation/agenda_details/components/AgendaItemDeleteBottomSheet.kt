@@ -62,7 +62,7 @@ fun AgendaItemDeleteDialog(
 
         }
         DeviceConfiguration.MOBILE_LANDSCAPE -> {
-
+            /*TODO() Setup for landscape*/
         }
         DeviceConfiguration.TABLET_PORTRAIT,
         DeviceConfiguration.TABLET_LANDSCAPE,

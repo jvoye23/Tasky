@@ -5,6 +5,7 @@ package com.jvoye.tasky.agenda.presentation.agenda_list
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.jvoye.tasky.agenda.presentation.agenda_list.util.DateRowEntry
 import com.jvoye.tasky.core.domain.model.TaskyItem
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -29,6 +30,7 @@ data class AgendaState(
     val isDeleteDialogVisible: Boolean = false,
     val isDeleteButtonLoading: Boolean = false,
     val taskyItemToBeDeleted: TaskyItem? = null,
-    val isScreenLoading: Boolean = true
+    val isScreenLoading: Boolean = true,
+    val isOnline: Boolean = false
 
 )

@@ -7,7 +7,9 @@ import com.jvoye.tasky.agenda.domain.AttendeeManager
 import com.jvoye.tasky.agenda.presentation.agenda_list.AgendaViewModel
 import com.jvoye.tasky.auth.data.KtorAuthRepository
 import com.jvoye.tasky.auth.domain.AuthRepository
+import com.jvoye.tasky.core.data.AndroidConnectivityObserver
 import com.jvoye.tasky.core.data.notification.AgendaNotificationService
+import com.jvoye.tasky.core.domain.ConnectivityObserver
 import com.jvoye.tasky.core.domain.notification.NotificationService
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -21,6 +23,7 @@ val agendaModule = module {
     singleOf(::OfflineFirstAgendaRepository).bind<AgendaRepository>()
     singleOf(::KtorAttendeeManager).bind<AttendeeManager>()
     singleOf(::AgendaNotificationService).bind<NotificationService>()
+    singleOf(::AndroidConnectivityObserver).bind<ConnectivityObserver>()
 
     viewModelOf(::AgendaViewModel)
 }

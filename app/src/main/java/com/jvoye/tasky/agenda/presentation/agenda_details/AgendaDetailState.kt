@@ -58,7 +58,7 @@ data class AgendaDetailState @OptIn(ExperimentalTime::class) constructor(
     val isDeletingTaskyItem: Boolean = false,
     val remotePhotos: List<String> = emptyList<String>(),
     val remotePhotoInfos: List<RemotePhoto> = emptyList(),
-    val isOnline: Boolean = true,
+    val isOnline: Boolean = false,
 
     val host: String? = null,
     val isUserEventCreator: Boolean = true,

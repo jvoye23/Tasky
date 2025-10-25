@@ -18,6 +18,7 @@ import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.getNextHalfMar
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toEpochMilliseconds
 import com.jvoye.tasky.agenda.presentation.agenda_details.mappers.toLocalDateTime
 import com.jvoye.tasky.auth.domain.UserDataValidator
+import com.jvoye.tasky.core.domain.ConnectivityObserver
 import com.jvoye.tasky.core.domain.SessionStorage
 import com.jvoye.tasky.core.domain.model.LocalPhotoInfo
 import com.jvoye.tasky.core.domain.model.PhotoGridItem
@@ -59,7 +60,8 @@ class AgendaDetailScreenViewModel(
     private val imageManager: ImageManager,
     private val attendeeManager: AttendeeManager,
     private val userValidator: UserDataValidator,
-    private val sessionStorage: SessionStorage
+    private val sessionStorage: SessionStorage,
+    private val connectivityObserver: ConnectivityObserver
 ): ViewModel() {
     private val _state = MutableStateFlow(AgendaDetailState(
         titleText = savedStateHandle["titleText"],
@@ -93,6 +95,7 @@ class AgendaDetailScreenViewModel(
                 getSessionUserId()
                 getTypeAndEditMode(isEdit, taskyType)
                 validateAttendeeEmailInput()
+                observerConnectivity()
 
                 hasLoadedInitialData = true
             }
@@ -111,6 +114,15 @@ class AgendaDetailScreenViewModel(
             _state.value
         )
 
+    private fun observerConnectivity() {
+        connectivityObserver.isConnected
+            .onEach { isConnected ->
+                _state.update { it.copy(
+                    isOnline = isConnected
+                ) }
+            }
+            .launchIn(viewModelScope)
+    }
     private suspend fun getTaskyItemFromRepo(taskyType: TaskyType, taskyItemId: String?) {
         if (taskyItemId == null) return
 
